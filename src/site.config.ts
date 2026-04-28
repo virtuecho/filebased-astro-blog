@@ -111,6 +111,11 @@ export const siteConfig = {
           draft: 'Draft, do not publish'
         },
         unsupportedBrowser: 'This browser cannot write local folders. Use Chrome or Edge.',
+        reconnectRoot: 'Reconnect Project Folder',
+        restoringRoot: 'Restoring last project folder...',
+        rootRestored: 'Restored:',
+        rootReconnectHint: 'Last project folder remembered. Click Reconnect Project Folder to restore access.',
+        rootRestoreFailed: 'Could not restore the last project folder automatically.',
         rootSelected: 'Selected:',
         rootFailed: 'Selection failed:',
         opened: 'Opened:',
@@ -267,6 +272,11 @@ export const siteConfig = {
           draft: '草稿，不发布'
         },
         unsupportedBrowser: '当前浏览器不支持本地文件夹写入，请使用 Chrome 或 Edge。',
+        reconnectRoot: '重新连接项目文件夹',
+        restoringRoot: '正在恢复上次的项目文件夹...',
+        rootRestored: '已恢复：',
+        rootReconnectHint: '已记住上次的项目文件夹。点击“重新连接项目文件夹”即可恢复访问权限。',
+        rootRestoreFailed: '无法自动恢复上次的项目文件夹。',
         rootSelected: '已选择：',
         rootFailed: '选择失败：',
         opened: '已打开：',

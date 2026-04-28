@@ -93,10 +93,15 @@ const adminConfig = JSON.stringify({
       todayLocalDate
     } from '../content-workflow';
     import {
+      clearProjectRootHandle,
       ensureProjectHandles,
       getFile,
       listPostFiles,
+      loadProjectRootHandle,
+      queryHandlePermission,
       readFile,
+      requestHandlePermission,
+      saveProjectRootHandle,
       writeBrowserFile,
       writeFile
     } from '../admin/local-file-storage.js';
@@ -113,7 +118,8 @@ const adminConfig = JSON.stringify({
       imagesPostsDir: null,
       currentFile: null,
       currentAssetDir: null,
-      posts: []
+      posts: [],
+      needsRootReconnect: false
     };
 
     const $ = (id) => document.getElementById(id);
@@ -187,6 +193,66 @@ const adminConfig = JSON.stringify({
       $('updateSlug').disabled = !enabled || !state.currentFile;
       $('assetFiles').disabled = !enabled || !state.currentFile;
       $('uploadAssets').disabled = !enabled || !state.currentFile;
+    }
+
+    function resetCurrentPost() {
+      state.posts = [];
+      state.currentFile = null;
+      state.currentAssetDir = null;
+      fields.postId.value = '';
+      fields.slug.value = '';
+      fields.title.value = '';
+      fields.description.value = '';
+      fields.date.value = todayLocalDate();
+      fields.updated.value = '';
+      fields.category.value = defaults.category;
+      fields.tags.value = '';
+      fields.author.value = defaults.author;
+      fields.cover.value = '';
+      fields.assetDir.value = '';
+      fields.draft.checked = true;
+      fields.body.value = '';
+      $('postList').innerHTML = `<p class="meta">${adminCopy.listEmptyBeforeRoot}</p>`;
+      $('assetList').innerHTML = '';
+      updatePreview();
+      updateAssetHint();
+    }
+
+    function setRootStatus(message) {
+      $('rootStatus').textContent = message;
+    }
+
+    function setRootButtonLabel(needsReconnect) {
+      $('pickRoot').textContent = needsReconnect ? adminCopy.reconnectRoot : adminCopy.pickRoot;
+    }
+
+    async function connectRoot(root, statusPrefix, remember = true) {
+      const handles = await ensureProjectHandles(root);
+      state.root = root;
+      state.postsDir = handles.postsDir;
+      state.publicDir = handles.publicDir;
+      state.imagesPostsDir = handles.imagesPostsDir;
+      state.needsRootReconnect = false;
+      setRootButtonLabel(false);
+      resetCurrentPost();
+      if (remember) {
+        await saveProjectRootHandle(root);
+      }
+      setRootStatus(`${statusPrefix} ${root.name}`);
+      setEnabled(true);
+      await listPosts();
+    }
+
+    function setReconnectState(root) {
+      state.root = root;
+      state.postsDir = null;
+      state.publicDir = null;
+      state.imagesPostsDir = null;
+      state.needsRootReconnect = true;
+      setRootButtonLabel(true);
+      resetCurrentPost();
+      setEnabled(false);
+      setRootStatus(`${adminCopy.rootReconnectHint} (${root.name})`);
     }
 
     async function ensureCurrentAssetDir(postId) {
@@ -343,23 +409,53 @@ const adminConfig = JSON.stringify({
       setStatus(adminCopy.assetUploaded);
     }
 
-    $('pickRoot').addEventListener('click', async () => {
+    async function restoreSavedRoot() {
       if (!('showDirectoryPicker' in window)) {
-        $('rootStatus').textContent = adminCopy.unsupportedBrowser;
+        setRootStatus(adminCopy.unsupportedBrowser);
         return;
       }
 
       try {
-        state.root = await window.showDirectoryPicker({ mode: 'readwrite' });
-        const handles = await ensureProjectHandles(state.root);
-        state.postsDir = handles.postsDir;
-        state.publicDir = handles.publicDir;
-        state.imagesPostsDir = handles.imagesPostsDir;
-        $('rootStatus').textContent = `${adminCopy.rootSelected} ${state.root.name}`;
-        setEnabled(true);
-        await listPosts();
+        const rememberedRoot = await loadProjectRootHandle();
+        if (!rememberedRoot) return;
+
+        setRootStatus(adminCopy.restoringRoot);
+        const permission = await queryHandlePermission(rememberedRoot, 'readwrite');
+
+        if (permission === 'granted') {
+          await connectRoot(rememberedRoot, adminCopy.rootRestored, false);
+          return;
+        }
+
+        setReconnectState(rememberedRoot);
       } catch (error) {
-        $('rootStatus').textContent = `${adminCopy.rootFailed} ${error.message}`;
+        await clearProjectRootHandle();
+        state.needsRootReconnect = false;
+        setRootButtonLabel(false);
+        setRootStatus(`${adminCopy.rootRestoreFailed} ${error.message}`);
+      }
+    }
+
+    $('pickRoot').addEventListener('click', async () => {
+      if (!('showDirectoryPicker' in window)) {
+        setRootStatus(adminCopy.unsupportedBrowser);
+        return;
+      }
+
+      try {
+        if (state.needsRootReconnect && state.root) {
+          const granted = await requestHandlePermission(state.root, 'readwrite');
+          if (granted) {
+            await connectRoot(state.root, adminCopy.rootRestored);
+            return;
+          }
+        }
+
+        const root = await window.showDirectoryPicker({ mode: 'readwrite' });
+        await connectRoot(root, adminCopy.rootSelected);
+      } catch (error) {
+        if (error?.name === 'AbortError') return;
+        setRootStatus(`${adminCopy.rootFailed} ${error.message}`);
       }
     });
 
@@ -369,5 +465,7 @@ const adminConfig = JSON.stringify({
     $('updateSlug').addEventListener('click', updateSlugFromTitle);
     $('uploadAssets').addEventListener('click', uploadAssets);
     fields.body.addEventListener('input', updatePreview);
+    setRootButtonLabel(false);
+    restoreSavedRoot();
   </script>
 </BaseLayout>
