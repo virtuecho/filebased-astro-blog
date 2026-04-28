@@ -1,0 +1,55 @@
+---
+import '../styles.css';
+import Header from '../components/Header.astro';
+import Sidebar from '../components/Sidebar.astro';
+import Footer from '../components/Footer.astro';
+import { getPublishedPosts } from '../lib';
+import { activeLocale, copy, siteConfig } from '../site.config';
+
+interface Props {
+  title?: string;
+  description?: string;
+  showSidebar?: boolean;
+}
+
+const {
+  title = copy.site.title,
+  description = copy.site.description,
+  showSidebar = true
+} = Astro.props;
+
+const posts = await getPublishedPosts();
+const siteTitle = copy.site.title;
+const fullTitle = title === siteTitle ? siteTitle : `${title} - ${siteTitle}`;
+const theme = siteConfig.theme;
+const themeStyle = [
+  theme.bodyBackgroundImage ? `--body-bg-image: url("${theme.bodyBackgroundImage}")` : '',
+  theme.siteBackgroundImage ? `--site-bg-image: url("${theme.siteBackgroundImage}")` : '',
+  theme.headerBackgroundImage ? `--header-bg-image: url("${theme.headerBackgroundImage}")` : '',
+  theme.headerMinHeight ? `--header-min-height: ${theme.headerMinHeight}` : '',
+  theme.headerTextColor ? `--header-text-color: ${theme.headerTextColor}` : '',
+  theme.headerDescriptionColor ? `--header-description-color: ${theme.headerDescriptionColor}` : ''
+].filter(Boolean).join('; ');
+---
+<!doctype html>
+<html lang={activeLocale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{fullTitle}</title>
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="/rss.xml" />
+  </head>
+  <body style={themeStyle || undefined}>
+    <div class="site">
+      <Header />
+      <div class="layout">
+        <main class="content">
+          <slot />
+        </main>
+        {showSidebar && <Sidebar posts={posts} />}
+      </div>
+      <Footer />
+    </div>
+  </body>
+</html>

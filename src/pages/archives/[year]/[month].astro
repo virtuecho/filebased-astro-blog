@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PostCard from '../../../components/PostCard.astro';
+import { getPublishedPosts, groupByMonth } from '../../../lib';
+import type { CollectionEntry } from 'astro:content';
+import { copy } from '../../../site.config';
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+  const months = [...groupByMonth(posts).keys()];
+  return months.map((ym) => {
+    const [year, month] = ym.split('/');
+    return { params: { year, month }, props: { year, month } };
+  });
+}
+
+const { year, month } = Astro.props;
+const posts = (await getPublishedPosts()).filter((p: CollectionEntry<'posts'>) => {
+  return String(p.data.date.getFullYear()) === year && String(p.data.date.getMonth() + 1).padStart(2, '0') === month;
+});
+const title = `${copy.labels.archive}: ${year}/${month}`;
+---
+<BaseLayout title={title}>
+  <h1 class="page-title">{title}</h1>
+  {posts.map((post: CollectionEntry<'posts'>) => <PostCard post={post} />)}
+</BaseLayout>

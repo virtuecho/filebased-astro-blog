@@ -1,0 +1,19 @@
+---
+import { copy } from '../site.config';
+
+const title = copy.site.title;
+const description = copy.site.description;
+---
+<header class="header">
+  <h1 class="blog-title site-title"><a href="/">{title}</a></h1>
+  <h2 class="blog-description site-description">{description}</h2>
+</header>
+<nav class="nav" aria-label="Primary navigation">
+  <a href="/">{copy.nav.home}</a>
+  <a href="/archives/">{copy.nav.archives}</a>
+  <a href="/categories/">{copy.nav.categories}</a>
+  <a href="/tags/">{copy.nav.tags}</a>
+  <a href="/about/">{copy.nav.about}</a>
+  <a href="/admin/">{copy.nav.admin}</a>
+  <a href="/rss.xml">{copy.nav.rss}</a>
+</nav>

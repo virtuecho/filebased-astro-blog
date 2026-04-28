@@ -1,0 +1,28 @@
+{
+  "name": "astro-file-blog-template",
+  "version": "0.1.0",
+  "description": "An Astro static blog template with Markdown posts and a local browser admin.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "new-post": "tsx scripts/new-post.mjs",
+    "edit-post": "tsx scripts/edit-post.mjs",
+    "update-slug": "tsx scripts/update-slug.mjs",
+    "preview-post": "tsx scripts/preview-post.mjs",
+    "open-assets": "tsx scripts/open-assets.mjs",
+    "add-assets": "tsx scripts/add-assets.mjs",
+    "build": "astro check && astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/check": "latest",
+    "@astrojs/rss": "latest",
+    "astro": "latest",
+    "marked": "^18.0.2",
+    "typescript": "latest"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0"
+  }
+}

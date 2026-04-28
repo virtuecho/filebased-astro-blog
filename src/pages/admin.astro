@@ -1,0 +1,370 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { copy } from '../site.config';
+
+const admin = copy.admin;
+const adminConfig = JSON.stringify({
+  admin: copy.admin,
+  labels: copy.labels,
+  defaults: copy.contentDefaults
+});
+---
+<BaseLayout title={admin.pageTitle} showSidebar={false}>
+  <h1 class="page-title">{admin.pageTitle}</h1>
+  <div class="notice">{admin.intro}</div>
+
+  <div class="admin-shell">
+    <section class="admin-section">
+      <div class="admin-toolbar">
+        <button id="pickRoot" class="admin-button primary" type="button">{admin.pickRoot}</button>
+        <button id="refreshPosts" class="admin-button" type="button" disabled>{admin.refreshPosts}</button>
+        <span id="rootStatus" class="meta">{admin.rootInitial}</span>
+      </div>
+      <p class="meta">{admin.rootHelp}</p>
+    </section>
+
+    <section class="admin-section">
+      <div class="admin-toolbar">
+        <button id="newPost" class="admin-button primary" type="button" disabled>{admin.newPost}</button>
+        <button id="savePost" class="admin-button primary" type="button" disabled>{admin.savePost}</button>
+        <button id="updateSlug" class="admin-button" type="button" disabled>{admin.regenerateSlug}</button>
+        <span id="saveStatus" class="meta"></span>
+      </div>
+    </section>
+
+    <div class="admin-grid">
+      <section class="admin-section">
+        <h2 class="admin-title">{admin.listTitle}</h2>
+        <div id="postList" class="admin-list meta">{admin.listEmptyBeforeRoot}</div>
+      </section>
+
+      <section class="admin-section">
+        <h2 class="admin-title">{admin.fieldsTitle}</h2>
+        <div class="admin-form">
+          <label>postId <input id="postId" type="text" readonly /></label>
+          <label>slug <input id="slug" type="text" /></label>
+          <label>{admin.fieldLabels.title} <input id="title" type="text" /></label>
+          <label>{admin.fieldLabels.description} <input id="description" type="text" /></label>
+          <label>{admin.fieldLabels.date} <input id="date" type="date" /></label>
+          <label>{admin.fieldLabels.updated} <input id="updated" type="date" /></label>
+          <label>{admin.fieldLabels.category} <input id="category" type="text" /></label>
+          <label>{admin.fieldLabels.tags} <input id="tags" type="text" /></label>
+          <label>{admin.fieldLabels.author} <input id="author" type="text" /></label>
+          <label>{admin.fieldLabels.cover} <input id="cover" type="text" /></label>
+          <label>{admin.fieldLabels.assetDir} <input id="assetDir" type="text" readonly /></label>
+          <label class="admin-check"><input id="draft" type="checkbox" /> {admin.fieldLabels.draft}</label>
+        </div>
+      </section>
+    </div>
+
+    <section class="admin-section">
+      <h2 class="admin-title">{admin.bodyTitle}</h2>
+      <div class="editor-grid">
+        <textarea id="body" class="admin-editor" spellcheck="false" placeholder={admin.bodyPlaceholder}></textarea>
+        <div class="article-body preview-pane" id="preview"></div>
+      </div>
+    </section>
+
+    <section class="admin-section">
+      <h2 class="admin-title">{admin.assetsTitle}</h2>
+      <div class="admin-toolbar">
+        <input id="assetFiles" type="file" multiple disabled />
+        <button id="uploadAssets" class="admin-button" type="button" disabled>{admin.uploadAssets}</button>
+      </div>
+      <p id="assetHint" class="meta">{admin.assetHintBeforePost}</p>
+      <div id="assetList" class="asset-list"></div>
+    </section>
+  </div>
+
+  <div id="admin-config" data-config={adminConfig} hidden></div>
+
+  <script>
+    // @ts-nocheck
+    import { marked } from 'marked';
+    import {
+      assetDirForPostId,
+      assetReadmeContent,
+      buildMarkdown,
+      createPostId,
+      fallbackSlugFromPostId,
+      parseMarkdown,
+      postFileName,
+      slugFromTitle,
+      todayLocalDate
+    } from '../content-workflow';
+    import {
+      ensureProjectHandles,
+      getFile,
+      listPostFiles,
+      readFile,
+      writeBrowserFile,
+      writeFile
+    } from '../admin/local-file-storage.js';
+
+    const config = JSON.parse(document.getElementById('admin-config').dataset.config);
+    const adminCopy = config.admin;
+    const labelCopy = config.labels;
+    const defaults = config.defaults;
+
+    const state = {
+      root: null,
+      postsDir: null,
+      publicDir: null,
+      imagesPostsDir: null,
+      currentFile: null,
+      currentAssetDir: null,
+      posts: []
+    };
+
+    const $ = (id) => document.getElementById(id);
+    const fields = {
+      postId: $('postId'),
+      slug: $('slug'),
+      title: $('title'),
+      description: $('description'),
+      date: $('date'),
+      updated: $('updated'),
+      category: $('category'),
+      tags: $('tags'),
+      author: $('author'),
+      cover: $('cover'),
+      assetDir: $('assetDir'),
+      draft: $('draft'),
+      body: $('body')
+    };
+
+    function formData() {
+      return {
+        postId: fields.postId.value,
+        slug: fields.slug.value || fallbackSlugFromPostId(fields.postId.value),
+        title: fields.title.value || defaults.untitledDraft,
+        description: fields.description.value,
+        date: fields.date.value || todayLocalDate(),
+        updated: fields.updated.value,
+        category: fields.category.value || defaults.category,
+        tags: fields.tags.value.split(',').map((tag) => tag.trim()).filter(Boolean),
+        author: fields.author.value || defaults.author,
+        cover: fields.cover.value,
+        assetDir: fields.assetDir.value,
+        draft: fields.draft.checked
+      };
+    }
+
+    function buildCurrentMarkdown() {
+      return buildMarkdown(formData(), fields.body.value, defaults);
+    }
+
+    function fillForm(data, body) {
+      fields.postId.value = data.postId || '';
+      fields.slug.value = data.slug || '';
+      fields.title.value = data.title || '';
+      fields.description.value = data.description || '';
+      fields.date.value = data.date || todayLocalDate();
+      fields.updated.value = data.updated || '';
+      fields.category.value = data.category || defaults.category;
+      fields.tags.value = Array.isArray(data.tags) ? data.tags.join(', ') : '';
+      fields.author.value = data.author || defaults.author;
+      fields.cover.value = data.cover || '';
+      fields.assetDir.value = data.assetDir || (data.postId ? assetDirForPostId(data.postId) : '');
+      fields.draft.checked = data.draft !== false;
+      fields.body.value = body || '';
+      updatePreview();
+      updateAssetHint();
+    }
+
+    function updatePreview() {
+      $('preview').innerHTML = marked.parse(fields.body.value || '');
+    }
+
+    function setStatus(message) {
+      $('saveStatus').textContent = message;
+    }
+
+    function setEnabled(enabled) {
+      $('refreshPosts').disabled = !enabled;
+      $('newPost').disabled = !enabled;
+      $('savePost').disabled = !enabled || !state.currentFile;
+      $('updateSlug').disabled = !enabled || !state.currentFile;
+      $('assetFiles').disabled = !enabled || !state.currentFile;
+      $('uploadAssets').disabled = !enabled || !state.currentFile;
+    }
+
+    async function ensureCurrentAssetDir(postId) {
+      state.currentAssetDir = await state.imagesPostsDir.getDirectoryHandle(postId, { create: true });
+      return state.currentAssetDir;
+    }
+
+    async function listPosts() {
+      state.posts = await listPostFiles(state.postsDir, parseMarkdown);
+      renderPostList();
+    }
+
+    function renderPostList() {
+      const list = $('postList');
+      if (!state.posts.length) {
+        list.innerHTML = `<p class="meta">${adminCopy.listEmpty}</p>`;
+        return;
+      }
+
+      list.innerHTML = '';
+      for (const post of state.posts) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'post-row';
+        const title = post.data.title || defaults.unnamedPost;
+        const stateLabel = post.data.draft ? labelCopy.draft : labelCopy.live;
+        const titleNode = document.createElement('strong');
+        titleNode.textContent = title;
+        const fileNode = document.createElement('span');
+        fileNode.textContent = post.name;
+        const metaNode = document.createElement('span');
+        metaNode.textContent = `${stateLabel} | ${post.data.date || ''}`;
+        button.append(titleNode, fileNode, metaNode);
+        button.addEventListener('click', () => loadPost(post));
+        list.appendChild(button);
+      }
+    }
+
+    async function loadPost(post) {
+      const markdown = await readFile(post.handle);
+      const { data, body } = parseMarkdown(markdown);
+      const postId = data.postId || post.name.replace(/\.(md|mdx)$/i, '');
+      data.postId = postId;
+      data.assetDir ||= assetDirForPostId(postId);
+      state.currentFile = post.handle;
+      await ensureCurrentAssetDir(postId);
+      fillForm(data, body);
+      await renderAssets();
+      setEnabled(true);
+      setStatus(`${adminCopy.opened} ${post.name}`);
+    }
+
+    async function createPost() {
+      if (!state.postsDir || !state.imagesPostsDir) {
+        setStatus(adminCopy.chooseRootError);
+        return;
+      }
+
+      const postId = createPostId();
+      const assetDir = assetDirForPostId(postId);
+      const data = {
+        postId,
+        slug: fallbackSlugFromPostId(postId),
+        title: defaults.untitledDraft,
+        date: todayLocalDate(),
+        category: defaults.category,
+        tags: [],
+        author: defaults.author,
+        assetDir,
+        draft: true
+      };
+
+      state.currentFile = await getFile(state.postsDir, postFileName(postId), true);
+      await ensureCurrentAssetDir(postId);
+      fillForm(data, defaults.body);
+      await writeFile(state.currentFile, buildCurrentMarkdown());
+
+      await writeBrowserFile(
+        state.currentAssetDir,
+        'README.txt',
+        assetReadmeContent(postId, `src/content/posts/${postFileName(postId)}`, assetDir)
+      );
+
+      await listPosts();
+      await renderAssets();
+      setEnabled(true);
+      setStatus(adminCopy.created);
+    }
+
+    async function savePost() {
+      if (!state.currentFile) return;
+      await writeFile(state.currentFile, buildCurrentMarkdown());
+      await listPosts();
+      setStatus(adminCopy.saved);
+    }
+
+    function updateSlugFromTitle() {
+      fields.slug.value = slugFromTitle(fields.title.value, fields.postId.value);
+      setStatus(adminCopy.slugUpdated);
+    }
+
+    function updateAssetHint() {
+      $('assetHint').textContent = fields.assetDir.value
+        ? `${adminCopy.assetHint} public${fields.assetDir.value}`
+        : adminCopy.assetHintBeforePost;
+    }
+
+    async function renderAssets() {
+      const list = $('assetList');
+      list.innerHTML = '';
+      if (!state.currentAssetDir) return;
+
+      for await (const [name, handle] of state.currentAssetDir.entries()) {
+        if (handle.kind !== 'file') continue;
+        const item = document.createElement('div');
+        item.className = 'asset-item';
+        const assetPath = `${fields.assetDir.value}${encodeURIComponent(name)}`;
+        const nameNode = document.createElement('span');
+        nameNode.textContent = name;
+        const insert = document.createElement('button');
+        insert.type = 'button';
+        insert.className = 'admin-button';
+        insert.textContent = adminCopy.insertAsset;
+        insert.addEventListener('click', () => insertAtCursor(`![${name}](${assetPath})`));
+        item.append(nameNode, insert);
+        list.appendChild(item);
+      }
+    }
+
+    function insertAtCursor(text) {
+      const textarea = fields.body;
+      const start = textarea.selectionStart ?? textarea.value.length;
+      const end = textarea.selectionEnd ?? textarea.value.length;
+      textarea.value = `${textarea.value.slice(0, start)}${text}${textarea.value.slice(end)}`;
+      textarea.focus();
+      textarea.selectionStart = textarea.selectionEnd = start + text.length;
+      updatePreview();
+    }
+
+    async function uploadAssets() {
+      if (!state.currentAssetDir) return;
+      const input = $('assetFiles');
+      for (const file of input.files || []) {
+        const handle = await getFile(state.currentAssetDir, file.name, true);
+        const writable = await handle.createWritable();
+        await writable.write(file);
+        await writable.close();
+      }
+      input.value = '';
+      await renderAssets();
+      setStatus(adminCopy.assetUploaded);
+    }
+
+    $('pickRoot').addEventListener('click', async () => {
+      if (!('showDirectoryPicker' in window)) {
+        $('rootStatus').textContent = adminCopy.unsupportedBrowser;
+        return;
+      }
+
+      try {
+        state.root = await window.showDirectoryPicker({ mode: 'readwrite' });
+        const handles = await ensureProjectHandles(state.root);
+        state.postsDir = handles.postsDir;
+        state.publicDir = handles.publicDir;
+        state.imagesPostsDir = handles.imagesPostsDir;
+        $('rootStatus').textContent = `${adminCopy.rootSelected} ${state.root.name}`;
+        setEnabled(true);
+        await listPosts();
+      } catch (error) {
+        $('rootStatus').textContent = `${adminCopy.rootFailed} ${error.message}`;
+      }
+    });
+
+    $('refreshPosts').addEventListener('click', listPosts);
+    $('newPost').addEventListener('click', createPost);
+    $('savePost').addEventListener('click', savePost);
+    $('updateSlug').addEventListener('click', updateSlugFromTitle);
+    $('uploadAssets').addEventListener('click', uploadAssets);
+    fields.body.addEventListener('input', updatePreview);
+  </script>
+</BaseLayout>

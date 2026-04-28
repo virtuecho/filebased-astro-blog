@@ -1,0 +1,30 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from './BaseLayout.astro';
+import { render } from 'astro:content';
+import { formatDate } from '../lib';
+import { copy } from '../site.config';
+
+interface Props {
+  post: CollectionEntry<'posts'>;
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+<BaseLayout title={post.data.title} description={post.data.description}>
+  <article>
+    <h1 class="article-title">{post.data.title}</h1>
+    <div class="article-meta meta">
+      {copy.labels.published}: {formatDate(post.data.date)} | {copy.labels.category}: <a href={`/category/${encodeURIComponent(post.data.category)}/`}>{post.data.category}</a>
+      {post.data.updated && <> | {copy.labels.updated}: {formatDate(post.data.updated)}</>}
+    </div>
+    {post.data.cover && <img src={post.data.cover} alt={post.data.title} loading="eager" style="margin-bottom: 18px; border: 1px solid var(--line);" />}
+    <div class="tag-list">
+      {post.data.tags.map((tag: string) => <a class="tag" href={`/tag/${encodeURIComponent(tag)}/`}>#{tag}</a>)}
+    </div>
+    <div class="article-body">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>

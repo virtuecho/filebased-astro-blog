@@ -1,0 +1,12 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { copy } from '../site.config';
+---
+<BaseLayout title={copy.about.title}>
+  <h1 class="page-title">{copy.about.title}</h1>
+  {copy.about.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+  <h2>{copy.about.principlesTitle}</h2>
+  <ul>
+    {copy.about.principles.map((principle) => <li>{principle}</li>)}
+  </ul>
+</BaseLayout>

@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { countItems, getPublishedPosts } from '../lib';
+import { copy } from '../site.config';
+const posts = await getPublishedPosts();
+const categories = countItems(posts.map((p) => p.data.category));
+---
+<BaseLayout title={copy.pages.categoriesTitle}>
+  <h1 class="page-title">{copy.pages.categoriesTitle}</h1>
+  <ul class="simple-list">
+    {categories.map(([name, count]) => <li><a href={`/category/${encodeURIComponent(name)}/`}>{name}</a> ({count})</li>)}
+  </ul>
+</BaseLayout>
