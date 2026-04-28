@@ -77,6 +77,63 @@ http://localhost:4321/admin/
 
 Use Chrome or Edge for `/admin/`, because it uses the browser File System Access API.
 
+## Prompt Copy Configuration
+
+Prompt and helper copy is configured in [`src/site.config.ts`](./src/site.config.ts).
+
+This file contains both locales:
+
+```ts
+copy.en
+copy['zh-CN']
+```
+
+The homepage notice is configured by:
+
+```ts
+copy.en.home.notice
+copy['zh-CN'].home.notice
+```
+
+Set a field to an empty string to hide that block in the rendered page:
+
+```ts
+notice: ''
+```
+
+The following copy fields can also be hidden the same way:
+
+```text
+copy.en.site.description
+copy['zh-CN'].site.description
+
+copy.en.site.footer
+copy['zh-CN'].site.footer
+
+copy.en.sidebar.aboutTitle
+copy['zh-CN'].sidebar.aboutTitle
+
+copy.en.sidebar.aboutText
+copy['zh-CN'].sidebar.aboutText
+
+copy.en.home.notice
+copy['zh-CN'].home.notice
+
+copy.en.admin.intro
+copy['zh-CN'].admin.intro
+
+copy.en.admin.rootHelp
+copy['zh-CN'].admin.rootHelp
+
+copy.en.admin.assetHintBeforePost
+copy['zh-CN'].admin.assetHintBeforePost
+```
+
+Notes:
+
+1. English and Chinese are configured separately. Clear both locale values if both versions should be hidden.
+2. Buttons, navigation labels, field labels, and status messages are also defined in `src/site.config.ts`, but they are part of the working UI and are not intended to be hidden.
+
 To preview the production build:
 
 ```bash

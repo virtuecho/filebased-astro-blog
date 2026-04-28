@@ -7,7 +7,7 @@ const posts = await getPublishedPosts();
 ---
 <BaseLayout title={copy.site.title}>
   <h1 class="page-title">{copy.home.title}</h1>
-  <div class="notice">{copy.home.notice}</div>
+  {copy.home.notice && <div class="notice">{copy.home.notice}</div>}
   <div style="margin-top: 18px;">
     {posts.length > 0 ? posts.map((post) => <PostCard post={post} />) : <p class="meta">{copy.home.empty}</p>}
   </div>

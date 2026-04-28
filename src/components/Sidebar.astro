@@ -11,19 +11,23 @@ interface Props {
 }
 
 const { posts } = Astro.props;
+const sidebar = copy.sidebar as Record<string, string>;
 const categories = countItems(posts.map((p: Posts[number]) => p.data.category));
 const tags = countItems(posts.flatMap((p: Posts[number]) => p.data.tags)).slice(0, 20);
 const months = [...groupByMonth(posts).entries()].slice(0, 12);
 const recent = posts.slice(0, 8);
+const showAbout = sidebar.aboutTitle || sidebar.aboutText;
 ---
 <aside class="sidebar">
-  <section class="sidebar-section">
-    <h2 class="sidebar-title">{copy.sidebar.aboutTitle}</h2>
-    <p>{copy.sidebar.aboutText}</p>
-  </section>
+  {showAbout && (
+    <section class="sidebar-section">
+      {sidebar.aboutTitle && <h2 class="sidebar-title">{sidebar.aboutTitle}</h2>}
+      {sidebar.aboutText && <p>{sidebar.aboutText}</p>}
+    </section>
+  )}
 
   <section class="sidebar-section">
-    <h2 class="sidebar-title">{copy.sidebar.recentPosts}</h2>
+    <h2 class="sidebar-title">{sidebar.recentPosts}</h2>
     <ul>
       {recent.map((post: Posts[number]) => (
         <li><a href={postUrl(post.data, post.id)}>{post.data.title}</a><br /><span class="meta">{formatDate(post.data.date)}</span></li>
@@ -32,7 +36,7 @@ const recent = posts.slice(0, 8);
   </section>
 
   <section class="sidebar-section">
-    <h2 class="sidebar-title">{copy.sidebar.categories}</h2>
+    <h2 class="sidebar-title">{sidebar.categories}</h2>
     <ul>
       {categories.map(([name, count]) => (
         <li><a href={`/category/${encodeURIComponent(name)}/`}>{name}</a> ({count})</li>
@@ -41,7 +45,7 @@ const recent = posts.slice(0, 8);
   </section>
 
   <section class="sidebar-section">
-    <h2 class="sidebar-title">{copy.sidebar.tags}</h2>
+    <h2 class="sidebar-title">{sidebar.tags}</h2>
     <div class="tag-list">
       {tags.map(([name, count]) => (
         <a class="tag" href={`/tag/${encodeURIComponent(name)}/`}>{name} {count}</a>
@@ -50,7 +54,7 @@ const recent = posts.slice(0, 8);
   </section>
 
   <section class="sidebar-section">
-    <h2 class="sidebar-title">{copy.sidebar.archives}</h2>
+    <h2 class="sidebar-title">{sidebar.archives}</h2>
     <ul>
       {months.map(([month, list]) => {
         const [year, mm] = month.split('/');

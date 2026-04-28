@@ -1,6 +1,10 @@
 ---
 import { copy } from '../site.config';
+
+const footerText = copy.site.footer ? `© ${new Date().getFullYear()} ${copy.site.title}. ${copy.site.footer}` : '';
 ---
-<footer class="footer">
-  <div>© {new Date().getFullYear()} {copy.site.title}. {copy.site.footer}</div>
-</footer>
+{footerText && (
+  <footer class="footer">
+    <div>{footerText}</div>
+  </footer>
+)}

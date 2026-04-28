@@ -11,7 +11,7 @@ const adminConfig = JSON.stringify({
 ---
 <BaseLayout title={admin.pageTitle} showSidebar={false}>
   <h1 class="page-title">{admin.pageTitle}</h1>
-  <div class="notice">{admin.intro}</div>
+  {admin.intro && <div class="notice">{admin.intro}</div>}
 
   <div class="admin-shell">
     <section class="admin-section">
@@ -20,7 +20,7 @@ const adminConfig = JSON.stringify({
         <button id="refreshPosts" class="admin-button" type="button" disabled>{admin.refreshPosts}</button>
         <span id="rootStatus" class="meta">{admin.rootInitial}</span>
       </div>
-      <p class="meta">{admin.rootHelp}</p>
+      {admin.rootHelp && <p class="meta">{admin.rootHelp}</p>}
     </section>
 
     <section class="admin-section">
@@ -71,7 +71,7 @@ const adminConfig = JSON.stringify({
         <input id="assetFiles" type="file" multiple disabled />
         <button id="uploadAssets" class="admin-button" type="button" disabled>{admin.uploadAssets}</button>
       </div>
-      <p id="assetHint" class="meta">{admin.assetHintBeforePost}</p>
+      <p id="assetHint" class="meta" hidden={!admin.assetHintBeforePost}>{admin.assetHintBeforePost}</p>
       <div id="assetList" class="asset-list"></div>
     </section>
   </div>
@@ -289,9 +289,12 @@ const adminConfig = JSON.stringify({
     }
 
     function updateAssetHint() {
-      $('assetHint').textContent = fields.assetDir.value
+      const assetHint = $('assetHint');
+      const nextText = fields.assetDir.value
         ? `${adminCopy.assetHint} public${fields.assetDir.value}`
         : adminCopy.assetHintBeforePost;
+      assetHint.textContent = nextText;
+      assetHint.hidden = !nextText;
     }
 
     async function renderAssets() {

@@ -77,6 +77,63 @@ http://localhost:4321/admin/
 
 `/admin/` 依赖浏览器 File System Access API，建议使用 Chrome 或 Edge。
 
+## 提示文案配置
+
+提示文案和说明文字统一配置在 [`src/site.config.ts`](./src/site.config.ts) 中。
+
+这个文件同时包含中英文两套文案：
+
+```ts
+copy.en
+copy['zh-CN']
+```
+
+首页提示文案的配置项是：
+
+```ts
+copy.en.home.notice
+copy['zh-CN'].home.notice
+```
+
+将字段值设置为空字符串即可隐藏对应提示块：
+
+```ts
+notice: ''
+```
+
+以下字段也支持用同样方式隐藏：
+
+```text
+copy.en.site.description
+copy['zh-CN'].site.description
+
+copy.en.site.footer
+copy['zh-CN'].site.footer
+
+copy.en.sidebar.aboutTitle
+copy['zh-CN'].sidebar.aboutTitle
+
+copy.en.sidebar.aboutText
+copy['zh-CN'].sidebar.aboutText
+
+copy.en.home.notice
+copy['zh-CN'].home.notice
+
+copy.en.admin.intro
+copy['zh-CN'].admin.intro
+
+copy.en.admin.rootHelp
+copy['zh-CN'].admin.rootHelp
+
+copy.en.admin.assetHintBeforePost
+copy['zh-CN'].admin.assetHintBeforePost
+```
+
+说明：
+
+1. 中文和英文分别配置；如果两种语言都需要隐藏，需要同时清空两边的字段。
+2. 按钮文字、导航名称、表单字段名、状态提示也定义在 `src/site.config.ts` 中，但这些文案属于界面的一部分，不建议隐藏。
+
 预览正式构建结果：
 
 ```bash
