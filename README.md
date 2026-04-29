@@ -77,63 +77,6 @@ http://localhost:4321/admin/
 
 Use Chrome or Edge for `/admin/`, because it uses the browser File System Access API.
 
-## Prompt Copy Configuration
-
-Prompt and helper copy is configured in [`src/site.config.ts`](./src/site.config.ts).
-
-This file contains both locales:
-
-```ts
-copy.en
-copy['zh-CN']
-```
-
-The homepage notice is configured by:
-
-```ts
-copy.en.home.notice
-copy['zh-CN'].home.notice
-```
-
-Set a field to an empty string to hide that block in the rendered page:
-
-```ts
-notice: ''
-```
-
-The following copy fields can also be hidden the same way:
-
-```text
-copy.en.site.description
-copy['zh-CN'].site.description
-
-copy.en.site.footer
-copy['zh-CN'].site.footer
-
-copy.en.sidebar.aboutTitle
-copy['zh-CN'].sidebar.aboutTitle
-
-copy.en.sidebar.aboutText
-copy['zh-CN'].sidebar.aboutText
-
-copy.en.home.notice
-copy['zh-CN'].home.notice
-
-copy.en.admin.intro
-copy['zh-CN'].admin.intro
-
-copy.en.admin.rootHelp
-copy['zh-CN'].admin.rootHelp
-
-copy.en.admin.assetHintBeforePost
-copy['zh-CN'].admin.assetHintBeforePost
-```
-
-Notes:
-
-1. English and Chinese are configured separately. Clear both locale values if both versions should be hidden.
-2. Buttons, navigation labels, field labels, and status messages are also defined in `src/site.config.ts`, but they are part of the working UI and are not intended to be hidden.
-
 To preview the production build:
 
 ```bash
@@ -142,6 +85,87 @@ npm run preview
 ```
 
 `npm run dev` is for editing. `npm run build` checks and generates `dist/`. `npm run preview` serves the generated `dist/` output.
+
+## Site Copy, Language, And Theme
+
+Site copy is in:
+
+```text
+src/site.config.ts
+```
+
+Default language:
+
+```ts
+defaultLocale: 'en'
+```
+
+Chinese copy is under:
+
+```ts
+'zh-CN'
+```
+
+To switch the visible site/admin/CLI copy to Chinese:
+
+```ts
+defaultLocale: 'zh-CN'
+```
+
+This is copy-level language support. It is not full multilingual post routing yet.
+
+The blog header uses classic blog semantics:
+
+```html
+<h1 class="blog-title">...</h1>
+<h2 class="blog-description">...</h2>
+```
+
+Title and description come from:
+
+```ts
+site: {
+  title: 'File-Based Astro Blog',
+  description: 'A quiet static blog template powered by Markdown files.'
+}
+```
+
+Background and header images are configured in:
+
+```ts
+theme: {
+  bodyBackgroundImage: '/images/site/body.jpg',
+  siteBackgroundImage: '',
+  headerBackgroundImage: '/images/site/header.jpg',
+  headerMinHeight: '160px',
+  headerTextColor: '#111111',
+  headerDescriptionColor: '#555555'
+}
+```
+
+Empty strings mean no image is used.
+
+CSS lives in:
+
+```text
+src/styles.css
+```
+
+Useful selectors:
+
+```css
+body
+.site
+.header
+.blog-title
+.blog-description
+```
+
+Post cover images are configured per post:
+
+```md
+cover: "/images/posts/{postId}/cover.jpg"
+```
 
 ## First Post In /admin/
 
@@ -493,86 +517,62 @@ public/images/posts/{postId}/2026-04-28/photo.jpg
 
 That file is still connected to the post through `postId`.
 
-## Site Copy, Language, And Theme
+## Prompt Copy Configuration
 
-Site copy is in:
+Prompt and helper copy is configured in [`src/site.config.ts`](./src/site.config.ts).
+
+This file contains both locales:
+
+```ts
+copy.en
+copy['zh-CN']
+```
+
+The homepage notice is configured by:
+
+```ts
+copy.en.home.notice
+copy['zh-CN'].home.notice
+```
+
+Set a field to an empty string to hide that block in the rendered page:
+
+```ts
+notice: ''
+```
+
+The following copy fields can also be hidden the same way:
 
 ```text
-src/site.config.ts
+copy.en.site.description
+copy['zh-CN'].site.description
+
+copy.en.site.footer
+copy['zh-CN'].site.footer
+
+copy.en.sidebar.aboutTitle
+copy['zh-CN'].sidebar.aboutTitle
+
+copy.en.sidebar.aboutText
+copy['zh-CN'].sidebar.aboutText
+
+copy.en.home.notice
+copy['zh-CN'].home.notice
+
+copy.en.admin.intro
+copy['zh-CN'].admin.intro
+
+copy.en.admin.rootHelp
+copy['zh-CN'].admin.rootHelp
+
+copy.en.admin.assetHintBeforePost
+copy['zh-CN'].admin.assetHintBeforePost
 ```
 
-Default language:
+Notes:
 
-```ts
-defaultLocale: 'en'
-```
-
-Chinese copy is under:
-
-```ts
-'zh-CN'
-```
-
-To switch the visible site/admin/CLI copy to Chinese:
-
-```ts
-defaultLocale: 'zh-CN'
-```
-
-This is copy-level language support. It is not full multilingual post routing yet.
-
-The blog header uses classic blog semantics:
-
-```html
-<h1 class="blog-title">...</h1>
-<h2 class="blog-description">...</h2>
-```
-
-Title and description come from:
-
-```ts
-site: {
-  title: 'File-Based Astro Blog',
-  description: 'A quiet static blog template powered by Markdown files.'
-}
-```
-
-Background and header images are configured in:
-
-```ts
-theme: {
-  bodyBackgroundImage: '/images/site/body.jpg',
-  siteBackgroundImage: '',
-  headerBackgroundImage: '/images/site/header.jpg',
-  headerMinHeight: '160px',
-  headerTextColor: '#111111',
-  headerDescriptionColor: '#555555'
-}
-```
-
-Empty strings mean no image is used.
-
-CSS lives in:
-
-```text
-src/styles.css
-```
-
-Useful selectors:
-
-```css
-body
-.site
-.header
-.blog-title
-.blog-description
-```
-
-Post cover images are configured per post:
-
-```md
-cover: "/images/posts/{postId}/cover.jpg"
-```
+1. English and Chinese are configured separately. Clear both locale values if both versions should be hidden.
+2. Buttons, navigation labels, field labels, and status messages are also defined in `src/site.config.ts`, but they are part of the working UI and are not intended to be hidden.
 
 ## CLI Commands
 

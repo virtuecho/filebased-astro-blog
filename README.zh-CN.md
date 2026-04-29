@@ -77,63 +77,6 @@ http://localhost:4321/admin/
 
 `/admin/` 依赖浏览器 File System Access API，建议使用 Chrome 或 Edge。
 
-## 提示文案配置
-
-提示文案和说明文字统一配置在 [`src/site.config.ts`](./src/site.config.ts) 中。
-
-这个文件同时包含中英文两套文案：
-
-```ts
-copy.en
-copy['zh-CN']
-```
-
-首页提示文案的配置项是：
-
-```ts
-copy.en.home.notice
-copy['zh-CN'].home.notice
-```
-
-将字段值设置为空字符串即可隐藏对应提示块：
-
-```ts
-notice: ''
-```
-
-以下字段也支持用同样方式隐藏：
-
-```text
-copy.en.site.description
-copy['zh-CN'].site.description
-
-copy.en.site.footer
-copy['zh-CN'].site.footer
-
-copy.en.sidebar.aboutTitle
-copy['zh-CN'].sidebar.aboutTitle
-
-copy.en.sidebar.aboutText
-copy['zh-CN'].sidebar.aboutText
-
-copy.en.home.notice
-copy['zh-CN'].home.notice
-
-copy.en.admin.intro
-copy['zh-CN'].admin.intro
-
-copy.en.admin.rootHelp
-copy['zh-CN'].admin.rootHelp
-
-copy.en.admin.assetHintBeforePost
-copy['zh-CN'].admin.assetHintBeforePost
-```
-
-说明：
-
-1. 中文和英文分别配置；如果两种语言都需要隐藏，需要同时清空两边的字段。
-2. 按钮文字、导航名称、表单字段名、状态提示也定义在 `src/site.config.ts` 中，但这些文案属于界面的一部分，不建议隐藏。
-
 预览正式构建结果：
 
 ```bash
@@ -142,6 +85,87 @@ npm run preview
 ```
 
 `npm run dev` 用于日常编辑。`npm run build` 用于检查并生成 `dist/`。`npm run preview` 用于预览已经生成的 `dist/`。
+
+## 站点文案、语言和主题
+
+站点文案在：
+
+```text
+src/site.config.ts
+```
+
+默认语言：
+
+```ts
+defaultLocale: 'en'
+```
+
+中文文案在：
+
+```ts
+'zh-CN'
+```
+
+如果要让站点/admin/CLI 显示中文：
+
+```ts
+defaultLocale: 'zh-CN'
+```
+
+这只是文案层面的多语言，还不是完整的多语言文章路由。
+
+博客头部使用经典博客语义：
+
+```html
+<h1 class="blog-title">...</h1>
+<h2 class="blog-description">...</h2>
+```
+
+标题和简介来自：
+
+```ts
+site: {
+  title: 'File-Based Astro Blog',
+  description: 'A quiet static blog template powered by Markdown files.'
+}
+```
+
+背景图和头图设置：
+
+```ts
+theme: {
+  bodyBackgroundImage: '/images/site/body.jpg',
+  siteBackgroundImage: '',
+  headerBackgroundImage: '/images/site/header.jpg',
+  headerMinHeight: '160px',
+  headerTextColor: '#111111',
+  headerDescriptionColor: '#555555'
+}
+```
+
+空字符串表示不使用图片。
+
+CSS 在：
+
+```text
+src/styles.css
+```
+
+常用选择器：
+
+```css
+body
+.site
+.header
+.blog-title
+.blog-description
+```
+
+文章封面图在每篇文章里设置：
+
+```md
+cover: "/images/posts/{postId}/cover.jpg"
+```
 
 ## 在 /admin/ 创建第一篇文章
 
@@ -189,7 +213,7 @@ admin 编辑的是普通 Markdown 文件。内容没有藏在数据库里。
 
 附件属于某一篇文章，所以必须先有文章，才能上传附件。
 
-这就是为什么你还没有新建或选中文章时，上传控件是禁用的。正常情况下不会出现“没有 UUID 但要上传附件”的状态。
+这就是为什么你还没有新建或选中文章时，上传控件是禁用的。正常情况下不会出现"没有 UUID 但要上传附件"的状态。
 
 选中文章后：
 
@@ -493,86 +517,62 @@ public/images/posts/{postId}/2026-04-28/photo.jpg
 
 这个文件仍然通过 `postId` 和文章关联。
 
-## 站点文案、语言和主题
+## 提示文案配置
 
-站点文案在：
+提示文案和说明文字统一配置在 [`src/site.config.ts`](./src/site.config.ts) 中。
+
+这个文件同时包含中英文两套文案：
+
+```ts
+copy.en
+copy['zh-CN']
+```
+
+首页提示文案的配置项是：
+
+```ts
+copy.en.home.notice
+copy['zh-CN'].home.notice
+```
+
+将字段值设置为空字符串即可隐藏对应提示块：
+
+```ts
+notice: ''
+```
+
+以下字段也支持用同样方式隐藏：
 
 ```text
-src/site.config.ts
+copy.en.site.description
+copy['zh-CN'].site.description
+
+copy.en.site.footer
+copy['zh-CN'].site.footer
+
+copy.en.sidebar.aboutTitle
+copy['zh-CN'].sidebar.aboutTitle
+
+copy.en.sidebar.aboutText
+copy['zh-CN'].sidebar.aboutText
+
+copy.en.home.notice
+copy['zh-CN'].home.notice
+
+copy.en.admin.intro
+copy['zh-CN'].admin.intro
+
+copy.en.admin.rootHelp
+copy['zh-CN'].admin.rootHelp
+
+copy.en.admin.assetHintBeforePost
+copy['zh-CN'].admin.assetHintBeforePost
 ```
 
-默认语言：
+说明：
 
-```ts
-defaultLocale: 'en'
-```
-
-中文文案在：
-
-```ts
-'zh-CN'
-```
-
-如果要让站点/admin/CLI 显示中文：
-
-```ts
-defaultLocale: 'zh-CN'
-```
-
-这只是文案层面的多语言，还不是完整的多语言文章路由。
-
-博客头部使用经典博客语义：
-
-```html
-<h1 class="blog-title">...</h1>
-<h2 class="blog-description">...</h2>
-```
-
-标题和简介来自：
-
-```ts
-site: {
-  title: 'File-Based Astro Blog',
-  description: 'A quiet static blog template powered by Markdown files.'
-}
-```
-
-背景图和头图设置：
-
-```ts
-theme: {
-  bodyBackgroundImage: '/images/site/body.jpg',
-  siteBackgroundImage: '',
-  headerBackgroundImage: '/images/site/header.jpg',
-  headerMinHeight: '160px',
-  headerTextColor: '#111111',
-  headerDescriptionColor: '#555555'
-}
-```
-
-空字符串表示不使用图片。
-
-CSS 在：
-
-```text
-src/styles.css
-```
-
-常用选择器：
-
-```css
-body
-.site
-.header
-.blog-title
-.blog-description
-```
-
-文章封面图在每篇文章里设置：
-
-```md
-cover: "/images/posts/{postId}/cover.jpg"
-```
+1. 中文和英文分别配置；如果两种语言都需要隐藏，需要同时清空两边的字段。
+2. 按钮文字、导航名称、表单字段名、状态提示也定义在 `src/site.config.ts` 中，但这些文案属于界面的一部分，不建议隐藏。
 
 ## CLI 命令
 
