@@ -6,7 +6,6 @@ import { stdin as input, stdout as output } from 'node:process';
 import { cliCopy, defaults, pathExists, postsDir, root } from './cli-utils.mjs';
 import {
   assetDirForPostId,
-  assetReadmeContent,
   buildMarkdown,
   createPostId,
   fallbackSlugFromPostId,
@@ -111,11 +110,6 @@ async function main() {
   await fs.mkdir(postsDir, { recursive: true });
   await fs.mkdir(imageDir, { recursive: true });
   await fs.writeFile(postPath, markdown, 'utf8');
-  await fs.writeFile(
-    path.join(imageDir, 'README.txt'),
-    assetReadmeContent(postId, path.relative(root, postPath), assetDir),
-    'utf8'
-  );
 
   console.log(`\n${cliCopy.messages.createdPost}`);
   console.log(postPath);

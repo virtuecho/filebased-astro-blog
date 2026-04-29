@@ -249,13 +249,3 @@ export function buildMarkdown(data: PostFrontmatter, body: string, defaults: Par
   lines.push('---', '', body.trimStart());
   return `${lines.join('\n')}\n`;
 }
-
-export function assetReadmeContent(postId: string, postPath: string, assetDir: string) {
-  return [
-    `postId: ${postId}`,
-    `post file: ${postPath}`,
-    '',
-    `Markdown assetDir: ${assetDir}`,
-    ''
-  ].join('\n');
-}

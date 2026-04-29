@@ -83,7 +83,6 @@ const adminConfig = JSON.stringify({
     import { marked } from 'marked';
     import {
       assetDirForPostId,
-      assetReadmeContent,
       buildMarkdown,
       createPostId,
       fallbackSlugFromPostId,
@@ -102,7 +101,6 @@ const adminConfig = JSON.stringify({
       readFile,
       requestHandlePermission,
       saveProjectRootHandle,
-      writeBrowserFile,
       writeFile
     } from '../admin/local-file-storage.js';
 
@@ -329,12 +327,6 @@ const adminConfig = JSON.stringify({
       await ensureCurrentAssetDir(postId);
       fillForm(data, defaults.body);
       await writeFile(state.currentFile, buildCurrentMarkdown());
-
-      await writeBrowserFile(
-        state.currentAssetDir,
-        'README.txt',
-        assetReadmeContent(postId, `src/content/posts/${postFileName(postId)}`, assetDir)
-      );
 
       await listPosts();
       await renderAssets();

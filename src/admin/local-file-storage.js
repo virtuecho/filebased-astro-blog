@@ -148,9 +148,3 @@ export async function listPostFiles(postsDir, parseMarkdown) {
     return bd - ad || String(a.data.title || '').localeCompare(String(b.data.title || ''));
   });
 }
-
-export async function writeBrowserFile(dir, name, content) {
-  const handle = await getFile(dir, name, true);
-  await writeFile(handle, content);
-  return handle;
-}
