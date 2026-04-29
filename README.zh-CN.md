@@ -36,7 +36,8 @@ src/pages/              Astro 页面：首页、归档页、管理页、RSS
 src/content/posts/      Markdown 文章文件
 public/images/posts/    每篇文章自己的附件目录
 public/images/site/     全站图片，例如头图或背景图
-src/site.config.ts      站点文案、语言文案、导航文字、主题设置
+src/site-settings.json  全部站点文案、主题、语言和字体设置
+src/site.config.ts      读取 site-settings.json 的 TypeScript 包装文件
 src/content-workflow.ts /admin/ 和 CLI 共用的文章规则
 ```
 
@@ -88,62 +89,79 @@ npm run preview
 
 ## 站点文案、语言和主题
 
-站点文案在：
+所有用户可编辑的站点配置集中在一个 JSON 文件中：
 
 ```text
-src/site.config.ts
+src/site-settings.json
 ```
 
-默认语言：
+`src/site.config.ts` 是一个薄 TypeScript 包装，读取这个 JSON 并为其他代码提供类型化的辅助导出。通常你只需要编辑 JSON 文件。
 
-```ts
-defaultLocale: 'en'
+### 语言
+
+```json
+"defaultLocale": "en",
+"supportedLocales": ["en", "zh-CN"]
 ```
 
-中文文案在：
+如果要让站点/admin/CLI 显示中文，把 `defaultLocale` 改成 `"zh-CN"`。这只是文案层面的多语言，还不是完整的多语言文章路由。
 
-```ts
-'zh-CN'
-```
+要添加新语言，在 JSON 的 `copy` 下新增一个 key 并填入全部翻译，然后在 `supportedLocales` 和 `dateLocales` 中各加一行。
 
-如果要让站点/admin/CLI 显示中文：
+### 站点信息
 
-```ts
-defaultLocale: 'zh-CN'
-```
-
-这只是文案层面的多语言，还不是完整的多语言文章路由。
-
-博客头部使用经典博客语义：
-
-```html
-<h1 class="blog-title">...</h1>
-<h2 class="blog-description">...</h2>
-```
-
-标题和简介来自：
-
-```ts
-site: {
-  title: 'File-Based Astro Blog',
-  description: 'A quiet static blog template powered by Markdown files.'
+```json
+"copy": {
+  "en": {
+    "site": {
+      "title": "File-Based Astro Blog",
+      "description": "A quiet static blog template powered by Markdown files.",
+      "footer": "Built with Astro. Deployable to any static hosting platform."
+    }
+  },
+  "zh-CN": {
+    "site": {
+      "title": "文件型 Astro 博客",
+      "description": "一个由 Markdown 文件驱动的朴素静态博客模板。",
+      "footer": "由 Astro 生成，可部署到任何静态托管平台。"
+    }
+  }
 }
 ```
 
-背景图和头图设置：
+### 主题 — 背景和颜色
 
-```ts
-theme: {
-  bodyBackgroundImage: '/images/site/body.jpg',
-  siteBackgroundImage: '',
-  headerBackgroundImage: '/images/site/header.jpg',
-  headerMinHeight: '160px',
-  headerTextColor: '#111111',
-  headerDescriptionColor: '#555555'
+```json
+"theme": {
+  "bodyBackgroundImage": "/images/site/body.jpg",
+  "siteBackgroundImage": "",
+  "headerBackgroundImage": "/images/site/header.jpg",
+  "headerMinHeight": "160px",
+  "headerTextColor": "#111111",
+  "headerDescriptionColor": "#555555"
 }
 ```
 
-空字符串表示不使用图片。
+空字符串表示不使用图片，或回退到 CSS 默认值。
+
+### 主题 — 字体
+
+```json
+"theme": {
+  "typography": {
+    "fontFamily": "Georgia, serif",
+    "baseFontSize": "16px",
+    "lineHeight": "1.7",
+    "headingFontFamily": "",
+    "headingFontWeight": "700",
+    "codeFontFamily": "Menlo, monospace"
+  }
+}
+```
+
+每个字体字段接受任意有效的 CSS 值。空字符串表示使用 CSS 内置默认值。
+
+修改 `site-settings.json` 后，Astro 开发服务器会检测文件变动并热更新页面，可以即时预览效果。
 
 CSS 在：
 
@@ -151,7 +169,7 @@ CSS 在：
 src/styles.css
 ```
 
-常用选择器：
+进一步定制时的常用选择器：
 
 ```css
 body
@@ -337,7 +355,7 @@ post-{postId前8位}
 顶部导航不是写在 Markdown 里。它由这里生成：
 
 ```text
-src/site.config.ts           导航文字
+src/site-settings.json       导航文字
 src/components/Header.astro  头部结构和链接
 ```
 
@@ -469,8 +487,8 @@ RSS 顶部频道信息：
 来自两个地方：
 
 ```text
-<title>        src/site.config.ts -> copy.site.title
-<description>  src/site.config.ts -> copy.site.description
+<title>        src/site-settings.json -> copy.zh-CN.site.title
+<description>  src/site-settings.json -> copy.zh-CN.site.description
 <link>         astro.config.mjs -> site
 ```
 
@@ -519,26 +537,28 @@ public/images/posts/{postId}/2026-04-28/photo.jpg
 
 ## 提示文案配置
 
-提示文案和说明文字统一配置在 [`src/site.config.ts`](./src/site.config.ts) 中。
+所有提示文案和说明文字统一配置在 [`src/site-settings.json`](./src/site-settings.json) 中。
 
-这个文件同时包含中英文两套文案：
+这个文件的 `copy` 键下同时包含中英文两套文案：
 
-```ts
-copy.en
-copy['zh-CN']
+```json
+"copy": {
+  "en": { ... },
+  "zh-CN": { ... }
+}
 ```
 
 首页提示文案的配置项是：
 
-```ts
+```json
 copy.en.home.notice
 copy['zh-CN'].home.notice
 ```
 
 将字段值设置为空字符串即可隐藏对应提示块：
 
-```ts
-notice: ''
+```json
+"notice": ""
 ```
 
 以下字段也支持用同样方式隐藏：
@@ -572,7 +592,7 @@ copy['zh-CN'].admin.assetHintBeforePost
 说明：
 
 1. 中文和英文分别配置；如果两种语言都需要隐藏，需要同时清空两边的字段。
-2. 按钮文字、导航名称、表单字段名、状态提示也定义在 `src/site.config.ts` 中，但这些文案属于界面的一部分，不建议隐藏。
+2. 按钮文字、导航名称、表单字段名、状态提示也定义在 `site-settings.json` 中，但这些文案属于界面的一部分，不建议隐藏。
 
 ## CLI 命令
 

@@ -36,7 +36,8 @@ src/pages/              Astro pages: homepage, archive pages, admin page, RSS
 src/content/posts/      Markdown post files
 public/images/posts/    one asset folder per post
 public/images/site/     site-wide images, such as header or background images
-src/site.config.ts      site copy, language copy, navigation labels, theme settings
+src/site-settings.json  all site copy, theme, language, and typography settings
+src/site.config.ts      TypeScript helper that reads from site-settings.json
 src/content-workflow.ts shared post rules used by /admin/ and CLI scripts
 ```
 
@@ -88,62 +89,79 @@ npm run preview
 
 ## Site Copy, Language, And Theme
 
-Site copy is in:
+All user-editable site configuration lives in a single JSON file:
 
 ```text
-src/site.config.ts
+src/site-settings.json
 ```
 
-Default language:
+`src/site.config.ts` is a thin TypeScript wrapper that reads this JSON and provides typed helper exports for the rest of the codebase. You normally only edit the JSON file.
 
-```ts
-defaultLocale: 'en'
+### Language
+
+```json
+"defaultLocale": "en",
+"supportedLocales": ["en", "zh-CN"]
 ```
 
-Chinese copy is under:
+To switch the visible site/admin/CLI copy to Chinese, change `defaultLocale` to `"zh-CN"`. This is copy-level language support. It is not full multilingual post routing yet.
 
-```ts
-'zh-CN'
-```
+To add a new language, add a new key under `copy` in the JSON with all the translations, then add the locale to `supportedLocales` and `dateLocales`.
 
-To switch the visible site/admin/CLI copy to Chinese:
+### Site Identity
 
-```ts
-defaultLocale: 'zh-CN'
-```
-
-This is copy-level language support. It is not full multilingual post routing yet.
-
-The blog header uses classic blog semantics:
-
-```html
-<h1 class="blog-title">...</h1>
-<h2 class="blog-description">...</h2>
-```
-
-Title and description come from:
-
-```ts
-site: {
-  title: 'File-Based Astro Blog',
-  description: 'A quiet static blog template powered by Markdown files.'
+```json
+"copy": {
+  "en": {
+    "site": {
+      "title": "File-Based Astro Blog",
+      "description": "A quiet static blog template powered by Markdown files.",
+      "footer": "Built with Astro. Deployable to any static hosting platform."
+    }
+  },
+  "zh-CN": {
+    "site": {
+      "title": "文件型 Astro 博客",
+      "description": "一个由 Markdown 文件驱动的朴素静态博客模板。",
+      "footer": "由 Astro 生成，可部署到任何静态托管平台。"
+    }
+  }
 }
 ```
 
-Background and header images are configured in:
+### Theme — Background and Colors
 
-```ts
-theme: {
-  bodyBackgroundImage: '/images/site/body.jpg',
-  siteBackgroundImage: '',
-  headerBackgroundImage: '/images/site/header.jpg',
-  headerMinHeight: '160px',
-  headerTextColor: '#111111',
-  headerDescriptionColor: '#555555'
+```json
+"theme": {
+  "bodyBackgroundImage": "/images/site/body.jpg",
+  "siteBackgroundImage": "",
+  "headerBackgroundImage": "/images/site/header.jpg",
+  "headerMinHeight": "160px",
+  "headerTextColor": "#111111",
+  "headerDescriptionColor": "#555555"
 }
 ```
 
-Empty strings mean no image is used.
+Empty strings mean no image or fall back to the CSS default.
+
+### Theme — Typography
+
+```json
+"theme": {
+  "typography": {
+    "fontFamily": "Georgia, serif",
+    "baseFontSize": "16px",
+    "lineHeight": "1.7",
+    "headingFontFamily": "",
+    "headingFontWeight": "700",
+    "codeFontFamily": "Menlo, monospace"
+  }
+}
+```
+
+Each typography field accepts any valid CSS value. An empty string means the CSS built-in default is used instead.
+
+When you change `site-settings.json`, Astro's dev server detects the file change and hot-reloads the page so you can preview the result immediately.
 
 CSS lives in:
 
@@ -151,7 +169,7 @@ CSS lives in:
 src/styles.css
 ```
 
-Useful selectors:
+Useful selectors for further customization:
 
 ```css
 body
@@ -337,7 +355,7 @@ post-{first-8-chars-of-postId}
 The top navigation is not stored in Markdown. It is built by:
 
 ```text
-src/site.config.ts           navigation labels
+src/site-settings.json       navigation labels
 src/components/Header.astro  header markup and links
 ```
 
@@ -469,8 +487,8 @@ The channel fields at the top of RSS:
 come from two places:
 
 ```text
-<title>        src/site.config.ts -> copy.site.title
-<description>  src/site.config.ts -> copy.site.description
+<title>        src/site-settings.json -> copy.en.site.title
+<description>  src/site-settings.json -> copy.en.site.description
 <link>         astro.config.mjs -> site
 ```
 
@@ -519,26 +537,28 @@ That file is still connected to the post through `postId`.
 
 ## Prompt Copy Configuration
 
-Prompt and helper copy is configured in [`src/site.config.ts`](./src/site.config.ts).
+All prompt and helper copy lives in [`src/site-settings.json`](./src/site-settings.json).
 
-This file contains both locales:
+This file contains both locales under the `copy` key:
 
-```ts
-copy.en
-copy['zh-CN']
+```json
+"copy": {
+  "en": { ... },
+  "zh-CN": { ... }
+}
 ```
 
 The homepage notice is configured by:
 
-```ts
+```json
 copy.en.home.notice
 copy['zh-CN'].home.notice
 ```
 
 Set a field to an empty string to hide that block in the rendered page:
 
-```ts
-notice: ''
+```json
+"notice": ""
 ```
 
 The following copy fields can also be hidden the same way:
@@ -572,7 +592,7 @@ copy['zh-CN'].admin.assetHintBeforePost
 Notes:
 
 1. English and Chinese are configured separately. Clear both locale values if both versions should be hidden.
-2. Buttons, navigation labels, field labels, and status messages are also defined in `src/site.config.ts`, but they are part of the working UI and are not intended to be hidden.
+2. Buttons, navigation labels, field labels, and status messages are also defined in `site-settings.json`, but they are part of the working UI and are not intended to be hidden.
 
 ## CLI Commands
 

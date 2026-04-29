@@ -22,13 +22,20 @@ const posts = await getPublishedPosts();
 const siteTitle = copy.site.title;
 const fullTitle = title === siteTitle ? siteTitle : `${title} - ${siteTitle}`;
 const theme = siteConfig.theme;
+const t = theme.typography;
 const themeStyle = [
   theme.bodyBackgroundImage ? `--body-bg-image: url("${theme.bodyBackgroundImage}")` : '',
   theme.siteBackgroundImage ? `--site-bg-image: url("${theme.siteBackgroundImage}")` : '',
   theme.headerBackgroundImage ? `--header-bg-image: url("${theme.headerBackgroundImage}")` : '',
   theme.headerMinHeight ? `--header-min-height: ${theme.headerMinHeight}` : '',
   theme.headerTextColor ? `--header-text-color: ${theme.headerTextColor}` : '',
-  theme.headerDescriptionColor ? `--header-description-color: ${theme.headerDescriptionColor}` : ''
+  theme.headerDescriptionColor ? `--header-description-color: ${theme.headerDescriptionColor}` : '',
+  t.fontFamily ? `--font-family: ${t.fontFamily}` : '',
+  t.baseFontSize ? `--base-font-size: ${t.baseFontSize}` : '',
+  t.lineHeight ? `--line-height: ${t.lineHeight}` : '',
+  t.headingFontFamily ? `--heading-font-family: ${t.headingFontFamily}` : '',
+  t.headingFontWeight ? `--heading-font-weight: ${t.headingFontWeight}` : '',
+  t.codeFontFamily ? `--code-font-family: ${t.codeFontFamily}` : ''
 ].filter(Boolean).join('; ');
 ---
 <!doctype html>
