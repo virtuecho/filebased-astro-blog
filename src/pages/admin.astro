@@ -71,6 +71,11 @@ const adminConfig = JSON.stringify({
         <input id="assetFiles" type="file" multiple disabled />
         <button id="uploadAssets" class="admin-button" type="button" disabled>{admin.uploadAssets}</button>
       </div>
+      <div class="asset-options">
+        <label class="admin-check"><input id="assetConvertWebp" type="checkbox" disabled /> {admin.assetOptionWebp}</label>
+        <label class="admin-check"><input id="assetStripMetadata" type="checkbox" disabled /> {admin.assetOptionStripMetadata}</label>
+      </div>
+      <p class="meta">{admin.assetProcessingHelp}</p>
       <p id="assetHint" class="meta" hidden={!admin.assetHintBeforePost}>{admin.assetHintBeforePost}</p>
       <div id="assetList" class="asset-list"></div>
     </section>
@@ -133,8 +138,18 @@ const adminConfig = JSON.stringify({
       author: $('author'),
       cover: $('cover'),
       assetDir: $('assetDir'),
+      assetConvertWebp: $('assetConvertWebp'),
+      assetStripMetadata: $('assetStripMetadata'),
       draft: $('draft'),
       body: $('body')
+    };
+
+    const PROCESSABLE_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
+    const EXTENSION_TO_MIME = {
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.png': 'image/png',
+      '.webp': 'image/webp'
     };
 
     function formData() {
@@ -191,6 +206,8 @@ const adminConfig = JSON.stringify({
       $('updateSlug').disabled = !enabled || !state.currentFile;
       $('assetFiles').disabled = !enabled || !state.currentFile;
       $('uploadAssets').disabled = !enabled || !state.currentFile;
+      fields.assetConvertWebp.disabled = !enabled || !state.currentFile;
+      fields.assetStripMetadata.disabled = !enabled || !state.currentFile;
     }
 
     function resetCurrentPost() {
@@ -208,6 +225,8 @@ const adminConfig = JSON.stringify({
       fields.author.value = defaults.author;
       fields.cover.value = '';
       fields.assetDir.value = '';
+      fields.assetConvertWebp.checked = false;
+      fields.assetStripMetadata.checked = false;
       fields.draft.checked = true;
       fields.body.value = '';
       $('postList').innerHTML = `<p class="meta">${adminCopy.listEmptyBeforeRoot}</p>`;
@@ -355,6 +374,77 @@ const adminConfig = JSON.stringify({
       assetHint.hidden = !nextText;
     }
 
+    function fileExtension(name) {
+      const dot = name.lastIndexOf('.');
+      return dot >= 0 ? name.slice(dot).toLowerCase() : '';
+    }
+
+    function fileStem(name) {
+      const dot = name.lastIndexOf('.');
+      return dot >= 0 ? name.slice(0, dot) : name;
+    }
+
+    function inferProcessableImageType(file) {
+      const directType = String(file.type || '').toLowerCase();
+      if (PROCESSABLE_IMAGE_TYPES.has(directType)) return directType;
+      return EXTENSION_TO_MIME[fileExtension(file.name)] || '';
+    }
+
+    function outputAssetName(file, convertToWebp) {
+      return convertToWebp && inferProcessableImageType(file)
+        ? `${fileStem(file.name)}.webp`
+        : file.name;
+    }
+
+    async function canvasBlob(canvas, type, quality) {
+      return new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => {
+          if (blob) {
+            resolve(blob);
+            return;
+          }
+          reject(new Error(`Could not export image as ${type}.`));
+        }, type, quality);
+      });
+    }
+
+    async function reencodeImageFile(file, options, sourceType) {
+      const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = bitmap.width;
+        canvas.height = bitmap.height;
+        const context = canvas.getContext('2d');
+        if (!context) throw new Error('Canvas 2D context is not available.');
+        context.drawImage(bitmap, 0, 0);
+        const targetType = options.convertToWebp ? 'image/webp' : sourceType;
+        const quality = targetType === 'image/png' ? undefined : (targetType === 'image/webp' ? 0.9 : 0.92);
+        const blob = await canvasBlob(canvas, targetType, quality);
+        return new File([blob], outputAssetName(file, options.convertToWebp), {
+          type: blob.type || targetType,
+          lastModified: Date.now()
+        });
+      } finally {
+        bitmap.close();
+      }
+    }
+
+    async function prepareAssetUpload(file, options) {
+      const wantsProcessing = options.convertToWebp || options.stripMetadata;
+      const sourceType = inferProcessableImageType(file);
+
+      if (!wantsProcessing || !sourceType) {
+        return { file, processed: false, skipped: wantsProcessing && !sourceType };
+      }
+
+      try {
+        const processedFile = await reencodeImageFile(file, options, sourceType);
+        return { file: processedFile, processed: true, skipped: false };
+      } catch {
+        return { file, processed: false, skipped: true };
+      }
+    }
+
     async function renderAssets() {
       const list = $('assetList');
       list.innerHTML = '';
@@ -389,16 +479,35 @@ const adminConfig = JSON.stringify({
 
     async function uploadAssets() {
       if (!state.currentAssetDir) return;
-      const input = $('assetFiles');
-      for (const file of input.files || []) {
-        const handle = await getFile(state.currentAssetDir, file.name, true);
-        const writable = await handle.createWritable();
-        await writable.write(file);
-        await writable.close();
+      try {
+        const input = $('assetFiles');
+        const options = {
+          convertToWebp: fields.assetConvertWebp.checked,
+          stripMetadata: fields.assetStripMetadata.checked
+        };
+        let processedCount = 0;
+        let skippedCount = 0;
+        for (const file of input.files || []) {
+          const prepared = await prepareAssetUpload(file, options);
+          processedCount += prepared.processed ? 1 : 0;
+          skippedCount += prepared.skipped ? 1 : 0;
+          const handle = await getFile(state.currentAssetDir, prepared.file.name, true);
+          const writable = await handle.createWritable();
+          await writable.write(prepared.file);
+          await writable.close();
+        }
+        input.value = '';
+        await renderAssets();
+        setStatus(
+          processedCount > 0 && skippedCount > 0
+            ? adminCopy.assetUploadedPartial
+            : processedCount > 0
+              ? adminCopy.assetUploadedProcessed
+              : adminCopy.assetUploaded
+        );
+      } catch (error) {
+        setStatus(`${adminCopy.assetUploadFailed} ${error.message}`);
       }
-      input.value = '';
-      await renderAssets();
-      setStatus(adminCopy.assetUploaded);
     }
 
     async function restoreSavedRoot() {
@@ -457,6 +566,7 @@ const adminConfig = JSON.stringify({
     $('updateSlug').addEventListener('click', updateSlugFromTitle);
     $('uploadAssets').addEventListener('click', uploadAssets);
     fields.body.addEventListener('input', updatePreview);
+    setEnabled(false);
     setRootButtonLabel(false);
     restoreSavedRoot();
   </script>

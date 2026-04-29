@@ -195,13 +195,33 @@ After a post is selected:
 
 1. Click the file picker in the Assets section.
 2. Choose images or files.
-3. Click `Upload To Asset Folder`.
-4. The files are copied into `public/images/posts/{postId}/`.
-5. Click `Insert` beside an uploaded file to insert Markdown like:
+3. Optionally enable `Convert supported images to WebP`.
+4. Optionally enable `Strip metadata from supported images`.
+5. Click `Upload To Asset Folder`.
+6. The files are copied into `public/images/posts/{postId}/`.
+7. Click `Insert` beside an uploaded file to insert Markdown like:
 
 ```md
 ![image-name.jpg](/images/posts/{postId}/image-name.jpg)
 ```
+
+Processing rules:
+
+```text
+static JPEG/PNG/WebP   can be converted or re-encoded
+other file types       are copied unchanged
+```
+
+If WebP conversion is enabled, the uploaded filename changes to `.webp`, and the inserted Markdown path uses that filename.
+
+Implementation note:
+
+```text
+/admin/ uses browser-side image processing so it still works on static hosting
+CLI add-assets uses local sharp for the same options
+```
+
+The project still keeps the content model in Markdown files plus asset folders. That leaves room to later swap local file access for cloud object storage or a database-backed admin without changing how posts and assets are organized.
 
 In Markdown paths, do not write `public`. Public files are referenced from the site root.
 
@@ -576,6 +596,25 @@ npm run update-slug -- my-post
 npm run preview-post -- my-post --no-open
 npm run open-assets -- my-post --print
 npm run add-assets -- my-post ./cover.jpg
+npm run add-assets -- my-post ./cover.jpg --webp
+npm run add-assets -- my-post ./cover.jpg ./photo.png --strip-metadata
+npm run add-assets -- my-post ./cover.jpg ./scan.png --webp --strip-metadata
+```
+
+`add-assets` options:
+
+```text
+--webp             convert supported static JPEG/PNG/WebP images to .webp
+--strip-metadata   re-encode supported static JPEG/PNG/WebP images without metadata
+```
+
+Files that are not static JPEG, PNG, or WebP are copied unchanged.
+
+Implementation note:
+
+```text
+CLI processing uses local sharp
+/admin/ processing uses browser APIs for static-hosting compatibility
 ```
 
 ## Deployment

@@ -98,6 +98,9 @@ export const siteConfig = {
         assetsTitle: 'Assets',
         uploadAssets: 'Upload To Asset Folder',
         assetHintBeforePost: 'Select or create a post before uploading assets.',
+        assetOptionWebp: 'Convert supported images to WebP',
+        assetOptionStripMetadata: 'Strip metadata from supported images',
+        assetProcessingHelp: 'Only static JPEG, PNG, and WebP images are processed. Other files are copied as-is.',
         fieldLabels: {
           title: 'Title',
           description: 'Description',
@@ -125,6 +128,9 @@ export const siteConfig = {
         assetHint: 'Asset folder:',
         insertAsset: 'Insert',
         assetUploaded: 'Assets uploaded.',
+        assetUploadedProcessed: 'Assets uploaded with image processing.',
+        assetUploadedPartial: 'Assets uploaded. Unsupported files were copied unchanged.',
+        assetUploadFailed: 'Asset upload failed:',
         chooseRootError: 'Choose a project folder first.'
       },
       cli: {
@@ -156,10 +162,12 @@ export const siteConfig = {
           updatedSlug: 'Updated slug:',
           noSlugUpdates: 'No slug updates were needed.',
           copiedAsset: 'Copied asset:',
+          copiedAssetUnchanged: 'Copied unchanged:',
+          processedAsset: 'Processed asset:',
           markdownPath: 'Markdown path:',
           previewCreated: 'Preview created:',
           openingPreview: 'Opening preview:',
-          usageAddAssets: 'Usage: npm run add-assets -- <post-number-or-keyword> <file...>',
+          usageAddAssets: 'Usage: npm run add-assets -- <post-number-or-keyword> <file...> [--webp] [--strip-metadata]',
           usagePreview: 'Usage: npm run preview-post -- <post-number-or-keyword> [--no-open]',
           usageOpenAssets: 'Usage: npm run open-assets -- <post-number-or-keyword> [--print]'
         },
@@ -259,6 +267,9 @@ export const siteConfig = {
         assetsTitle: '附件',
         uploadAssets: '上传到附件目录',
         assetHintBeforePost: '先选择或新建文章，再上传附件。',
+        assetOptionWebp: '将支持的图片转换为 WebP',
+        assetOptionStripMetadata: '清除支持图片的 metadata',
+        assetProcessingHelp: '只处理静态 JPEG、PNG、WebP 图片。其他文件保持原样复制。',
         fieldLabels: {
           title: '标题',
           description: '摘要',
@@ -286,6 +297,9 @@ export const siteConfig = {
         assetHint: '附件目录：',
         insertAsset: '插入',
         assetUploaded: '附件已上传。',
+        assetUploadedProcessed: '附件已上传，并完成图片处理。',
+        assetUploadedPartial: '附件已上传。无法处理的文件已按原样复制。',
+        assetUploadFailed: '附件上传失败：',
         chooseRootError: '请先选择项目文件夹。'
       },
       cli: {
@@ -317,10 +331,12 @@ export const siteConfig = {
           updatedSlug: '已更新 slug：',
           noSlugUpdates: '没有需要更新的 slug。',
           copiedAsset: '已复制附件：',
+          copiedAssetUnchanged: '已原样复制：',
+          processedAsset: '已处理附件：',
           markdownPath: 'Markdown 路径：',
           previewCreated: '已创建预览：',
           openingPreview: '正在打开预览：',
-          usageAddAssets: '用法：npm run add-assets -- <文章编号或关键词> <文件...>',
+          usageAddAssets: '用法：npm run add-assets -- <文章编号或关键词> <文件...> [--webp] [--strip-metadata]',
           usagePreview: '用法：npm run preview-post -- <文章编号或关键词> [--no-open]',
           usageOpenAssets: '用法：npm run open-assets -- <文章编号或关键词> [--print]'
         },

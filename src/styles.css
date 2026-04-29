@@ -369,6 +369,12 @@ img {
   margin-right: 6px;
 }
 
+.asset-options {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
 .editor-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);

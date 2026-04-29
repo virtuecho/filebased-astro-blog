@@ -195,13 +195,33 @@ admin 编辑的是普通 Markdown 文件。内容没有藏在数据库里。
 
 1. 在 Assets 区域选择文件。
 2. 选择图片或其他附件。
-3. 点击 `Upload To Asset Folder`。
-4. 文件会复制到 `public/images/posts/{postId}/`。
-5. 点击附件旁边的 `Insert`，插入这样的 Markdown：
+3. 可选勾选 `Convert supported images to WebP`。
+4. 可选勾选 `Strip metadata from supported images`。
+5. 点击 `Upload To Asset Folder`。
+6. 文件会复制到 `public/images/posts/{postId}/`。
+7. 点击附件旁边的 `Insert`，插入这样的 Markdown：
 
 ```md
 ![image-name.jpg](/images/posts/{postId}/image-name.jpg)
 ```
+
+处理规则：
+
+```text
+静态 JPEG/PNG/WebP   可以转换或重新编码
+其他文件类型          保持原样复制
+```
+
+如果启用 WebP 转换，上传后的文件名会改成 `.webp`，插入的 Markdown 路径也会使用新的文件名。
+
+实现说明：
+
+```text
+/admin/ 使用浏览器端图片处理，所以在静态托管上也能继续工作
+CLI add-assets 使用本地 sharp 提供同样的两个选项
+```
+
+项目的内容模型仍然保持为 Markdown 文件加附件目录。这样以后如果要从本地文件访问升级到云端对象存储或数据库后台，也不用先改文章和附件的组织方式。
 
 Markdown 路径里不要写 `public`。公开文件都从网站根路径引用。
 
@@ -576,6 +596,25 @@ npm run update-slug -- my-post
 npm run preview-post -- my-post --no-open
 npm run open-assets -- my-post --print
 npm run add-assets -- my-post ./cover.jpg
+npm run add-assets -- my-post ./cover.jpg --webp
+npm run add-assets -- my-post ./cover.jpg ./photo.png --strip-metadata
+npm run add-assets -- my-post ./cover.jpg ./scan.png --webp --strip-metadata
+```
+
+`add-assets` 选项：
+
+```text
+--webp             将支持的静态 JPEG/PNG/WebP 图片转换为 .webp
+--strip-metadata   将支持的静态 JPEG/PNG/WebP 图片重新编码并去掉 metadata
+```
+
+不是静态 JPEG、PNG、WebP 的文件会按原样复制。
+
+实现说明：
+
+```text
+CLI 处理走本地 sharp
+/admin/ 处理走浏览器 API，以保持静态托管可用
 ```
 
 ## 部署
