@@ -421,7 +421,7 @@ This post appears in:
 /tag/markdown/
 ```
 
-`/about/` is different. It does not read posts. It reads this section in `src/site.config.ts`:
+`/about/` is different. It does not read posts. It reads this section in `src/site-settings.json`:
 
 ```ts
 about: {

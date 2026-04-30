@@ -128,6 +128,38 @@ async function interactiveMenu(settings) {
       if (!settings.copy['zh-CN']) settings.copy['zh-CN'] = { site: { title: '', description: '', footer: '' } };
       settings.copy['zh-CN'].site.footer = value;
       break;
+    case 8:
+      value = await ask('Home Notice (en) — empty to hide', enHome.notice);
+      settings.copy.en.home.notice = value;
+      break;
+    case 9:
+      value = await ask('Home Notice (zh-CN) — empty to hide', zhHome.notice);
+      if (settings.copy['zh-CN']) settings.copy['zh-CN'].home.notice = value;
+      break;
+    case 10:
+      value = await ask('Sidebar About Title (en)', enSidebar.aboutTitle);
+      settings.copy.en.sidebar.aboutTitle = value;
+      break;
+    case 11:
+      value = await ask('Sidebar About Text (en)', enSidebar.aboutText);
+      settings.copy.en.sidebar.aboutText = value;
+      break;
+    case 12:
+      value = await ask('Sidebar About Title (zh-CN)', zhSidebar.aboutTitle);
+      if (settings.copy['zh-CN']) settings.copy['zh-CN'].sidebar.aboutTitle = value;
+      break;
+    case 13:
+      value = await ask('Sidebar About Text (zh-CN)', zhSidebar.aboutText);
+      if (settings.copy['zh-CN']) settings.copy['zh-CN'].sidebar.aboutText = value;
+      break;
+    case 14:
+      value = await ask('Admin Intro (en) — empty to hide', enAdmin.intro);
+      settings.copy.en.admin.intro = value;
+      break;
+    case 15:
+      value = await ask('Admin Intro (zh-CN) — empty to hide', zhAdmin.intro);
+      if (settings.copy['zh-CN']) settings.copy['zh-CN'].admin.intro = value;
+      break;
     case 16:
       value = await ask('Body background image path', theme.bodyBackgroundImage);
       settings.theme.bodyBackgroundImage = value || '';
@@ -216,6 +248,10 @@ function parseDirectArgs(args) {
     else if (arg === '--sidebar-text-zh') settings.sidebarTextZh = args[++i];
     else if (arg === '--admin-intro-en') settings.adminIntroEn = args[++i];
     else if (arg === '--admin-intro-zh') settings.adminIntroZh = args[++i];
+    else if (arg === '--admin-root-help-en') settings.adminRootHelpEn = args[++i];
+    else if (arg === '--admin-root-help-zh') settings.adminRootHelpZh = args[++i];
+    else if (arg === '--admin-asset-hint-en') settings.adminAssetHintEn = args[++i];
+    else if (arg === '--admin-asset-hint-zh') settings.adminAssetHintZh = args[++i];
     else if (arg === '--help' || arg === '-h') usage();
     else if (arg === '--show') settings.show = true;
   }
@@ -250,6 +286,10 @@ function applyDirectChanges(settings, direct) {
   if (direct.sidebarTextZh !== undefined && settings.copy['zh-CN']) settings.copy['zh-CN'].sidebar.aboutText = direct.sidebarTextZh;
   if (direct.adminIntroEn !== undefined) settings.copy.en.admin.intro = direct.adminIntroEn;
   if (direct.adminIntroZh !== undefined && settings.copy['zh-CN']) settings.copy['zh-CN'].admin.intro = direct.adminIntroZh;
+  if (direct.adminRootHelpEn !== undefined) settings.copy.en.admin.rootHelp = direct.adminRootHelpEn;
+  if (direct.adminRootHelpZh !== undefined && settings.copy['zh-CN']) settings.copy['zh-CN'].admin.rootHelp = direct.adminRootHelpZh;
+  if (direct.adminAssetHintEn !== undefined) settings.copy.en.admin.assetHintBeforePost = direct.adminAssetHintEn;
+  if (direct.adminAssetHintZh !== undefined && settings.copy['zh-CN']) settings.copy['zh-CN'].admin.assetHintBeforePost = direct.adminAssetHintZh;
 }
 
 async function main() {

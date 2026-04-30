@@ -421,7 +421,7 @@ draft: false
 /tag/markdown/
 ```
 
-`/about/` 不读取文章。它读取 `src/site.config.ts` 里的：
+`/about/` 不读取文章。它读取 `src/site-settings.json` 里的：
 
 ```ts
 about: {
