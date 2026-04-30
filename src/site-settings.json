@@ -43,7 +43,7 @@
       },
       "home": {
         "title": "Latest Posts",
-        "notice": "",
+        "notice": "Use /admin/ as the recommended local writing interface. Posts are Markdown files, assets live beside each postId folder.",
         "empty": "No published posts yet."
       },
       "about": {
