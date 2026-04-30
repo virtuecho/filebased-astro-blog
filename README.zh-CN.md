@@ -163,6 +163,11 @@ src/site-settings.json
 
 修改 `site-settings.json` 后，Astro 开发服务器会检测文件变动并热更新页面，可以即时预览效果。
 
+你也可以通过以下方式编辑设置：
+
+- **Admin 界面**：打开 `/admin/`，点击 **Settings** 标签页，使用可视化编辑器并带有实时 iframe 预览。
+- **CLI 命令行**：`npm run site-config`（交互式）或 `npm run site-config -- --flag value`（直接设置）。
+
 CSS 在：
 
 ```text
@@ -593,6 +598,7 @@ copy['zh-CN'].admin.assetHintBeforePost
 
 1. 中文和英文分别配置；如果两种语言都需要隐藏，需要同时清空两边的字段。
 2. 按钮文字、导航名称、表单字段名、状态提示也定义在 `site-settings.json` 中，但这些文案属于界面的一部分，不建议隐藏。
+3. 这些字段也可以通过 **Admin Settings 标签页**（`/admin/` → Settings）或 **CLI**（`npm run site-config -- --notice-zh ""`）来编辑，不必直接修改 JSON 文件。
 
 ## CLI 命令
 
@@ -606,6 +612,8 @@ npm run update-slug   # 根据标题重新生成 slug
 npm run preview-post  # 把某篇文章渲染到 .post-preview/
 npm run open-assets   # 打开或打印文章附件目录
 npm run add-assets    # 把文件复制到文章附件目录
+npm run site-config   # 查看或修改站点设置（交互式或 --flags）
+npm run site-assets   # 把文件复制到 public/images/site/
 ```
 
 例子：
@@ -619,6 +627,9 @@ npm run add-assets -- my-post ./cover.jpg
 npm run add-assets -- my-post ./cover.jpg --webp
 npm run add-assets -- my-post ./cover.jpg ./photo.png --strip-metadata
 npm run add-assets -- my-post ./cover.jpg ./scan.png --webp --strip-metadata
+npm run site-config -- --lang zh-CN
+npm run site-config -- --bg-header /images/site/header.jpg --font-family "Georgia, serif"
+npm run site-assets -- ./bg.jpg --webp
 ```
 
 `add-assets` 选项：
@@ -629,6 +640,19 @@ npm run add-assets -- my-post ./cover.jpg ./scan.png --webp --strip-metadata
 ```
 
 不是静态 JPEG、PNG、WebP 的文件会按原样复制。
+
+`site-assets` 以同样方式工作，但目标目录是 `public/images/site/`，用于站点全局图片（背景图、头图等）。
+
+`site-config` 可以交互式使用（`npm run site-config`）或者带参数直接设置：
+
+```bash
+npm run site-config -- --show                # 打印当前设置
+npm run site-config -- --lang zh-CN          # 切换语言
+npm run site-config -- --bg-header URL       # 设置头部背景
+npm run site-config -- --font-family FONT    # 设置字体
+```
+
+所有站点设置也可以在 `/admin/` 的 Settings 标签页中可视化编辑，并带有实时 iframe 预览。
 
 实现说明：
 

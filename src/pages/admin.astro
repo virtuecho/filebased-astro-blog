@@ -13,72 +13,188 @@ const adminConfig = JSON.stringify({
   <h1 class="page-title">{admin.pageTitle}</h1>
   {admin.intro && <div class="notice">{admin.intro}</div>}
 
-  <div class="admin-shell">
-    <section class="admin-section">
-      <div class="admin-toolbar">
-        <button id="pickRoot" class="admin-button primary" type="button">{admin.pickRoot}</button>
-        <button id="refreshPosts" class="admin-button" type="button" disabled>{admin.refreshPosts}</button>
-        <span id="rootStatus" class="meta">{admin.rootInitial}</span>
-      </div>
-      {admin.rootHelp && <p class="meta">{admin.rootHelp}</p>}
-    </section>
+  <div class="admin-tabs">
+    <button id="tabPosts" class="admin-tab active" type="button">{admin.tabPosts}</button>
+    <button id="tabSettings" class="admin-tab" type="button">{admin.tabSettings}</button>
+  </div>
 
-    <section class="admin-section">
-      <div class="admin-toolbar">
-        <button id="newPost" class="admin-button primary" type="button" disabled>{admin.newPost}</button>
-        <button id="savePost" class="admin-button primary" type="button" disabled>{admin.savePost}</button>
-        <button id="updateSlug" class="admin-button" type="button" disabled>{admin.regenerateSlug}</button>
-        <span id="saveStatus" class="meta"></span>
-      </div>
-    </section>
-
-    <div class="admin-grid">
+  <div id="postsPanel">
+    <div class="admin-shell">
       <section class="admin-section">
-        <h2 class="admin-title">{admin.listTitle}</h2>
-        <div id="postList" class="admin-list meta">{admin.listEmptyBeforeRoot}</div>
+        <div class="admin-toolbar">
+          <button id="pickRoot" class="admin-button primary" type="button">{admin.pickRoot}</button>
+          <button id="refreshPosts" class="admin-button" type="button" disabled>{admin.refreshPosts}</button>
+          <span id="rootStatus" class="meta">{admin.rootInitial}</span>
+        </div>
+        {admin.rootHelp && <p class="meta">{admin.rootHelp}</p>}
       </section>
 
       <section class="admin-section">
-        <h2 class="admin-title">{admin.fieldsTitle}</h2>
-        <div class="admin-form">
-          <label>postId <input id="postId" type="text" readonly /></label>
-          <label>slug <input id="slug" type="text" /></label>
-          <label>{admin.fieldLabels.title} <input id="title" type="text" /></label>
-          <label>{admin.fieldLabels.description} <input id="description" type="text" /></label>
-          <label>{admin.fieldLabels.date} <input id="date" type="date" /></label>
-          <label>{admin.fieldLabels.updated} <input id="updated" type="date" /></label>
-          <label>{admin.fieldLabels.category} <input id="category" type="text" /></label>
-          <label>{admin.fieldLabels.tags} <input id="tags" type="text" /></label>
-          <label>{admin.fieldLabels.author} <input id="author" type="text" /></label>
-          <label>{admin.fieldLabels.cover} <input id="cover" type="text" /></label>
-          <label>{admin.fieldLabels.assetDir} <input id="assetDir" type="text" readonly /></label>
-          <label class="admin-check"><input id="draft" type="checkbox" /> {admin.fieldLabels.draft}</label>
+        <div class="admin-toolbar">
+          <button id="newPost" class="admin-button primary" type="button" disabled>{admin.newPost}</button>
+          <button id="savePost" class="admin-button primary" type="button" disabled>{admin.savePost}</button>
+          <button id="updateSlug" class="admin-button" type="button" disabled>{admin.regenerateSlug}</button>
+          <span id="saveStatus" class="meta"></span>
         </div>
       </section>
+
+      <div class="admin-grid">
+        <section class="admin-section">
+          <h2 class="admin-title">{admin.listTitle}</h2>
+          <div id="postList" class="admin-list meta">{admin.listEmptyBeforeRoot}</div>
+        </section>
+
+        <section class="admin-section">
+          <h2 class="admin-title">{admin.fieldsTitle}</h2>
+          <div class="admin-form">
+            <label>postId <input id="postId" type="text" readonly /></label>
+            <label>slug <input id="slug" type="text" /></label>
+            <label>{admin.fieldLabels.title} <input id="title" type="text" /></label>
+            <label>{admin.fieldLabels.description} <input id="description" type="text" /></label>
+            <label>{admin.fieldLabels.date} <input id="date" type="date" /></label>
+            <label>{admin.fieldLabels.updated} <input id="updated" type="date" /></label>
+            <label>{admin.fieldLabels.category} <input id="category" type="text" /></label>
+            <label>{admin.fieldLabels.tags} <input id="tags" type="text" /></label>
+            <label>{admin.fieldLabels.author} <input id="author" type="text" /></label>
+            <label>{admin.fieldLabels.cover} <input id="cover" type="text" /></label>
+            <label>{admin.fieldLabels.assetDir} <input id="assetDir" type="text" readonly /></label>
+            <label class="admin-check"><input id="draft" type="checkbox" /> {admin.fieldLabels.draft}</label>
+          </div>
+        </section>
+      </div>
+
+      <section class="admin-section">
+        <h2 class="admin-title">{admin.bodyTitle}</h2>
+        <div class="editor-grid">
+          <textarea id="body" class="admin-editor" spellcheck="false" placeholder={admin.bodyPlaceholder}></textarea>
+          <div class="article-body preview-pane" id="preview"></div>
+        </div>
+      </section>
+
+      <section class="admin-section">
+        <h2 class="admin-title">{admin.assetsTitle}</h2>
+        <div class="admin-toolbar">
+          <input id="assetFiles" type="file" multiple disabled />
+          <button id="uploadAssets" class="admin-button" type="button" disabled>{admin.uploadAssets}</button>
+        </div>
+        <div class="asset-options">
+          <label class="admin-check"><input id="assetConvertWebp" type="checkbox" disabled /> {admin.assetOptionWebp}</label>
+          <label class="admin-check"><input id="assetStripMetadata" type="checkbox" disabled /> {admin.assetOptionStripMetadata}</label>
+        </div>
+        <p class="meta">{admin.assetProcessingHelp}</p>
+        <p id="assetHint" class="meta" hidden={!admin.assetHintBeforePost}>{admin.assetHintBeforePost}</p>
+        <div id="assetList" class="asset-list"></div>
+      </section>
     </div>
+  </div>
 
-    <section class="admin-section">
-      <h2 class="admin-title">{admin.bodyTitle}</h2>
-      <div class="editor-grid">
-        <textarea id="body" class="admin-editor" spellcheck="false" placeholder={admin.bodyPlaceholder}></textarea>
-        <div class="article-body preview-pane" id="preview"></div>
-      </div>
-    </section>
+  <div id="settingsPanel" hidden>
+    <div class="admin-shell">
+      <section class="admin-section">
+        <div class="admin-toolbar">
+          <button id="saveSettings" class="admin-button primary" type="button" disabled>{admin.settingsSave}</button>
+          <span id="settingsStatus" class="meta"></span>
+        </div>
+      </section>
 
-    <section class="admin-section">
-      <h2 class="admin-title">{admin.assetsTitle}</h2>
-      <div class="admin-toolbar">
-        <input id="assetFiles" type="file" multiple disabled />
-        <button id="uploadAssets" class="admin-button" type="button" disabled>{admin.uploadAssets}</button>
-      </div>
-      <div class="asset-options">
-        <label class="admin-check"><input id="assetConvertWebp" type="checkbox" disabled /> {admin.assetOptionWebp}</label>
-        <label class="admin-check"><input id="assetStripMetadata" type="checkbox" disabled /> {admin.assetOptionStripMetadata}</label>
-      </div>
-      <p class="meta">{admin.assetProcessingHelp}</p>
-      <p id="assetHint" class="meta" hidden={!admin.assetHintBeforePost}>{admin.assetHintBeforePost}</p>
-      <div id="assetList" class="asset-list"></div>
-    </section>
+      <section class="admin-section">
+        <h2 class="admin-title">{admin.settingsLangLabel}</h2>
+        <div class="admin-form">
+          <label>{admin.settingsLangLabel} <select id="sLang"></select></label>
+        </div>
+      </section>
+
+      {admin.settingsIdentitySection && (
+        <section class="admin-section">
+          <h2 class="admin-title">{admin.settingsIdentitySection}</h2>
+          {admin.settingsIdentityLangNote && <p class="meta">{admin.settingsIdentityLangNote}</p>}
+          <div class="admin-form">
+            <label>en Title <input id="sSiteTitleEn" type="text" /></label>
+            <label>en Description <input id="sSiteDescEn" type="text" /></label>
+            <label>en Footer <input id="sSiteFooterEn" type="text" /></label>
+            <label>zh-CN 标题 <input id="sSiteTitleZh" type="text" /></label>
+            <label>zh-CN 摘要 <input id="sSiteDescZh" type="text" /></label>
+            <label>zh-CN 页脚 <input id="sSiteFooterZh" type="text" /></label>
+          </div>
+        </section>
+      )}
+
+      <section class="admin-section">
+        <h2 class="admin-title">{admin.settingsHomeSection}</h2>
+        {admin.settingsHideHint && <p class="meta">{admin.settingsHideHint}</p>}
+        <div class="admin-form">
+          <label>en {admin.settingsHomeNotice} <input id="sHomeNoticeEn" type="text" /></label>
+          <label>zh-CN {admin.settingsHomeNotice} <input id="sHomeNoticeZh" type="text" /></label>
+        </div>
+      </section>
+
+      <section class="admin-section">
+        <h2 class="admin-title">{admin.settingsSidebarSection}</h2>
+        {admin.settingsHideHint && <p class="meta">{admin.settingsHideHint}</p>}
+        <div class="admin-form">
+          <label>en {admin.settingsSidebarAboutTitle} <input id="sSidebarTitleEn" type="text" /></label>
+          <label>en {admin.settingsSidebarAboutText} <input id="sSidebarTextEn" type="text" /></label>
+          <label>zh-CN {admin.settingsSidebarAboutTitle} <input id="sSidebarTitleZh" type="text" /></label>
+          <label>zh-CN {admin.settingsSidebarAboutText} <input id="sSidebarTextZh" type="text" /></label>
+        </div>
+      </section>
+
+      <section class="admin-section">
+        <h2 class="admin-title">{admin.settingsAdminMessagesSection}</h2>
+        {admin.settingsHideHint && <p class="meta">{admin.settingsHideHint}</p>}
+        <div class="admin-form">
+          <label>en {admin.settingsAdminIntro} <input id="sAdminIntroEn" type="text" /></label>
+          <label>zh-CN {admin.settingsAdminIntro} <input id="sAdminIntroZh" type="text" /></label>
+          <label>en {admin.settingsAdminRootHelp} <input id="sAdminRootHelpEn" type="text" /></label>
+          <label>zh-CN {admin.settingsAdminRootHelp} <input id="sAdminRootHelpZh" type="text" /></label>
+          <label>en {admin.settingsAdminAssetHint} <input id="sAdminAssetHintEn" type="text" /></label>
+          <label>zh-CN {admin.settingsAdminAssetHint} <input id="sAdminAssetHintZh" type="text" /></label>
+        </div>
+      </section>
+
+      <section class="admin-section">
+        <h2 class="admin-title">{admin.settingsBgSection}</h2>
+        <div class="admin-form">
+          <label>{admin.settingsBgBody} <input id="sBgBody" type="text" /></label>
+          <label>{admin.settingsBgHeader} <input id="sBgHeader" type="text" /></label>
+          <label>{admin.settingsBgSite} <input id="sBgSite" type="text" /></label>
+        </div>
+        <div class="admin-toolbar" style="margin-top:10px">
+          <input id="siteImageFiles" type="file" multiple accept="image/*" disabled />
+          <button id="uploadSiteImages" class="admin-button" type="button" disabled>Upload To /images/site/</button>
+        </div>
+        <div class="asset-options">
+          <label class="admin-check"><input id="siteImageWebp" type="checkbox" disabled /> {admin.assetOptionWebp}</label>
+          <label class="admin-check"><input id="siteImageStripMeta" type="checkbox" disabled /> {admin.assetOptionStripMetadata}</label>
+        </div>
+      </section>
+
+      <section class="admin-section">
+        <h2 class="admin-title">{admin.settingsColorsSection}</h2>
+        <div class="admin-form">
+          <label>{admin.settingsHeaderTextColor} <input id="sHeaderTextColor" type="color" /></label>
+          <label>{admin.settingsHeaderDescColor} <input id="sHeaderDescColor" type="color" /></label>
+          <label>{admin.settingsHeaderHeight} <input id="sHeaderHeight" type="text" /></label>
+        </div>
+      </section>
+
+      <section class="admin-section">
+        <h2 class="admin-title">{admin.settingsTypographySection}</h2>
+        <div class="admin-form">
+          <label>{admin.settingsFontFamily} <input id="sFontFamily" type="text" placeholder={admin.settingsEmptyPlaceholder} /></label>
+          <label>{admin.settingsBaseFontSize} <input id="sBaseFontSize" type="text" placeholder={admin.settingsEmptyPlaceholder} /></label>
+          <label>{admin.settingsLineHeight} <input id="sLineHeight" type="text" placeholder={admin.settingsEmptyPlaceholder} /></label>
+          <label>{admin.settingsHeadingFont} <input id="sHeadingFont" type="text" placeholder={admin.settingsEmptyPlaceholder} /></label>
+          <label>{admin.settingsHeadingWeight} <input id="sHeadingWeight" type="text" placeholder={admin.settingsEmptyPlaceholder} /></label>
+          <label>{admin.settingsCodeFont} <input id="sCodeFont" type="text" placeholder={admin.settingsEmptyPlaceholder} /></label>
+        </div>
+      </section>
+
+      <section class="admin-section">
+        <h2 class="admin-title">Preview</h2>
+        <iframe id="sitePreview" title="Site Preview" src="about:blank" style="width:100%;min-height:640px;border:1px solid var(--line);background:#fff"></iframe>
+      </section>
+    </div>
   </div>
 
   <div id="admin-config" data-config={adminConfig} hidden></div>
@@ -119,6 +235,8 @@ const adminConfig = JSON.stringify({
       postsDir: null,
       publicDir: null,
       imagesPostsDir: null,
+      imagesSiteDir: null,
+      siteSettingsHandle: null,
       currentFile: null,
       currentAssetDir: null,
       posts: [],
@@ -208,6 +326,11 @@ const adminConfig = JSON.stringify({
       $('uploadAssets').disabled = !enabled || !state.currentFile;
       fields.assetConvertWebp.disabled = !enabled || !state.currentFile;
       fields.assetStripMetadata.disabled = !enabled || !state.currentFile;
+      $('saveSettings').disabled = !state.root;
+      $('siteImageFiles').disabled = !state.root;
+      $('uploadSiteImages').disabled = !state.root;
+      $('siteImageWebp').disabled = !state.root;
+      $('siteImageStripMeta').disabled = !state.root;
     }
 
     function resetCurrentPost() {
@@ -249,9 +372,16 @@ const adminConfig = JSON.stringify({
       state.postsDir = handles.postsDir;
       state.publicDir = handles.publicDir;
       state.imagesPostsDir = handles.imagesPostsDir;
+      state.imagesSiteDir = handles.imagesSiteDir;
       state.needsRootReconnect = false;
       setRootButtonLabel(false);
       resetCurrentPost();
+      try {
+        const srcDir = await handles.postsDir.parent;
+        state.siteSettingsHandle = await srcDir.getFileHandle('site-settings.json');
+      } catch {
+        state.siteSettingsHandle = null;
+      }
       if (remember) {
         await saveProjectRootHandle(root);
       }
@@ -265,6 +395,8 @@ const adminConfig = JSON.stringify({
       state.postsDir = null;
       state.publicDir = null;
       state.imagesPostsDir = null;
+      state.imagesSiteDir = null;
+      state.siteSettingsHandle = null;
       state.needsRootReconnect = true;
       setRootButtonLabel(true);
       resetCurrentPost();
@@ -566,8 +698,251 @@ const adminConfig = JSON.stringify({
     $('updateSlug').addEventListener('click', updateSlugFromTitle);
     $('uploadAssets').addEventListener('click', uploadAssets);
     fields.body.addEventListener('input', updatePreview);
+
+    // --- Tab switching ---
+    function showTab(name) {
+      const isPosts = name === 'posts';
+      $('postsPanel').hidden = !isPosts;
+      $('settingsPanel').hidden = isPosts;
+      $('tabPosts').classList.toggle('active', isPosts);
+      $('tabSettings').classList.toggle('active', !isPosts);
+      if (!isPosts && state.root) {
+        loadSettingsForm().catch(() => {});
+      }
+    }
+
+    $('tabPosts').addEventListener('click', () => showTab('posts'));
+    $('tabSettings').addEventListener('click', () => showTab('settings'));
+
+    // --- Site settings ---
+    const SITE_SETTINGS_PATH = 'src/site-settings.json';
+
+    async function getSettingsHandle() {
+      if (state.siteSettingsHandle) return state.siteSettingsHandle;
+      const src = await state.root.getDirectoryHandle('src');
+      state.siteSettingsHandle = await src.getFileHandle('site-settings.json');
+      return state.siteSettingsHandle;
+    }
+
+    async function readSiteSettings() {
+      try {
+        const handle = await getSettingsHandle();
+        const text = await readFile(handle);
+        return JSON.parse(text);
+      } catch (error) {
+        setSettingsStatus(`${adminCopy.settingsReadFailed} ${error.message}`);
+        return null;
+      }
+    }
+
+    async function writeSiteSettings(settings) {
+      try {
+        const handle = await getSettingsHandle();
+        await writeFile(handle, JSON.stringify(settings, null, 2) + '\n');
+        setSettingsStatus(adminCopy.settingsSaved);
+        refreshPreview();
+      } catch (error) {
+        setSettingsStatus(`${adminCopy.settingsSaveFailed} ${error.message}`);
+      }
+    }
+
+    function setSettingsStatus(message) {
+      $('settingsStatus').textContent = message;
+    }
+
+    function refreshPreview() {
+      const iframe = $('sitePreview');
+      iframe.src = iframe.src;
+    }
+
+    async function loadSettingsForm() {
+      const settings = await readSiteSettings();
+      if (!settings) return;
+
+      const lang = String(settings.defaultLocale || 'en');
+      $('sLang').innerHTML = (settings.supportedLocales || ['en']).map((l) =>
+        `<option value="${l}" ${l === lang ? 'selected' : ''}>${l}</option>`
+      ).join('');
+
+      const en = settings.copy?.en?.site || {};
+      const zh = settings.copy?.['zh-CN']?.site || {};
+      $('sSiteTitleEn').value = en.title || '';
+      $('sSiteDescEn').value = en.description || '';
+      $('sSiteFooterEn').value = en.footer || '';
+      $('sSiteTitleZh').value = zh.title || '';
+      $('sSiteDescZh').value = zh.description || '';
+      $('sSiteFooterZh').value = zh.footer || '';
+
+      const enHome = settings.copy?.en?.home || {};
+      const zhHome = settings.copy?.['zh-CN']?.home || {};
+      $('sHomeNoticeEn').value = enHome.notice || '';
+      $('sHomeNoticeZh').value = zhHome.notice || '';
+
+      const enSidebar = settings.copy?.en?.sidebar || {};
+      const zhSidebar = settings.copy?.['zh-CN']?.sidebar || {};
+      $('sSidebarTitleEn').value = enSidebar.aboutTitle || '';
+      $('sSidebarTextEn').value = enSidebar.aboutText || '';
+      $('sSidebarTitleZh').value = zhSidebar.aboutTitle || '';
+      $('sSidebarTextZh').value = zhSidebar.aboutText || '';
+
+      const enAdminCopy = settings.copy?.en?.admin || {};
+      const zhAdminCopy = settings.copy?.['zh-CN']?.admin || {};
+      $('sAdminIntroEn').value = enAdminCopy.intro || '';
+      $('sAdminIntroZh').value = zhAdminCopy.intro || '';
+      $('sAdminRootHelpEn').value = enAdminCopy.rootHelp || '';
+      $('sAdminRootHelpZh').value = zhAdminCopy.rootHelp || '';
+      $('sAdminAssetHintEn').value = enAdminCopy.assetHintBeforePost || '';
+      $('sAdminAssetHintZh').value = zhAdminCopy.assetHintBeforePost || '';
+
+      const theme = settings.theme || {};
+      $('sBgBody').value = theme.bodyBackgroundImage || '';
+      $('sBgHeader').value = theme.headerBackgroundImage || '';
+      $('sBgSite').value = theme.siteBackgroundImage || '';
+      $('sHeaderTextColor').value = theme.headerTextColor || '';
+      $('sHeaderDescColor').value = theme.headerDescriptionColor || '';
+      $('sHeaderHeight').value = theme.headerMinHeight || '';
+
+      const t = theme.typography || {};
+      $('sFontFamily').value = t.fontFamily || '';
+      $('sBaseFontSize').value = t.baseFontSize || '';
+      $('sLineHeight').value = t.lineHeight || '';
+      $('sHeadingFont').value = t.headingFontFamily || '';
+      $('sHeadingWeight').value = t.headingFontWeight || '';
+      $('sCodeFont').value = t.codeFontFamily || '';
+    }
+
+    async function collectAndSaveSettings() {
+      const settings = await readSiteSettings();
+      if (!settings) return;
+
+      settings.defaultLocale = $('sLang').value;
+
+      const en = settings.copy?.en?.site || {};
+      const zh = settings.copy?.['zh-CN']?.site || {};
+      en.title = $('sSiteTitleEn').value;
+      en.description = $('sSiteDescEn').value;
+      en.footer = $('sSiteFooterEn').value;
+      zh.title = $('sSiteTitleZh').value;
+      zh.description = $('sSiteDescZh').value;
+      zh.footer = $('sSiteFooterZh').value;
+      if (settings.copy) {
+        settings.copy.en.site = en;
+        if (settings.copy['zh-CN']) settings.copy['zh-CN'].site = zh;
+      }
+
+      const enHome = settings.copy?.en?.home || {};
+      const zhHome = settings.copy?.['zh-CN']?.home || {};
+      enHome.notice = $('sHomeNoticeEn').value;
+      zhHome.notice = $('sHomeNoticeZh').value;
+      if (settings.copy) {
+        settings.copy.en.home = enHome;
+        if (settings.copy['zh-CN']) settings.copy['zh-CN'].home = zhHome;
+      }
+
+      const enSidebar = settings.copy?.en?.sidebar || {};
+      const zhSidebar = settings.copy?.['zh-CN']?.sidebar || {};
+      enSidebar.aboutTitle = $('sSidebarTitleEn').value;
+      enSidebar.aboutText = $('sSidebarTextEn').value;
+      zhSidebar.aboutTitle = $('sSidebarTitleZh').value;
+      zhSidebar.aboutText = $('sSidebarTextZh').value;
+      if (settings.copy) {
+        settings.copy.en.sidebar = enSidebar;
+        if (settings.copy['zh-CN']) settings.copy['zh-CN'].sidebar = zhSidebar;
+      }
+
+      const enAdminCopy = settings.copy?.en?.admin || {};
+      const zhAdminCopy = settings.copy?.['zh-CN']?.admin || {};
+      enAdminCopy.intro = $('sAdminIntroEn').value;
+      enAdminCopy.rootHelp = $('sAdminRootHelpEn').value;
+      enAdminCopy.assetHintBeforePost = $('sAdminAssetHintEn').value;
+      zhAdminCopy.intro = $('sAdminIntroZh').value;
+      zhAdminCopy.rootHelp = $('sAdminRootHelpZh').value;
+      zhAdminCopy.assetHintBeforePost = $('sAdminAssetHintZh').value;
+      if (settings.copy) {
+        settings.copy.en.admin = enAdminCopy;
+        if (settings.copy['zh-CN']) settings.copy['zh-CN'].admin = zhAdminCopy;
+      }
+
+      const theme = settings.theme || {};
+      theme.bodyBackgroundImage = $('sBgBody').value;
+      theme.headerBackgroundImage = $('sBgHeader').value;
+      theme.siteBackgroundImage = $('sBgSite').value;
+      theme.headerTextColor = $('sHeaderTextColor').value;
+      theme.headerDescriptionColor = $('sHeaderDescColor').value;
+      theme.headerMinHeight = $('sHeaderHeight').value;
+      settings.theme = theme;
+
+      const t = theme.typography || {};
+      t.fontFamily = $('sFontFamily').value;
+      t.baseFontSize = $('sBaseFontSize').value;
+      t.lineHeight = $('sLineHeight').value;
+      t.headingFontFamily = $('sHeadingFont').value;
+      t.headingFontWeight = $('sHeadingWeight').value;
+      t.codeFontFamily = $('sCodeFont').value;
+      theme.typography = t;
+      settings.theme = theme;
+
+      await writeSiteSettings(settings);
+    }
+
+    $('saveSettings').addEventListener('click', collectAndSaveSettings);
+
+    $('uploadSiteImages').addEventListener('click', async () => {
+      if (!state.imagesSiteDir) return;
+      try {
+        const input = $('siteImageFiles');
+        const options = {
+          convertToWebp: $('siteImageWebp').checked,
+          stripMetadata: $('siteImageStripMeta').checked
+        };
+        let count = 0;
+        for (const file of input.files || []) {
+          const prepared = await prepareAssetUpload(file, options);
+          const handle = await state.imagesSiteDir.getFileHandle(prepared.file.name, { create: true });
+          const writable = await handle.createWritable();
+          await writable.write(prepared.file);
+          await writable.close();
+          count++;
+        }
+        input.value = '';
+        setSettingsStatus(`${count} image(s) uploaded to /images/site/.`);
+      } catch (error) {
+        setSettingsStatus(`Upload failed: ${error.message}`);
+      }
+    });
+
     setEnabled(false);
     setRootButtonLabel(false);
     restoreSavedRoot();
+    showTab('posts');
+    $('sitePreview').src = window.location.origin + '/';
   </script>
+
+  <style>
+    .admin-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 18px;
+      border-bottom: 2px solid var(--line);
+    }
+    .admin-tab {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      padding: 8px 20px;
+      font: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .admin-tab.active {
+      color: var(--text);
+      border-bottom-color: var(--text);
+    }
+    .admin-tab:hover { color: var(--text); }
+  </style>
 </BaseLayout>

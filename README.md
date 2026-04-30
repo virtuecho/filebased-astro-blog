@@ -163,6 +163,11 @@ Each typography field accepts any valid CSS value. An empty string means the CSS
 
 When you change `site-settings.json`, Astro's dev server detects the file change and hot-reloads the page so you can preview the result immediately.
 
+You can also edit settings through:
+
+- **Admin UI**: Open `/admin/`, click the **Settings** tab for a visual editor with live iframe preview.
+- **CLI**: `npm run site-config` (interactive) or `npm run site-config -- --flag value` (direct).
+
 CSS lives in:
 
 ```text
@@ -593,6 +598,7 @@ Notes:
 
 1. English and Chinese are configured separately. Clear both locale values if both versions should be hidden.
 2. Buttons, navigation labels, field labels, and status messages are also defined in `site-settings.json`, but they are part of the working UI and are not intended to be hidden.
+3. These fields can also be edited through the **Admin Settings tab** (`/admin/` → Settings) or the **CLI** (`npm run site-config -- --notice-en ""`), so you do not need to edit the JSON file directly.
 
 ## CLI Commands
 
@@ -606,6 +612,8 @@ npm run update-slug   # regenerate slug from title
 npm run preview-post  # render one post to .post-preview/
 npm run open-assets   # open or print a post asset folder
 npm run add-assets    # copy files into a post asset folder
+npm run site-config   # view or change site settings (interactive or --flags)
+npm run site-assets   # copy files into public/images/site/
 ```
 
 Examples:
@@ -619,6 +627,9 @@ npm run add-assets -- my-post ./cover.jpg
 npm run add-assets -- my-post ./cover.jpg --webp
 npm run add-assets -- my-post ./cover.jpg ./photo.png --strip-metadata
 npm run add-assets -- my-post ./cover.jpg ./scan.png --webp --strip-metadata
+npm run site-config -- --lang zh-CN
+npm run site-config -- --bg-header /images/site/header.jpg --font-family "Georgia, serif"
+npm run site-assets -- ./bg.jpg --webp
 ```
 
 `add-assets` options:
@@ -629,6 +640,19 @@ npm run add-assets -- my-post ./cover.jpg ./scan.png --webp --strip-metadata
 ```
 
 Files that are not static JPEG, PNG, or WebP are copied unchanged.
+
+`site-assets` works the same way but copies into `public/images/site/` for site-wide images (backgrounds, header images, etc.).
+
+`site-config` can be used interactively (`npm run site-config`) or with direct flags:
+
+```bash
+npm run site-config -- --show                # print current settings
+npm run site-config -- --lang zh-CN          # switch language
+npm run site-config -- --bg-header URL       # set header background
+npm run site-config -- --font-family FONT    # set body font
+```
+
+All site settings can also be edited visually in the `/admin/` Settings tab, which includes a live iframe preview.
 
 Implementation note:
 

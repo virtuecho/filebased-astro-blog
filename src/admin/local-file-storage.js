@@ -114,8 +114,9 @@ export async function ensureProjectHandles(root) {
   const publicDir = await getDir(root, 'public', true);
   const images = await getDir(publicDir, 'images', true);
   const imagesPostsDir = await getDir(images, 'posts', true);
+  const imagesSiteDir = await getDir(images, 'site', true);
 
-  return { postsDir, publicDir, imagesPostsDir };
+  return { postsDir, publicDir, imagesPostsDir, imagesSiteDir };
 }
 
 export async function readFile(handle) {

@@ -12,6 +12,8 @@
     "preview-post": "tsx scripts/preview-post.mjs",
     "open-assets": "tsx scripts/open-assets.mjs",
     "add-assets": "tsx scripts/add-assets.mjs",
+    "site-config": "tsx scripts/site-config.mjs",
+    "site-assets": "tsx scripts/site-assets.mjs",
     "build": "astro check && astro build",
     "preview": "astro preview"
   },
