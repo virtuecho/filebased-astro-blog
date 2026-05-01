@@ -77,17 +77,7 @@ export function slugFromTitle(title = '', postId = '') {
   return slugify(title, fallbackSlugFromPostId(postId));
 }
 
-export function assetDirForPostId(postId: string) {
-  return `/images/posts/${postId}/`;
-}
-
-export function publicAssetDir(assetDir: string) {
-  return `public${assetDir}`;
-}
-
-export function postFileName(postId: string) {
-  return `${postId}.md`;
-}
+export const INDEX_FILE = 'index.md';
 
 export function postUrl(data: { slug?: unknown; postId?: unknown }, fallbackId = '') {
   return `/posts/${String(data.slug || fallbackId || data.postId)}/`;
@@ -171,8 +161,6 @@ export function normalizePostData(data: PostFrontmatter, defaults: Partial<Conte
   const postId = String(data.postId || createPostId());
   const title = String(data.title || mergedDefaults.untitledDraft);
   const date = data.date instanceof Date ? todayLocalDate(data.date) : String(data.date || todayLocalDate());
-  const assetDir = String(data.assetDir || assetDirForPostId(postId));
-  const tags = Array.isArray(data.tags) ? data.tags.map(String).filter(Boolean) : [];
 
   return {
     ...data,
@@ -183,9 +171,8 @@ export function normalizePostData(data: PostFrontmatter, defaults: Partial<Conte
     date,
     updated: data.updated instanceof Date ? todayLocalDate(data.updated) : data.updated ? String(data.updated) : undefined,
     category: String(data.category || mergedDefaults.category),
-    tags,
+    tags: Array.isArray(data.tags) ? data.tags.map(String).filter(Boolean) : [],
     author: String(data.author || mergedDefaults.author),
-    assetDir,
     cover: data.cover ? String(data.cover) : undefined,
     draft: data.draft !== false
   } satisfies PostFrontmatter;
@@ -214,7 +201,6 @@ export function buildMarkdown(data: PostFrontmatter, body: string, defaults: Par
   }
 
   appendScalar(lines, 'author', normalized.author);
-  appendScalar(lines, 'assetDir', normalized.assetDir);
   appendScalar(lines, 'cover', normalized.cover);
   lines.push(`draft: ${normalized.draft}`);
 
@@ -228,7 +214,6 @@ export function buildMarkdown(data: PostFrontmatter, body: string, defaults: Par
     'category',
     'tags',
     'author',
-    'assetDir',
     'cover',
     'draft'
   ]);

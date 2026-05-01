@@ -4,11 +4,10 @@ import readline from 'node:readline/promises';
 import { spawn } from 'node:child_process';
 import { env, platform, stdin as input, stdout as output } from 'node:process';
 import { copy } from '../src/site.config.ts';
-import { assetDirForPostId, parseMarkdown, publicAssetDir } from '../src/content-workflow.ts';
+import { parseMarkdown } from '../src/content-workflow.ts';
 
 export const root = process.cwd();
 export const postsDir = path.join(root, 'src/content/posts');
-export const assetsBaseDir = path.join(root, 'public/images/posts');
 export const cliCopy = copy.cli;
 export const defaults = copy.contentDefaults;
 
@@ -22,30 +21,32 @@ export async function pathExists(filePath) {
 }
 
 export async function listPosts() {
-  const files = await fs.readdir(postsDir).catch(() => []);
+  const entries = await fs.readdir(postsDir, { withFileTypes: true }).catch(() => []);
   const posts = [];
 
-  for (const file of files) {
-    if (!file.endsWith('.md') && !file.endsWith('.mdx')) continue;
-    if (file === '_draft-template.md') continue;
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    if (entry.name.startsWith('_')) continue;
 
-    const filePath = path.join(postsDir, file);
-    const markdown = await fs.readFile(filePath, 'utf8');
-    const { data, body } = parseMarkdown(markdown);
-    const postId = String(data.postId || path.basename(file, path.extname(file)));
-    const assetDir = String(data.assetDir || assetDirForPostId(postId));
-    posts.push({
-      file,
-      filePath,
-      markdown,
-      body,
-      data: { ...data, postId, assetDir },
-      title: String(data.title || defaults.unnamedPost),
-      postId,
-      slug: String(data.slug || ''),
-      assetDir,
-      assetPath: path.join(root, publicAssetDir(assetDir))
-    });
+    const indexPath = path.join(postsDir, entry.name, 'index.md');
+    try {
+      const markdown = await fs.readFile(indexPath, 'utf8');
+      const { data, body } = parseMarkdown(markdown);
+      const postId = String(data.postId || entry.name);
+      posts.push({
+        file: `${entry.name}/index.md`,
+        filePath: indexPath,
+        markdown,
+        body,
+        data,
+        title: String(data.title || defaults.unnamedPost),
+        postId,
+        slug: String(data.slug || ''),
+        postDir: path.join(postsDir, entry.name)
+      });
+    } catch {
+      // skip directories without valid index.md
+    }
   }
 
   return posts.sort((a, b) => {

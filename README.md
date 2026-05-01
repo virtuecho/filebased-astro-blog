@@ -33,22 +33,24 @@ The important folders are:
 
 ```text
 src/pages/              Astro pages: homepage, archive pages, admin page, RSS
-src/content/posts/      Markdown post files
-public/images/posts/    one asset folder per post
+src/content/posts/      Markdown post files — each post lives in its own directory
+src/content/posts/{postId}/  every post is one directory: index.md + attachments
 public/images/site/     site-wide images, such as header or background images
 src/site-settings.json  all site copy, theme, language, and typography settings
 src/site.config.ts      TypeScript helper that reads from site-settings.json
 src/content-workflow.ts shared post rules used by /admin/ and CLI scripts
 ```
 
-A real post has this shape:
+A real post has this shape — one directory containing the markdown file and all attachments:
 
 ```text
-src/content/posts/{postId}.md
-public/images/posts/{postId}/
+src/content/posts/{postId}/
+  index.md
+  cover.jpg
+  photo.png
 ```
 
-`postId` is the stable identity. Do not treat the title or URL slug as the stable identity.
+To migrate a post, copy this one directory. Everything moves together.
 
 ## Install And Run
 
@@ -187,7 +189,7 @@ body
 Post cover images are configured per post:
 
 ```md
-cover: "/images/posts/{postId}/cover.jpg"
+cover: "./cover.jpg"
 ```
 
 ## First Post In /admin/
@@ -202,8 +204,8 @@ When you click `New Post`, the admin immediately does three things:
 
 ```text
 1. creates a random postId UUID
-2. creates src/content/posts/{postId}.md
-3. creates public/images/posts/{postId}/
+2. creates src/content/posts/{postId}/ directory
+3. creates src/content/posts/{postId}/index.md with draft frontmatter
 ```
 
 The new post starts as a draft:
@@ -245,12 +247,14 @@ After a post is selected:
 3. Optionally enable `Convert supported images to WebP`.
 4. Optionally enable `Strip metadata from supported images`.
 5. Click `Upload To Asset Folder`.
-6. The files are copied into `public/images/posts/{postId}/`.
+6. The files are copied into `src/content/posts/{postId}/`, side by side with `index.md`.
 7. Click `Insert` beside an uploaded file to insert Markdown like:
 
 ```md
-![image-name.jpg](/images/posts/{postId}/image-name.jpg)
+![image-name.jpg](./image-name.jpg)
 ```
+
+Images in the post body use relative paths. Astro resolves them automatically during build.
 
 Processing rules:
 
@@ -270,7 +274,7 @@ CLI add-assets uses local sharp for the same options
 
 The project still keeps the content model in Markdown files plus asset folders. That leaves room to later swap local file access for cloud object storage or a database-backed admin without changing how posts and assets are organized.
 
-In Markdown paths, do not write `public`. Public files are referenced from the site root.
+In Markdown paths, do not write `public`. Image paths in the post body are relative to the post directory.
 
 ## Markdown And Frontmatter
 
@@ -291,8 +295,7 @@ tags:
   - astro
   - markdown
 author: "Author"
-assetDir: "/images/posts/b6a1c0a6-3df8-4f6a-9e9a-44e08c1b9b42/"
-cover: "/images/posts/b6a1c0a6-3df8-4f6a-9e9a-44e08c1b9b42/cover.jpg"
+cover: "./cover.jpg"
 draft: true
 ---
 
@@ -308,7 +311,7 @@ slug, title, description, date, updated, category, tags, author, cover, draft, b
 Avoid changing:
 
 ```text
-postId, Markdown filename, asset folder name
+postId, the directory name, or the asset files alongside index.md
 ```
 
 The reference file is:
@@ -327,13 +330,7 @@ Change it back to `draft: true` if you want it to remain only a reference.
 
 ## postId And Slug
 
-`postId` is a random UUID. It is generated when a post is created. It is used for:
-
-```text
-Markdown filename
-asset folder
-assetDir
-```
+`postId` is a random UUID. It is generated when a post is created. It is used for the directory name that contains the post and all its files.
 
 `slug` is the public URL part:
 
@@ -517,13 +514,13 @@ http://localhost:4321/rss.xml
 There are two built-in image areas:
 
 ```text
-public/images/posts/{postId}/  assets for one specific post
-public/images/site/            site-wide images
+src/content/posts/{postId}/   the post directory — markdown, images, and all attachments live together
+public/images/site/           site-wide images (header, background, etc.)
 ```
 
-Use `public/images/posts/{postId}/` for post images, downloads, screenshots, scans, and post cover images.
+Post images, downloads, screenshots, and cover images all go into the post directory alongside `index.md`.
 
-Use `public/images/site/` for global images such as:
+Site-wide images (backgrounds, header images) go into `public/images/site/`:
 
 ```text
 public/images/site/header.jpg
@@ -532,10 +529,10 @@ public/images/site/body.jpg
 
 This template does not create date folders by default. Archive pages are generated from frontmatter `date`; they are not physical folders.
 
-If you want date-based organization, create subfolders inside a post asset folder:
+If you want date-based organization, create subfolders inside a post directory:
 
 ```text
-public/images/posts/{postId}/2026-04-28/photo.jpg
+src/content/posts/{postId}/2026-04-28/photo.jpg
 ```
 
 That file is still connected to the post through `postId`.

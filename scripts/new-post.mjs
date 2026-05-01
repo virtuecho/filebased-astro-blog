@@ -3,13 +3,11 @@ import path from 'node:path';
 import readline from 'node:readline/promises';
 import { randomUUID } from 'node:crypto';
 import { stdin as input, stdout as output } from 'node:process';
-import { cliCopy, defaults, pathExists, postsDir, root } from './cli-utils.mjs';
+import { cliCopy, defaults, pathExists, postsDir } from './cli-utils.mjs';
 import {
-  assetDirForPostId,
   buildMarkdown,
   createPostId,
   fallbackSlugFromPostId,
-  postFileName,
   slugify,
   todayLocalDate
 } from '../src/content-workflow.ts';
@@ -29,9 +27,7 @@ async function ask(question, fallback = '') {
   return answer || fallback;
 }
 
-function postComment(postId, assetDir, draft) {
-  const imageUrl = assetDir.replace(/\/$/, '');
-  const publicAssetPath = `public${assetDir}`;
+function postComment(postId, draft) {
   const note = cliCopy.postComment;
 
   return `<!--
@@ -41,14 +37,11 @@ ${postId}
 ${note.identity}
 ${note.keepStable}
 
-${note.assetFolder}
-${publicAssetPath}
-
 ${note.cover}
-cover: "${imageUrl}/cover.jpg"
+cover: "./cover.jpg"
 
 ${note.image}
-![image description](${imageUrl}/001.jpg)
+![image description](./001.jpg)
 
 ${note.slugTip}
 
@@ -82,12 +75,11 @@ async function main() {
   const publishInput = await ask(cliCopy.prompts.publish);
   const draft = !/^y(es)?$/i.test(publishInput);
   const tags = tagsInput.split(',').map((tag) => tag.trim()).filter(Boolean);
-  const assetDir = assetDirForPostId(postId);
-  const imageDir = path.join(root, 'public/images/posts', postId);
-  const postPath = path.join(postsDir, postFileName(postId));
+  const postDir = path.join(postsDir, postId);
+  const postPath = path.join(postDir, 'index.md');
 
-  if (await pathExists(postPath)) {
-    throw new Error(`Post already exists: ${postPath}`);
+  if (await pathExists(postDir)) {
+    throw new Error(`Post already exists: ${postDir}`);
   }
 
   const markdown = buildMarkdown(
@@ -100,21 +92,17 @@ async function main() {
       category,
       tags,
       author,
-      assetDir,
       draft
     },
-    `${postComment(postId, assetDir, draft)}${defaults.body}`,
+    `${postComment(postId, draft)}${defaults.body}`,
     defaults
   );
 
-  await fs.mkdir(postsDir, { recursive: true });
-  await fs.mkdir(imageDir, { recursive: true });
+  await fs.mkdir(postDir, { recursive: true });
   await fs.writeFile(postPath, markdown, 'utf8');
 
   console.log(`\n${cliCopy.messages.createdPost}`);
   console.log(postPath);
-  console.log(`\n${cliCopy.messages.createdAssets}`);
-  console.log(imageDir);
   console.log(`\n${cliCopy.messages.postId}`);
   console.log(postId);
   console.log(`\n${cliCopy.messages.currentSlug}`);

@@ -7,7 +7,6 @@ date: 2026-04-28
 category: "Uncategorized"
 tags: []
 author: "Author"
-assetDir: "/images/posts/draft-template/"
 draft: true
 ---
 

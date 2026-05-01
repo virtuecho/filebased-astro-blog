@@ -113,10 +113,9 @@ export async function ensureProjectHandles(root) {
   const postsDir = await getDir(content, 'posts', true);
   const publicDir = await getDir(root, 'public', true);
   const images = await getDir(publicDir, 'images', true);
-  const imagesPostsDir = await getDir(images, 'posts', true);
   const imagesSiteDir = await getDir(images, 'site', true);
 
-  return { postsDir, publicDir, imagesPostsDir, imagesSiteDir };
+  return { postsDir, publicDir, imagesSiteDir };
 }
 
 export async function readFile(handle) {
@@ -130,17 +129,23 @@ export async function writeFile(handle, content) {
   await writable.close();
 }
 
-export async function listPostFiles(postsDir, parseMarkdown) {
+export async function listPostFiles(postsDir, parseMarkdown, indexFile) {
   const posts = [];
 
   for await (const [name, handle] of postsDir.entries()) {
-    if (handle.kind !== 'file') continue;
-    if (!name.endsWith('.md') && !name.endsWith('.mdx')) continue;
-    if (name === '_draft-template.md') continue;
+    if (handle.kind !== 'directory') continue;
+    if (name.startsWith('_')) continue;
 
-    const markdown = await readFile(handle);
+    let postHandle;
+    try {
+      postHandle = await handle.getFileHandle(indexFile);
+    } catch {
+      continue;
+    }
+
+    const markdown = await readFile(postHandle);
     const { data } = parseMarkdown(markdown);
-    posts.push({ name, handle, data });
+    posts.push({ name, handle: postHandle, dirHandle: handle, data });
   }
 
   return posts.sort((a, b) => {

@@ -8,8 +8,7 @@ category: "Uncategorized"
 tags:
   - starter
 author: "Author"
-assetDir: "/images/posts/postId/"
-# cover: "/images/posts/postId/cover.jpg"
+# cover: "./cover.jpg"
 draft: true
 ---
 
@@ -17,4 +16,4 @@ draft: true
 
 Write the post body here.
 
-![Image description](/images/posts/postId/001.jpg)
+![Image description](./001.jpg)

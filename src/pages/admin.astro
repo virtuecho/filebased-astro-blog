@@ -58,7 +58,6 @@ const adminConfig = JSON.stringify({
             <label>{admin.fieldLabels.tags} <input id="tags" type="text" /></label>
             <label>{admin.fieldLabels.author} <input id="author" type="text" /></label>
             <label>{admin.fieldLabels.cover} <input id="cover" type="text" /></label>
-            <label>{admin.fieldLabels.assetDir} <input id="assetDir" type="text" readonly /></label>
             <label class="admin-check"><input id="draft" type="checkbox" /> {admin.fieldLabels.draft}</label>
           </div>
         </section>
@@ -204,12 +203,11 @@ const adminConfig = JSON.stringify({
     // @ts-nocheck
     import { marked } from 'marked';
     import {
-      assetDirForPostId,
       buildMarkdown,
       createPostId,
       fallbackSlugFromPostId,
+      INDEX_FILE,
       parseMarkdown,
-      postFileName,
       slugFromTitle,
       todayLocalDate
     } from '../content-workflow';
@@ -235,11 +233,10 @@ const adminConfig = JSON.stringify({
       root: null,
       postsDir: null,
       publicDir: null,
-      imagesPostsDir: null,
       imagesSiteDir: null,
       siteSettingsHandle: null,
       currentFile: null,
-      currentAssetDir: null,
+      currentPostDir: null,
       posts: [],
       needsRootReconnect: false
     };
@@ -256,7 +253,6 @@ const adminConfig = JSON.stringify({
       tags: $('tags'),
       author: $('author'),
       cover: $('cover'),
-      assetDir: $('assetDir'),
       assetConvertWebp: $('assetConvertWebp'),
       assetStripMetadata: $('assetStripMetadata'),
       draft: $('draft'),
@@ -283,7 +279,6 @@ const adminConfig = JSON.stringify({
         tags: fields.tags.value.split(',').map((tag) => tag.trim()).filter(Boolean),
         author: fields.author.value || defaults.author,
         cover: fields.cover.value,
-        assetDir: fields.assetDir.value,
         draft: fields.draft.checked
       };
     }
@@ -303,7 +298,6 @@ const adminConfig = JSON.stringify({
       fields.tags.value = Array.isArray(data.tags) ? data.tags.join(', ') : '';
       fields.author.value = data.author || defaults.author;
       fields.cover.value = data.cover || '';
-      fields.assetDir.value = data.assetDir || (data.postId ? assetDirForPostId(data.postId) : '');
       fields.draft.checked = data.draft !== false;
       fields.body.value = body || '';
       updatePreview();
@@ -337,7 +331,7 @@ const adminConfig = JSON.stringify({
     function resetCurrentPost() {
       state.posts = [];
       state.currentFile = null;
-      state.currentAssetDir = null;
+      state.currentPostDir = null;
       fields.postId.value = '';
       fields.slug.value = '';
       fields.title.value = '';
@@ -348,7 +342,6 @@ const adminConfig = JSON.stringify({
       fields.tags.value = '';
       fields.author.value = defaults.author;
       fields.cover.value = '';
-      fields.assetDir.value = '';
       fields.assetConvertWebp.checked = false;
       fields.assetStripMetadata.checked = false;
       fields.draft.checked = true;
@@ -372,7 +365,6 @@ const adminConfig = JSON.stringify({
       state.root = root;
       state.postsDir = handles.postsDir;
       state.publicDir = handles.publicDir;
-      state.imagesPostsDir = handles.imagesPostsDir;
       state.imagesSiteDir = handles.imagesSiteDir;
       state.needsRootReconnect = false;
       setRootButtonLabel(false);
@@ -395,7 +387,6 @@ const adminConfig = JSON.stringify({
       state.root = root;
       state.postsDir = null;
       state.publicDir = null;
-      state.imagesPostsDir = null;
       state.imagesSiteDir = null;
       state.siteSettingsHandle = null;
       state.needsRootReconnect = true;
@@ -405,13 +396,8 @@ const adminConfig = JSON.stringify({
       setRootStatus(`${adminCopy.rootReconnectHint} (${root.name})`);
     }
 
-    async function ensureCurrentAssetDir(postId) {
-      state.currentAssetDir = await state.imagesPostsDir.getDirectoryHandle(postId, { create: true });
-      return state.currentAssetDir;
-    }
-
     async function listPosts() {
-      state.posts = await listPostFiles(state.postsDir, parseMarkdown);
+      state.posts = await listPostFiles(state.postsDir, parseMarkdown, INDEX_FILE);
       renderPostList();
     }
 
@@ -444,11 +430,10 @@ const adminConfig = JSON.stringify({
     async function loadPost(post) {
       const markdown = await readFile(post.handle);
       const { data, body } = parseMarkdown(markdown);
-      const postId = data.postId || post.name.replace(/\.(md|mdx)$/i, '');
+      const postId = data.postId || post.name;
       data.postId = postId;
-      data.assetDir ||= assetDirForPostId(postId);
       state.currentFile = post.handle;
-      await ensureCurrentAssetDir(postId);
+      state.currentPostDir = post.dirHandle;
       fillForm(data, body);
       await renderAssets();
       setEnabled(true);
@@ -456,13 +441,12 @@ const adminConfig = JSON.stringify({
     }
 
     async function createPost() {
-      if (!state.postsDir || !state.imagesPostsDir) {
+      if (!state.postsDir) {
         setStatus(adminCopy.chooseRootError);
         return;
       }
 
       const postId = createPostId();
-      const assetDir = assetDirForPostId(postId);
       const data = {
         postId,
         slug: fallbackSlugFromPostId(postId),
@@ -471,12 +455,11 @@ const adminConfig = JSON.stringify({
         category: defaults.category,
         tags: [],
         author: defaults.author,
-        assetDir,
         draft: true
       };
 
-      state.currentFile = await getFile(state.postsDir, postFileName(postId), true);
-      await ensureCurrentAssetDir(postId);
+      state.currentPostDir = await getDir(state.postsDir, postId, true);
+      state.currentFile = await getFile(state.currentPostDir, INDEX_FILE, true);
       fillForm(data, defaults.body);
       await writeFile(state.currentFile, buildCurrentMarkdown());
 
@@ -500,8 +483,8 @@ const adminConfig = JSON.stringify({
 
     function updateAssetHint() {
       const assetHint = $('assetHint');
-      const nextText = fields.assetDir.value
-        ? `${adminCopy.assetHint} public${fields.assetDir.value}`
+      const nextText = state.currentPostDir
+        ? `${adminCopy.assetHint} src/content/posts/${fields.postId.value}/`
         : adminCopy.assetHintBeforePost;
       assetHint.textContent = nextText;
       assetHint.hidden = !nextText;
@@ -581,20 +564,20 @@ const adminConfig = JSON.stringify({
     async function renderAssets() {
       const list = $('assetList');
       list.innerHTML = '';
-      if (!state.currentAssetDir) return;
+      if (!state.currentPostDir) return;
 
-      for await (const [name, handle] of state.currentAssetDir.entries()) {
+      for await (const [name, handle] of state.currentPostDir.entries()) {
         if (handle.kind !== 'file') continue;
+        if (name === INDEX_FILE) continue;
         const item = document.createElement('div');
         item.className = 'asset-item';
-        const assetPath = `${fields.assetDir.value}${encodeURIComponent(name)}`;
         const nameNode = document.createElement('span');
         nameNode.textContent = name;
         const insert = document.createElement('button');
         insert.type = 'button';
         insert.className = 'admin-button';
         insert.textContent = adminCopy.insertAsset;
-        insert.addEventListener('click', () => insertAtCursor(`![${name}](${assetPath})`));
+        insert.addEventListener('click', () => insertAtCursor(`![${name}](./${encodeURIComponent(name)})`));
         item.append(nameNode, insert);
         list.appendChild(item);
       }
@@ -611,7 +594,7 @@ const adminConfig = JSON.stringify({
     }
 
     async function uploadAssets() {
-      if (!state.currentAssetDir) return;
+      if (!state.currentPostDir) return;
       try {
         const input = $('assetFiles');
         const options = {
@@ -624,7 +607,7 @@ const adminConfig = JSON.stringify({
           const prepared = await prepareAssetUpload(file, options);
           processedCount += prepared.processed ? 1 : 0;
           skippedCount += prepared.skipped ? 1 : 0;
-          const handle = await getFile(state.currentAssetDir, prepared.file.name, true);
+          const handle = await getFile(state.currentPostDir, prepared.file.name, true);
           const writable = await handle.createWritable();
           await writable.write(prepared.file);
           await writable.close();

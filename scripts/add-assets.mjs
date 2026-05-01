@@ -61,7 +61,7 @@ async function copyOrProcessAsset(post, source, options, seenTargets) {
   }
   seenTargets.add(normalizedTarget);
 
-  const target = path.join(post.assetPath, targetName);
+  const target = path.join(post.postDir, targetName);
   if (shouldProcess) {
     const sourceBuffer = await fs.readFile(absoluteSource);
     const result = await processImageInput(sourceBuffer, absoluteSource, options);
@@ -89,12 +89,12 @@ try {
   const post = await selectPost(query);
   if (!post) process.exit(0);
 
-  await fs.mkdir(post.assetPath, { recursive: true });
+  await fs.mkdir(post.postDir, { recursive: true });
   const seenTargets = new Set();
 
   for (const source of files) {
     const result = await copyOrProcessAsset(post, source, options, seenTargets);
-    const markdownPath = `${post.assetDir}${encodeURIComponent(result.targetName)}`;
+    const markdownRef = `![${result.targetName}](./${encodeURIComponent(result.targetName)})`;
     const label = result.processed
       ? cliCopy.messages.processedAsset
       : result.skipped
@@ -102,7 +102,7 @@ try {
         : cliCopy.messages.copiedAsset;
     console.log(`\n${label}`);
     console.log(result.target);
-    console.log(`${cliCopy.messages.markdownPath} ${markdownPath}`);
+    console.log(`${cliCopy.messages.markdownPath} ${markdownRef}`);
   }
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error));

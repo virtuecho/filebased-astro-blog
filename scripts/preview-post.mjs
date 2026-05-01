@@ -14,9 +14,9 @@ function escapeHtml(value) {
     .replaceAll('"', '&quot;');
 }
 
-function rewritePublicAssetUrls(html) {
-  const publicUrl = pathToFileURL(path.join(root, 'public')).href.replace(/\/$/, '');
-  return html.replaceAll('src="/images/', `src="${publicUrl}/images/`).replaceAll('href="/images/', `href="${publicUrl}/images/`);
+function rewriteAssetUrls(html, postDir) {
+  const dirUrl = pathToFileURL(postDir).href;
+  return html.replaceAll('src="./', `src="${dirUrl}/`).replaceAll('href="./', `href="${dirUrl}/`);
 }
 
 const args = argv.slice(2);
@@ -33,8 +33,8 @@ const post = await selectPost(query);
 if (post) {
   const cssPath = path.join(root, 'src/styles.css');
   const css = await fs.readFile(cssPath, 'utf8').catch(() => '');
-  const bodyHtml = rewritePublicAssetUrls(marked.parse(post.body || ''));
-  const cover = post.data.cover ? rewritePublicAssetUrls(`<img src="${escapeHtml(post.data.cover)}" alt="${escapeHtml(post.title)}" />`) : '';
+  const bodyHtml = rewriteAssetUrls(marked.parse(post.body || ''), post.postDir);
+  const cover = post.data.cover ? rewriteAssetUrls(`<img src="${escapeHtml(post.data.cover)}" alt="${escapeHtml(post.title)}" />`, post.postDir) : '';
   const previewDir = path.join(root, '.post-preview');
   const previewPath = path.join(previewDir, `${post.postId}.html`);
 
