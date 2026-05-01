@@ -186,7 +186,7 @@ body
 .blog-description
 ```
 
-文章封面图在每篇文章里设置：
+文章封面图在每篇文章里设置（任意文件名都可以，不一定要叫 `cover.jpg`）：
 
 ```md
 cover: "./cover.jpg"

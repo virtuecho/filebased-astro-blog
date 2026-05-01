@@ -186,7 +186,7 @@ body
 .blog-description
 ```
 
-Post cover images are configured per post:
+Post cover images are configured per post (any filename works, not just `cover.jpg`):
 
 ```md
 cover: "./cover.jpg"

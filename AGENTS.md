@@ -33,7 +33,7 @@ src/content/posts/{postId}/
 - Admin creates: directory + `index.md` in one step
 - Attachments are uploaded into the same directory
 - Body images use **relative paths**: `![img](./img.jpg)`
-- Cover path in frontmatter: `cover: "./cover.jpg"`
+- Cover path in frontmatter: `cover: "./cover.jpg"` — any filename works, `cover.jpg` is only a default suggestion in the CLI template
 
 ### Content collection
 
