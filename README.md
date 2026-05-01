@@ -597,6 +597,23 @@ Notes:
 2. Buttons, navigation labels, field labels, and status messages are also defined in `site-settings.json`, but they are part of the working UI and are not intended to be hidden.
 3. These fields can also be edited through the **Admin Settings tab** (`/admin/` → Settings) or the **CLI** (`npm run site-config -- --notice-en ""`), so you do not need to edit the JSON file directly.
 
+## Testing
+
+```bash
+npm test
+```
+
+The test suite verifies:
+
+- Build and type-check pass
+- All CLI scripts have valid syntax
+- Imports in admin.astro are complete
+- CLI `listPosts()` return properties match callers
+- `site-settings.json` is valid and both locales match
+- README files are in sync (en and zh-CN)
+
+Run `npm test` after any code change before committing.
+
 ## CLI Commands
 
 ```bash

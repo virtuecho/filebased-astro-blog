@@ -85,11 +85,19 @@ All in `scripts/`, run via `tsx`:
 ## Verification
 
 ```bash
-npx astro check     # TypeScript type-check only
-npm run build       # check + full static build
+npm test             # run full automated test suite
 ```
 
-No test suite exists yet. Verify manually:
+The test suite (`test.mjs`) checks:
+
+1. **Build & type-check** — `astro check` + `astro build`
+2. **CLI script syntax** — `node --check` on every `scripts/*.mjs`
+3. **admin.astro import integrity** — every external function used is present in the import block
+4. **CLI property integrity** — `listPosts()` return properties match what callers reference
+5. **site-settings.json validity** — valid JSON, required keys exist, both locales have matching key structure
+6. **README parity** — English and Chinese README files are within 10% line-count divergence
+
+Run `npm test` after any code change before committing. Run manually to verify runtime behavior:
 - `npm run dev` → open `http://localhost:4321` and `http://localhost:4321/admin/`
 - Run CLI scripts to confirm they work
 
@@ -119,7 +127,7 @@ Examples:
 
 ## Code style
 
-- All existing code uses **comments** unless explicitly requested — follow this pattern
+- All existing codes must has **comments** on it unless explicitly requested — follow this pattern
 - TypeScript: strict mode (extends `astro/tsconfigs/strict`)
 - Astro components: frontmatter script at top, HTML below
 - CLI scripts: `.mjs` extension, run via `tsx`

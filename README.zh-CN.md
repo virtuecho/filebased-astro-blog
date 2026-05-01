@@ -597,6 +597,23 @@ copy['zh-CN'].admin.assetHintBeforePost
 2. 按钮文字、导航名称、表单字段名、状态提示也定义在 `site-settings.json` 中，但这些文案属于界面的一部分，不建议隐藏。
 3. 这些字段也可以通过 **Admin Settings 标签页**（`/admin/` → Settings）或 **CLI**（`npm run site-config -- --notice-zh ""`）来编辑，不必直接修改 JSON 文件。
 
+## 测试
+
+```bash
+npm test
+```
+
+测试套件会验证：
+
+- 构建和类型检查通过
+- 所有 CLI 脚本语法正确
+- admin.astro 的 import 完整无误
+- CLI `listPosts()` 返回属性与调用方一致
+- `site-settings.json` 有效且两个语言的键结构一致
+- README 文件同步（英文和中文）
+
+每次修改代码后，提交前请运行 `npm test`。
+
 ## CLI 命令
 
 ```bash

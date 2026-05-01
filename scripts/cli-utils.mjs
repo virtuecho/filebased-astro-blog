@@ -6,11 +6,16 @@ import { env, platform, stdin as input, stdout as output } from 'node:process';
 import { copy } from '../src/site.config.ts';
 import { parseMarkdown } from '../src/content-workflow.ts';
 
+// Project root directory
 export const root = process.cwd();
+// Directory where all post content lives (one subdirectory per post)
 export const postsDir = path.join(root, 'src/content/posts');
+// CLI-specific localized copy strings
 export const cliCopy = copy.cli;
+// Default content values (author, category, etc.)
 export const defaults = copy.contentDefaults;
 
+// Check whether a file or directory exists at the given path
 export async function pathExists(filePath) {
   try {
     await fs.access(filePath);
@@ -20,35 +25,40 @@ export async function pathExists(filePath) {
   }
 }
 
+// Read all posts from the content directory, sorted by date descending
 export async function listPosts() {
   const entries = await fs.readdir(postsDir, { withFileTypes: true }).catch(() => []);
   const posts = [];
 
   for (const entry of entries) {
+    // Only process directories (each post is a directory)
     if (!entry.isDirectory()) continue;
+    // Skip hidden/draft directories prefixed with _
     if (entry.name.startsWith('_')) continue;
 
     const indexPath = path.join(postsDir, entry.name, 'index.md');
     try {
       const markdown = await fs.readFile(indexPath, 'utf8');
+      // Parse frontmatter + body from the markdown file
       const { data, body } = parseMarkdown(markdown);
       const postId = String(data.postId || entry.name);
       posts.push({
-        file: `${entry.name}/index.md`,
-        filePath: indexPath,
+        file: `${entry.name}/index.md`,   // relative path for display
+        filePath: indexPath,              // absolute path on disk
         markdown,
         body,
         data,
         title: String(data.title || defaults.unnamedPost),
         postId,
         slug: String(data.slug || ''),
-        postDir: path.join(postsDir, entry.name)
+        postDir: path.join(postsDir, entry.name)  // post's directory (for assets)
       });
     } catch {
       // skip directories without valid index.md
     }
   }
 
+  // Sort by date descending; fall back to alphabetical by title
   return posts.sort((a, b) => {
     const ad = new Date(a.data.date || 0).getTime();
     const bd = new Date(b.data.date || 0).getTime();
@@ -56,21 +66,26 @@ export async function listPosts() {
   });
 }
 
+// Filter a post list by a query string (matches title, slug, postId, or file path)
+// Numeric queries match by index in the list (1-based)
 export function findMatches(posts, query) {
   const normalized = query.trim().toLowerCase();
   if (!normalized) return posts;
 
+  // If the query is a number, select by 1-based list index
   const number = Number(normalized);
   if (Number.isInteger(number) && number >= 1 && number <= posts.length) {
     return [posts[number - 1]];
   }
 
+  // Fuzzy match against file path, title, postId, and slug
   return posts.filter((post) => {
     const haystack = `${post.file} ${post.title} ${post.postId} ${post.slug}`.toLowerCase();
     return haystack.includes(normalized);
   });
 }
 
+// Print a numbered list of posts to the console
 export function printPostList(posts) {
   console.log(`${cliCopy.messages.editablePosts}\n`);
   posts.forEach((post, index) => {
@@ -80,6 +95,7 @@ export function printPostList(posts) {
   });
 }
 
+// Interactive post picker: list posts, prompt for selection, return the match
 export async function selectPost(queryFromArg = '') {
   const posts = await listPosts();
 
@@ -92,6 +108,7 @@ export async function selectPost(queryFromArg = '') {
   printPostList(posts);
   let query = queryFromArg.trim();
 
+  // No query provided: prompt interactively if TTY, otherwise show usage
   if (!query) {
     if (!input.isTTY) {
       console.log(`\n${cliCopy.messages.usageEdit}`);
@@ -112,6 +129,7 @@ export async function selectPost(queryFromArg = '') {
     return null;
   }
 
+  // Multiple matches: show list and exit (no ambiguous selection)
   if (matches.length > 1) {
     console.log(`\n${cliCopy.messages.tooMany}`);
     matches.forEach((post) => {
@@ -123,7 +141,9 @@ export async function selectPost(queryFromArg = '') {
   return matches[0];
 }
 
+// Open a file or directory using the OS default handler or the configured $EDITOR
 export function openPath(targetPath, { editor = false } = {}) {
+  // Use $VISUAL or $EDITOR when opening for editing
   const customEditor = editor ? env.VISUAL || env.EDITOR : '';
   let command;
   let args;

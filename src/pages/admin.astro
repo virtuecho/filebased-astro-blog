@@ -216,6 +216,7 @@ const adminConfig = JSON.stringify({
       clearProjectRootHandle,
       ensureProjectHandles,
       getFile,
+      getDir,
       listPostFiles,
       loadProjectRootHandle,
       queryHandlePermission,
@@ -225,11 +226,13 @@ const adminConfig = JSON.stringify({
       writeFile
     } from '../admin/local-file-storage.js';
 
+    // Parse the JSON config injected by the server into a data attribute
     const config = JSON.parse(document.getElementById('admin-config').dataset.config);
     const adminCopy = config.admin;
     const labelCopy = config.labels;
     const defaults = config.defaults;
 
+    // Application state tracking the current root, post, and UI flags
     const state = {
       root: null,
       postsDir: null,
@@ -242,7 +245,9 @@ const adminConfig = JSON.stringify({
       needsRootReconnect: false
     };
 
+    // Shorthand to get a DOM element by id
     const $ = (id) => document.getElementById(id);
+    // All form field DOM references, lazily resolved once the page loads
     const fields = {
       postId: $('postId'),
       slug: $('slug'),
@@ -260,7 +265,9 @@ const adminConfig = JSON.stringify({
       body: $('body')
     };
 
+    // MIME types that can be re-encoded (JPEG, PNG, WebP)
     const PROCESSABLE_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
+    // File extension → MIME type mapping for inferring image type from filename
     const EXTENSION_TO_MIME = {
       '.jpg': 'image/jpeg',
       '.jpeg': 'image/jpeg',
@@ -268,6 +275,7 @@ const adminConfig = JSON.stringify({
       '.webp': 'image/webp'
     };
 
+    // Collect all form values into a post data object
     function formData() {
       return {
         postId: fields.postId.value,
@@ -284,10 +292,12 @@ const adminConfig = JSON.stringify({
       };
     }
 
+    // Build a complete Markdown string from the current form state
     function buildCurrentMarkdown() {
       return buildMarkdown(formData(), fields.body.value, defaults);
     }
 
+    // Populate all form fields from a parsed post object
     function fillForm(data, body) {
       fields.postId.value = data.postId || '';
       fields.slug.value = data.slug || '';
@@ -305,14 +315,17 @@ const adminConfig = JSON.stringify({
       updateAssetHint();
     }
 
+    // Render the live Markdown preview into the preview div
     function updatePreview() {
       $('preview').innerHTML = marked.parse(fields.body.value || '');
     }
 
+    // Show a status message in the save-status area
     function setStatus(message) {
       $('saveStatus').textContent = message;
     }
 
+    // Enable or disable all buttons and inputs based on root/post availability
     function setEnabled(enabled) {
       $('refreshPosts').disabled = !enabled;
       $('newPost').disabled = !enabled;
@@ -329,6 +342,7 @@ const adminConfig = JSON.stringify({
       $('siteImageStripMeta').disabled = !state.root;
     }
 
+    // Clear all post-related state and form fields back to defaults
     function resetCurrentPost() {
       state.posts = [];
       state.currentFile = null;
@@ -353,14 +367,17 @@ const adminConfig = JSON.stringify({
       updateAssetHint();
     }
 
+    // Update the root connection status text
     function setRootStatus(message) {
       $('rootStatus').textContent = message;
     }
 
+    // Toggle the root picker button label between "pick" and "reconnect"
     function setRootButtonLabel(needsReconnect) {
       $('pickRoot').textContent = needsReconnect ? adminCopy.reconnectRoot : adminCopy.pickRoot;
     }
 
+    // Establish working directory handles from a root handle
     async function connectRoot(root, statusPrefix, remember = true) {
       const handles = await ensureProjectHandles(root);
       state.root = root;
@@ -384,6 +401,7 @@ const adminConfig = JSON.stringify({
       await listPosts();
     }
 
+    // Transition to reconnect-needed state without dropping the root reference
     function setReconnectState(root) {
       state.root = root;
       state.postsDir = null;
@@ -397,11 +415,13 @@ const adminConfig = JSON.stringify({
       setRootStatus(`${adminCopy.rootReconnectHint} (${root.name})`);
     }
 
+    // Scan the content directory and refresh the post list in state + UI
     async function listPosts() {
       state.posts = await listPostFiles(state.postsDir, parseMarkdown, INDEX_FILE);
       renderPostList();
     }
 
+    // Rebuild the post list sidebar from state.posts
     function renderPostList() {
       const list = $('postList');
       if (!state.posts.length) {
@@ -428,6 +448,7 @@ const adminConfig = JSON.stringify({
       }
     }
 
+    // Read a post from disk, parse its frontmatter, and fill the editor form
     async function loadPost(post) {
       const markdown = await readFile(post.handle);
       const { data, body } = parseMarkdown(markdown);
@@ -441,6 +462,7 @@ const adminConfig = JSON.stringify({
       setStatus(`${adminCopy.opened} ${post.name}`);
     }
 
+    // Create a new draft post directory and index.md with default values
     async function createPost() {
       if (!state.postsDir) {
         setStatus(adminCopy.chooseRootError);
@@ -470,6 +492,7 @@ const adminConfig = JSON.stringify({
       setStatus(adminCopy.created);
     }
 
+    // Persist the current form state back to the Markdown file
     async function savePost() {
       if (!state.currentFile) return;
       await writeFile(state.currentFile, buildCurrentMarkdown());
@@ -477,11 +500,13 @@ const adminConfig = JSON.stringify({
       setStatus(adminCopy.saved);
     }
 
+    // Regenerate the slug field from the current title value
     function updateSlugFromTitle() {
       fields.slug.value = slugFromTitle(fields.title.value, fields.postId.value);
       setStatus(adminCopy.slugUpdated);
     }
 
+    // Show or hide the asset upload hint based on whether a post is open
     function updateAssetHint() {
       const assetHint = $('assetHint');
       const nextText = state.currentPostDir
@@ -491,20 +516,24 @@ const adminConfig = JSON.stringify({
       assetHint.hidden = !nextText;
     }
 
+    // Extract the lowercase file extension from a filename (e.g. ".jpg")
     function fileExtension(name) {
       const dot = name.lastIndexOf('.');
       return dot >= 0 ? name.slice(dot).toLowerCase() : '';
     }
 
+    // Extract the filename without its extension
     function fileStem(name) {
       const dot = name.lastIndexOf('.');
       return dot >= 0 ? name.slice(0, dot) : name;
     }
 
+    // Set a field's value (used by site image "Body/Header/Site" quick-fill buttons)
     function setBgField(fieldId, path) {
       $(fieldId).value = path;
     }
 
+    // List site images with Body/Header/Site quick-apply buttons for theme backgrounds
     async function renderSiteImages() {
       const list = $('siteImageList');
       list.innerHTML = '';
@@ -562,18 +591,21 @@ const adminConfig = JSON.stringify({
       }
     }
 
+    // Determine if a file can be processed (JPEG/PNG/WebP) by checking MIME type or extension
     function inferProcessableImageType(file) {
       const directType = String(file.type || '').toLowerCase();
       if (PROCESSABLE_IMAGE_TYPES.has(directType)) return directType;
       return EXTENSION_TO_MIME[fileExtension(file.name)] || '';
     }
 
+    // Generate the output filename: optionally switch extension to .webp
     function outputAssetName(file, convertToWebp) {
       return convertToWebp && inferProcessableImageType(file)
         ? `${fileStem(file.name)}.webp`
         : file.name;
     }
 
+    // Convert a canvas to a Blob via toBlob() wrapped in a promise
     async function canvasBlob(canvas, type, quality) {
       return new Promise((resolve, reject) => {
         canvas.toBlob((blob) => {
@@ -586,6 +618,7 @@ const adminConfig = JSON.stringify({
       });
     }
 
+    // Re-encode an image file (convert to WebP and/or strip metadata) in the browser
     async function reencodeImageFile(file, options, sourceType) {
       const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
       try {
@@ -607,6 +640,7 @@ const adminConfig = JSON.stringify({
       }
     }
 
+    // Conditionally process an uploaded file based on user-selected options
     async function prepareAssetUpload(file, options) {
       const wantsProcessing = options.convertToWebp || options.stripMetadata;
       const sourceType = inferProcessableImageType(file);
@@ -623,6 +657,7 @@ const adminConfig = JSON.stringify({
       }
     }
 
+    // List all assets in the current post directory (excluding index.md)
     async function renderAssets() {
       const list = $('assetList');
       list.innerHTML = '';
@@ -645,6 +680,7 @@ const adminConfig = JSON.stringify({
       }
     }
 
+    // Insert a text snippet at the current cursor position in the body textarea
     function insertAtCursor(text) {
       const textarea = fields.body;
       const start = textarea.selectionStart ?? textarea.value.length;
@@ -655,6 +691,7 @@ const adminConfig = JSON.stringify({
       updatePreview();
     }
 
+    // Process and write selected asset files into the current post directory
     async function uploadAssets() {
       if (!state.currentPostDir) return;
       try {
@@ -688,6 +725,7 @@ const adminConfig = JSON.stringify({
       }
     }
 
+    // Try to restore a previously-saved project root handle from IndexedDB
     async function restoreSavedRoot() {
       if (!('showDirectoryPicker' in window)) {
         setRootStatus(adminCopy.unsupportedBrowser);
@@ -715,6 +753,7 @@ const adminConfig = JSON.stringify({
       }
     }
 
+    // Root picker: show directory picker or re-request permission for existing root
     $('pickRoot').addEventListener('click', async () => {
       if (!('showDirectoryPicker' in window)) {
         setRootStatus(adminCopy.unsupportedBrowser);
@@ -738,14 +777,21 @@ const adminConfig = JSON.stringify({
       }
     });
 
+    // Refresh the post list from disk
     $('refreshPosts').addEventListener('click', listPosts);
+    // Create a new draft post
     $('newPost').addEventListener('click', createPost);
+    // Save the current post back to disk
     $('savePost').addEventListener('click', savePost);
+    // Regenerate slug from the title field
     $('updateSlug').addEventListener('click', updateSlugFromTitle);
+    // Upload and optionally process selected asset files
     $('uploadAssets').addEventListener('click', uploadAssets);
+    // Update the live Markdown preview on every keystroke
     fields.body.addEventListener('input', updatePreview);
 
     // --- Tab switching ---
+    // Toggle visibility between the Posts and Settings panels, persist the choice
     function showTab(name) {
       const isPosts = name === 'posts';
       $('postsPanel').hidden = !isPosts;
@@ -766,6 +812,7 @@ const adminConfig = JSON.stringify({
     // --- Site settings ---
     const SITE_SETTINGS_PATH = 'src/site-settings.json';
 
+    // Lazily resolve and cache the site-settings.json file handle
     async function getSettingsHandle() {
       if (state.siteSettingsHandle) return state.siteSettingsHandle;
       const src = await state.root.getDirectoryHandle('src');
@@ -773,6 +820,7 @@ const adminConfig = JSON.stringify({
       return state.siteSettingsHandle;
     }
 
+    // Read and parse site-settings.json from disk
     async function readSiteSettings() {
       try {
         const handle = await getSettingsHandle();
@@ -784,6 +832,7 @@ const adminConfig = JSON.stringify({
       }
     }
 
+    // Serialize and write the settings object back to site-settings.json
     async function writeSiteSettings(settings) {
       try {
         const handle = await getSettingsHandle();
@@ -799,11 +848,13 @@ const adminConfig = JSON.stringify({
       $('settingsStatus').textContent = message;
     }
 
+    // Force-reload the site preview iframe so changes are visible
     function refreshPreview() {
       const iframe = $('sitePreview');
       iframe.src = iframe.src;
     }
 
+    // Populate all settings form fields from the current site-settings.json
     async function loadSettingsForm() {
       const settings = await readSiteSettings();
       if (!settings) return;
@@ -860,6 +911,7 @@ const adminConfig = JSON.stringify({
       $('sCodeFont').value = t.codeFontFamily || '';
     }
 
+    // Gather all form values and persist them to site-settings.json
     async function collectAndSaveSettings() {
       const settings = await readSiteSettings();
       if (!settings) return;
@@ -934,8 +986,10 @@ const adminConfig = JSON.stringify({
       await writeSiteSettings(settings);
     }
 
+    // Save settings button
     $('saveSettings').addEventListener('click', collectAndSaveSettings);
 
+    // Upload site images (processed through canvas) to public/images/site/
     $('uploadSiteImages').addEventListener('click', async () => {
       if (!state.imagesSiteDir) return;
       try {
@@ -962,16 +1016,21 @@ const adminConfig = JSON.stringify({
       }
     });
 
+    // --- Initialization ---
+    // Disable all action buttons until a root is connected
     setEnabled(false);
     setRootButtonLabel(false);
+    // Restore the last-active tab from sessionStorage
     let activeTab = 'posts';
     try { activeTab = sessionStorage.getItem('adminActiveTab') || 'posts'; } catch {}
+    // Attempt to restore a previously-saved root handle on page load
     restoreSavedRoot().then(() => {
       if (activeTab === 'settings' && state.root) {
         showTab('settings');
       }
     });
     showTab('posts');
+    // Set the live preview iframe to the site root
     $('sitePreview').src = window.location.origin + '/';
   </script>
 

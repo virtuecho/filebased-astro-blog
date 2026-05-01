@@ -3,9 +3,12 @@ import path from 'node:path';
 import readline from 'node:readline/promises';
 import { argv, stdin as input, stdout as output, exit } from 'node:process';
 
+// Project root directory
 const root = process.cwd();
+// Path to the single source-of-truth site settings file
 const settingsPath = path.join(root, 'src/site-settings.json');
 
+// Print usage help for the direct (non-interactive) mode
 function usage() {
   console.log(`Usage:
   npm run site-config                        interactive menu
@@ -19,6 +22,7 @@ function usage() {
   exit(0);
 }
 
+// Load and parse the site-settings.json file
 async function loadSettings() {
   try {
     const raw = await fs.readFile(settingsPath, 'utf8');
@@ -29,15 +33,18 @@ async function loadSettings() {
   }
 }
 
+// Write settings back to disk with pretty-printing
 async function saveSettings(settings) {
   await fs.writeFile(settingsPath, JSON.stringify(settings, null, 2) + '\n');
   console.log('Saved to src/site-settings.json');
 }
 
+// Pretty-print current settings to stdout (used by --show)
 function display(settings) {
   console.log(JSON.stringify(settings, null, 2));
 }
 
+// Prompt the user for input with an optional default value
 async function ask(question, defaultValue = '') {
   const rl = readline.createInterface({ input, output });
   const prompt = defaultValue ? `${question} [${defaultValue}]: ` : `${question}: `;
@@ -46,9 +53,11 @@ async function ask(question, defaultValue = '') {
   return answer.trim() || defaultValue;
 }
 
+// Interactive numbered menu for editing settings one field at a time
 async function interactiveMenu(settings) {
   console.log('\nSite Settings\n');
 
+  // Extract all current values with safe fallbacks
   const lang = settings.defaultLocale;
   const en = settings.copy?.en?.site || {};
   const zh = settings.copy?.['zh-CN']?.site || {};
@@ -61,6 +70,7 @@ async function interactiveMenu(settings) {
   const theme = settings.theme || {};
   const t = theme.typography || {};
 
+  // Display numbered menu of all editable settings
   console.log(` 1. Language         : ${lang}`);
   console.log(` 2. Title (en)       : ${en.title}`);
   console.log(` 3. Description (en) : ${en.description}`);
@@ -96,6 +106,7 @@ async function interactiveMenu(settings) {
   const num = Number(choice);
   let value;
 
+  // Map each number to its settings path and prompt for new value
   switch (num) {
     case 1:
       value = await ask('Language code', lang);
@@ -115,6 +126,7 @@ async function interactiveMenu(settings) {
       break;
     case 5:
       value = await ask('Title (zh-CN)', zh.title);
+      // Lazily initialize zh-CN copy if it doesn't exist
       if (!settings.copy['zh-CN']) settings.copy['zh-CN'] = { site: { title: '', description: '', footer: '' } };
       settings.copy['zh-CN'].site.title = value;
       break;
@@ -216,11 +228,12 @@ async function interactiveMenu(settings) {
   await saveSettings(settings);
 }
 
-// --- direct mode ---
+// Direct (non-interactive) mode: parse --flag value pairs from CLI args
 function parseDirectArgs(args) {
   const settings = {};
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
+    // Each --flag consumes the next argument as its value
     if (arg === '--lang') settings.defaultLocale = args[++i];
     else if (arg === '--bg-body') settings.bodyBackgroundImage = args[++i];
     else if (arg === '--bg-header') settings.headerBackgroundImage = args[++i];
@@ -258,6 +271,7 @@ function parseDirectArgs(args) {
   return settings;
 }
 
+// Write parsed direct-mode values into the full settings object
 function applyDirectChanges(settings, direct) {
   if (direct.defaultLocale) settings.defaultLocale = direct.defaultLocale;
   if (direct.bodyBackgroundImage !== undefined) settings.theme.bodyBackgroundImage = direct.bodyBackgroundImage;
@@ -292,10 +306,12 @@ function applyDirectChanges(settings, direct) {
   if (direct.adminAssetHintZh !== undefined && settings.copy['zh-CN']) settings.copy['zh-CN'].admin.assetHintBeforePost = direct.adminAssetHintZh;
 }
 
+// Main entry point: no args = interactive menu, with args = direct mode
 async function main() {
   const args = argv.slice(2);
   const settings = await loadSettings();
 
+  // No arguments: launch interactive menu
   if (args.length === 0) {
     await interactiveMenu(settings);
     return;
@@ -303,11 +319,13 @@ async function main() {
 
   const direct = parseDirectArgs(args);
 
+  // --show: display current settings and exit
   if (direct.show) {
     display(settings);
     return;
   }
 
+  // Apply parsed --flag values and save
   applyDirectChanges(settings, direct);
   await saveSettings(settings);
 }

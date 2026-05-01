@@ -15,7 +15,8 @@
     "site-config": "tsx scripts/site-config.mjs",
     "site-assets": "tsx scripts/site-assets.mjs",
     "build": "astro check && astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "test": "node test.mjs"
   },
   "dependencies": {
     "@astrojs/check": "latest",
