@@ -125,3 +125,24 @@ Examples:
 - CLI scripts: `.mjs` extension, run via `tsx`
 - Imports: use relative paths from the importing file's location
 - Follow existing naming conventions and patterns when adding new files
+
+## Agent workflow rules
+
+**Before implementing any change:**
+
+1. Read the relevant files and understand the existing patterns
+2. Propose a clear plan — explain what will change and why
+3. Wait for the user to approve before writing code
+
+**When the user asks for changes to be committed:**
+
+- Summarize the changes in a commit message that follows the project's conventions
+- Do NOT commit automatically unless the user explicitly asks you to
+- Suggest the commit message for the user to review
+
+**Never run these commands unless the user explicitly asks for them:**
+
+- `git push` or any variant that pushes to a remote
+- `git commit --amend` on already-pushed commits
+- Force push of any kind
+- `npm publish` or any deployment command
