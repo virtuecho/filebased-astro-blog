@@ -167,6 +167,7 @@ const adminConfig = JSON.stringify({
           <label class="admin-check"><input id="siteImageWebp" type="checkbox" disabled /> {admin.assetOptionWebp}</label>
           <label class="admin-check"><input id="siteImageStripMeta" type="checkbox" disabled /> {admin.assetOptionStripMetadata}</label>
         </div>
+        <div id="siteImageList" class="asset-list"></div>
       </section>
 
       <section class="admin-section">
@@ -500,6 +501,67 @@ const adminConfig = JSON.stringify({
       return dot >= 0 ? name.slice(0, dot) : name;
     }
 
+    function setBgField(fieldId, path) {
+      $(fieldId).value = path;
+    }
+
+    async function renderSiteImages() {
+      const list = $('siteImageList');
+      list.innerHTML = '';
+      if (!state.imagesSiteDir) {
+        list.innerHTML = '<p class="meta">Select a project root to view site images.</p>';
+        return;
+      }
+
+      let hasImages = false;
+      for await (const [name, handle] of state.imagesSiteDir.entries()) {
+        if (handle.kind !== 'file') continue;
+        hasImages = true;
+        const path = `/images/site/${encodeURIComponent(name)}`;
+        const item = document.createElement('div');
+        item.className = 'asset-item';
+
+        const nameNode = document.createElement('span');
+        nameNode.textContent = name;
+
+        const pathNode = document.createElement('code');
+        pathNode.style.cssText = 'font-size:12px;color:var(--muted);margin:0 8px;';
+        pathNode.textContent = path;
+
+        const btnGroup = document.createElement('span');
+        btnGroup.style.cssText = 'display:flex;gap:4px;flex-shrink:0;';
+
+        const btnBody = document.createElement('button');
+        btnBody.type = 'button';
+        btnBody.className = 'admin-button';
+        btnBody.textContent = 'Body';
+        btnBody.title = `${adminCopy.settingsBgBody}: ${path}`;
+        btnBody.addEventListener('click', () => setBgField('sBgBody', path));
+
+        const btnHeader = document.createElement('button');
+        btnHeader.type = 'button';
+        btnHeader.className = 'admin-button';
+        btnHeader.textContent = 'Header';
+        btnHeader.title = `${adminCopy.settingsBgHeader}: ${path}`;
+        btnHeader.addEventListener('click', () => setBgField('sBgHeader', path));
+
+        const btnSite = document.createElement('button');
+        btnSite.type = 'button';
+        btnSite.className = 'admin-button';
+        btnSite.textContent = 'Site';
+        btnSite.title = `${adminCopy.settingsBgSite}: ${path}`;
+        btnSite.addEventListener('click', () => setBgField('sBgSite', path));
+
+        btnGroup.append(btnBody, btnHeader, btnSite);
+        item.append(nameNode, pathNode, btnGroup);
+        list.appendChild(item);
+      }
+
+      if (!hasImages) {
+        list.innerHTML = '<p class="meta">No site images uploaded yet.</p>';
+      }
+    }
+
     function inferProcessableImageType(file) {
       const directType = String(file.type || '').toLowerCase();
       if (PROCESSABLE_IMAGE_TYPES.has(directType)) return directType;
@@ -691,8 +753,10 @@ const adminConfig = JSON.stringify({
       $('tabPosts').classList.toggle('active', isPosts);
       $('tabSettings').classList.toggle('active', !isPosts);
       $('refreshPosts').hidden = !isPosts;
+      try { sessionStorage.setItem('adminActiveTab', name); } catch {}
       if (!isPosts && state.root) {
         loadSettingsForm().catch(() => {});
+        renderSiteImages().catch(() => {});
       }
     }
 
@@ -880,17 +944,19 @@ const adminConfig = JSON.stringify({
           convertToWebp: $('siteImageWebp').checked,
           stripMetadata: $('siteImageStripMeta').checked
         };
-        let count = 0;
+        const uploaded = [];
         for (const file of input.files || []) {
           const prepared = await prepareAssetUpload(file, options);
           const handle = await state.imagesSiteDir.getFileHandle(prepared.file.name, { create: true });
           const writable = await handle.createWritable();
           await writable.write(prepared.file);
           await writable.close();
-          count++;
+          uploaded.push(prepared.file.name);
         }
         input.value = '';
-        setSettingsStatus(`${count} image(s) uploaded to /images/site/.`);
+        await renderSiteImages();
+        const paths = uploaded.map((n) => `/images/site/${encodeURIComponent(n)}`).join(', ');
+        setSettingsStatus(`${uploaded.length} image(s) uploaded: ${paths}`);
       } catch (error) {
         setSettingsStatus(`Upload failed: ${error.message}`);
       }
@@ -898,7 +964,13 @@ const adminConfig = JSON.stringify({
 
     setEnabled(false);
     setRootButtonLabel(false);
-    restoreSavedRoot();
+    let activeTab = 'posts';
+    try { activeTab = sessionStorage.getItem('adminActiveTab') || 'posts'; } catch {}
+    restoreSavedRoot().then(() => {
+      if (activeTab === 'settings' && state.root) {
+        showTab('settings');
+      }
+    });
     showTab('posts');
     $('sitePreview').src = window.location.origin + '/';
   </script>
