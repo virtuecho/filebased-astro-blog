@@ -9,7 +9,7 @@ import {
   createPostId,
   fallbackSlugFromPostId,
   slugify,
-  todayLocalDate
+  todayLocalDate,
 } from '../src/content-workflow.ts';
 
 // Readline interface for interactive prompts (set when TTY)
@@ -79,7 +79,9 @@ async function main() {
   const title = titleInput || `${defaults.untitledDraft} ${date}`;
   const slugInput = await ask(cliCopy.prompts.slug);
   // Slug from explicit input, or derived from title, or fallback from postId
-  const slug = (slugInput ? slugify(slugInput) : slugify(titleInput)) || fallbackSlugFromPostId(postId);
+  const slug =
+    (slugInput ? slugify(slugInput) : slugify(titleInput)) ||
+    fallbackSlugFromPostId(postId);
   const category = await ask(cliCopy.prompts.category, defaults.category);
   const tagsInput = await ask(cliCopy.prompts.tags);
   const description = await ask(cliCopy.prompts.description);
@@ -88,7 +90,10 @@ async function main() {
   // Draft unless user answers "y" or "yes"
   const draft = !/^y(es)?$/i.test(publishInput);
   // Parse comma-separated tags into an array
-  const tags = tagsInput.split(',').map((tag) => tag.trim()).filter(Boolean);
+  const tags = tagsInput
+    .split(',')
+    .map((tag) => tag.trim())
+    .filter(Boolean);
   const postDir = path.join(postsDir, postId);
   const postPath = path.join(postDir, 'index.md');
 
@@ -107,10 +112,10 @@ async function main() {
       category,
       tags,
       author,
-      draft
+      draft,
     },
     `${postComment(postId, draft)}${defaults.body}`,
-    defaults
+    defaults,
   );
 
   await fs.mkdir(postDir, { recursive: true });

@@ -57,13 +57,13 @@ To migrate a post, copy this one directory. Everything moves together.
 Install dependencies:
 
 ```bash
-npm install
+pnpm install
 ```
 
 Start the local development server:
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 Open the public site:
@@ -83,11 +83,37 @@ Use Chrome or Edge for `/admin/`, because it uses the browser File System Access
 To preview the production build:
 
 ```bash
-npm run build
-npm run preview
+pnpm build
+pnpm preview
 ```
 
-`npm run dev` is for editing. `npm run build` checks and generates `dist/`. `npm run preview` serves the generated `dist/` output.
+`pnpm dev` is for editing. `pnpm build` checks and generates `dist/`. `pnpm preview` serves the generated `dist/` output.
+
+## Development Quality Gates
+
+This repository uses pnpm, Prettier, ESLint, markdownlint-cli2, Husky,
+lint-staged, and an architecture check to keep routine project hygiene
+mechanical.
+
+Useful commands:
+
+```bash
+pnpm format
+pnpm format:check
+pnpm typecheck
+pnpm lint
+pnpm test
+pnpm docs:lint
+pnpm arch:check
+pnpm check
+```
+
+`pnpm check` runs the standard local quality gate: format check, type-check,
+lint, tests, docs lint, and architecture check.
+
+Husky installs Git hooks through `pnpm prepare`. The pre-commit hook runs
+lint-staged on staged files, and the commit message hook validates Conventional
+Commit headers.
 
 ## Site Copy, Language, And Theme
 
@@ -168,7 +194,7 @@ When you change `site-settings.json`, Astro's dev server detects the file change
 You can also edit settings through:
 
 - **Admin UI**: Open `/admin/`, click the **Settings** tab for a visual editor with live iframe preview.
-- **CLI**: `npm run site-config` (interactive) or `npm run site-config -- --flag value` (direct).
+- **CLI**: `pnpm site-config` (interactive) or `pnpm site-config -- --flag value` (direct).
 
 CSS lives in:
 
@@ -194,7 +220,7 @@ cover: "./cover.jpg"
 
 ## First Post In /admin/
 
-1. Run `npm run dev`.
+1. Run `pnpm dev`.
 2. Open `http://localhost:4321/admin/` in Chrome or Edge.
 3. Click `Choose Project Folder`.
 4. Select the project root folder, the folder containing `package.json`.
@@ -284,18 +310,18 @@ Example:
 
 ```md
 ---
-postId: "b6a1c0a6-3df8-4f6a-9e9a-44e08c1b9b42"
-slug: "my-first-post"
-title: "My First Post"
-description: "A short summary."
+postId: 'b6a1c0a6-3df8-4f6a-9e9a-44e08c1b9b42'
+slug: 'my-first-post'
+title: 'My First Post'
+description: 'A short summary.'
 date: 2026-04-28
 updated: 2026-04-28
-category: "Notes"
+category: 'Notes'
 tags:
   - astro
   - markdown
-author: "Author"
-cover: "./cover.jpg"
+author: 'Author'
+cover: './cover.jpg'
 draft: true
 ---
 
@@ -341,7 +367,7 @@ Change it back to `draft: true` if you want it to remain only a reference.
 The slug can change when the title changes. In `/admin/`, click `Regenerate Slug`. In the CLI, run:
 
 ```bash
-npm run update-slug
+pnpm update-slug
 ```
 
 Old slugs are not stored. If the slug changes, the old URL stops working unless you add redirects yourself.
@@ -404,9 +430,10 @@ For example:
 date: 2026-04-28
 category: "Notes"
 tags:
-  - astro
-  - markdown
-draft: false
+
+- astro
+- markdown
+  draft: false
 ```
 
 This post appears in:
@@ -499,11 +526,11 @@ Before deployment, edit:
 ```js
 export default defineConfig({
   site: 'https://your-domain.com',
-  output: 'static'
+  output: 'static',
 });
 ```
 
-To inspect RSS locally, run `npm run dev` and open:
+To inspect RSS locally, run `pnpm dev` and open:
 
 ```text
 http://localhost:4321/rss.xml
@@ -595,12 +622,12 @@ Notes:
 
 1. English and Chinese are configured separately. Clear both locale values if both versions should be hidden.
 2. Buttons, navigation labels, field labels, and status messages are also defined in `site-settings.json`, but they are part of the working UI and are not intended to be hidden.
-3. These fields can also be edited through the **Admin Settings tab** (`/admin/` → Settings) or the **CLI** (`npm run site-config -- --notice-en ""`), so you do not need to edit the JSON file directly.
+3. These fields can also be edited through the **Admin Settings tab** (`/admin/` → Settings) or the **CLI** (`pnpm site-config -- --notice-en ""`), so you do not need to edit the JSON file directly.
 
 ## Testing
 
 ```bash
-npm test
+pnpm test
 ```
 
 The test suite verifies:
@@ -612,38 +639,50 @@ The test suite verifies:
 - `site-settings.json` is valid and both locales match
 - README files are in sync (en and zh-CN)
 
-Run `npm test` after any code change before committing.
+Run `pnpm test` after any code change. Run `pnpm check` before committing.
+
+## Before Commit
+
+Run:
+
+```bash
+pnpm check
+pnpm build
+```
+
+The Git hooks are intentionally fast and scoped to staged files. The full
+`pnpm check` command is still the recommended pre-commit validation.
 
 ## CLI Commands
 
 ```bash
-npm run dev           # local dev server
-npm run build         # check and build dist/
-npm run preview       # preview dist/
-npm run new-post      # create a draft post and asset folder
-npm run edit-post     # open a Markdown post
-npm run update-slug   # regenerate slug from title
-npm run preview-post  # render one post to .post-preview/
-npm run open-assets   # open or print a post asset folder
-npm run add-assets    # copy files into a post asset folder
-npm run site-config   # view or change site settings (interactive or --flags)
-npm run site-assets   # copy files into public/images/site/
+pnpm dev           # local dev server
+pnpm build         # check and build dist/
+pnpm preview       # preview dist/
+pnpm new-post      # create a draft post and asset folder
+pnpm edit-post     # open a Markdown post
+pnpm update-slug   # regenerate slug from title
+pnpm preview-post  # render one post to .post-preview/
+pnpm open-assets   # open or print a post asset folder
+pnpm add-assets    # copy files into a post asset folder
+pnpm site-config   # view or change site settings (interactive or --flags)
+pnpm site-assets   # copy files into public/images/site/
 ```
 
 Examples:
 
 ```bash
-npm run edit-post -- 1
-npm run update-slug -- my-post
-npm run preview-post -- my-post --no-open
-npm run open-assets -- my-post --print
-npm run add-assets -- my-post ./cover.jpg
-npm run add-assets -- my-post ./cover.jpg --webp
-npm run add-assets -- my-post ./cover.jpg ./photo.png --strip-metadata
-npm run add-assets -- my-post ./cover.jpg ./scan.png --webp --strip-metadata
-npm run site-config -- --lang zh-CN
-npm run site-config -- --bg-header /images/site/header.jpg --font-family "Georgia, serif"
-npm run site-assets -- ./bg.jpg --webp
+pnpm edit-post -- 1
+pnpm update-slug -- my-post
+pnpm preview-post -- my-post --no-open
+pnpm open-assets -- my-post --print
+pnpm add-assets -- my-post ./cover.jpg
+pnpm add-assets -- my-post ./cover.jpg --webp
+pnpm add-assets -- my-post ./cover.jpg ./photo.png --strip-metadata
+pnpm add-assets -- my-post ./cover.jpg ./scan.png --webp --strip-metadata
+pnpm site-config -- --lang zh-CN
+pnpm site-config -- --bg-header /images/site/header.jpg --font-family "Georgia, serif"
+pnpm site-assets -- ./bg.jpg --webp
 ```
 
 `add-assets` options:
@@ -657,13 +696,13 @@ Files that are not static JPEG, PNG, or WebP are copied unchanged.
 
 `site-assets` works the same way but copies into `public/images/site/` for site-wide images (backgrounds, header images, etc.).
 
-`site-config` can be used interactively (`npm run site-config`) or with direct flags:
+`site-config` can be used interactively (`pnpm site-config`) or with direct flags:
 
 ```bash
-npm run site-config -- --show                # print current settings
-npm run site-config -- --lang zh-CN          # switch language
-npm run site-config -- --bg-header URL       # set header background
-npm run site-config -- --font-family FONT    # set body font
+pnpm site-config -- --show                # print current settings
+pnpm site-config -- --lang zh-CN          # switch language
+pnpm site-config -- --bg-header URL       # set header background
+pnpm site-config -- --font-family FONT    # set body font
 ```
 
 All site settings can also be edited visually in the `/admin/` Settings tab, which includes a live iframe preview.
@@ -680,7 +719,7 @@ CLI processing uses local sharp
 Build command:
 
 ```bash
-npm run build
+pnpm build
 ```
 
 Output folder:
@@ -692,8 +731,8 @@ dist/
 Generic static hosting settings:
 
 ```text
-Install command: npm install
-Build command:   npm run build
+Install command: pnpm install
+Build command:   pnpm build
 Output folder:   dist
 ```
 
@@ -702,7 +741,7 @@ Root-domain deployment:
 ```js
 export default defineConfig({
   site: 'https://your-domain.com',
-  output: 'static'
+  output: 'static',
 });
 ```
 
@@ -712,7 +751,7 @@ GitHub Pages project site:
 export default defineConfig({
   site: 'https://your-name.github.io',
   base: '/repo-name',
-  output: 'static'
+  output: 'static',
 });
 ```
 

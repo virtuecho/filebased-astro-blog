@@ -27,7 +27,9 @@ export async function pathExists(filePath) {
 
 // Read all posts from the content directory, sorted by date descending
 export async function listPosts() {
-  const entries = await fs.readdir(postsDir, { withFileTypes: true }).catch(() => []);
+  const entries = await fs
+    .readdir(postsDir, { withFileTypes: true })
+    .catch(() => []);
   const posts = [];
 
   for (const entry of entries) {
@@ -43,15 +45,15 @@ export async function listPosts() {
       const { data, body } = parseMarkdown(markdown);
       const postId = String(data.postId || entry.name);
       posts.push({
-        file: `${entry.name}/index.md`,   // relative path for display
-        filePath: indexPath,              // absolute path on disk
+        file: `${entry.name}/index.md`, // relative path for display
+        filePath: indexPath, // absolute path on disk
         markdown,
         body,
         data,
         title: String(data.title || defaults.unnamedPost),
         postId,
         slug: String(data.slug || ''),
-        postDir: path.join(postsDir, entry.name)  // post's directory (for assets)
+        postDir: path.join(postsDir, entry.name), // post's directory (for assets)
       });
     } catch {
       // skip directories without valid index.md
@@ -80,7 +82,8 @@ export function findMatches(posts, query) {
 
   // Fuzzy match against file path, title, postId, and slug
   return posts.filter((post) => {
-    const haystack = `${post.file} ${post.title} ${post.postId} ${post.slug}`.toLowerCase();
+    const haystack =
+      `${post.file} ${post.title} ${post.postId} ${post.slug}`.toLowerCase();
     return haystack.includes(normalized);
   });
 }
@@ -101,7 +104,7 @@ export async function selectPost(queryFromArg = '') {
 
   if (posts.length === 0) {
     console.log(cliCopy.messages.noPosts);
-    console.log('npm run new-post');
+    console.log('pnpm new-post');
     return null;
   }
 
@@ -112,8 +115,8 @@ export async function selectPost(queryFromArg = '') {
   if (!query) {
     if (!input.isTTY) {
       console.log(`\n${cliCopy.messages.usageEdit}`);
-      console.log('npm run edit-post -- 1');
-      console.log('npm run edit-post -- welcome');
+      console.log('pnpm edit-post -- 1');
+      console.log('pnpm edit-post -- welcome');
       return null;
     }
 

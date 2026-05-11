@@ -4,9 +4,14 @@ import { copy } from '../site.config';
 const title = copy.site.title;
 const description = copy.site.description;
 ---
+
 <header class="header">
   <h1 class="blog-title site-title"><a href="/">{title}</a></h1>
-  {description && <h2 class="blog-description site-description">{description}</h2>}
+  {
+    description && (
+      <h2 class="blog-description site-description">{description}</h2>
+    )
+  }
 </header>
 <nav class="nav" aria-label="Primary navigation">
   <a href="/">{copy.nav.home}</a>

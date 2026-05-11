@@ -1,13 +1,13 @@
 ---
-postId: "generated-by-npm-run-new-post"
-slug: "my-post-slug"
-title: "Post Title"
-description: "Optional summary."
+postId: 'generated-by-npm-run-new-post'
+slug: 'my-post-slug'
+title: 'Post Title'
+description: 'Optional summary.'
 date: 2026-04-28
-category: "Uncategorized"
+category: 'Uncategorized'
 tags:
   - starter
-author: "Author"
+author: 'Author'
 # cover: "./cover.jpg"
 draft: true
 ---

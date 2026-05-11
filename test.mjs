@@ -35,7 +35,7 @@ function run(cmd, opts = {}) {
     cwd: root,
     encoding: 'utf8',
     stdio: 'pipe',
-    ...opts
+    ...opts,
   });
 }
 
@@ -46,12 +46,12 @@ console.log('\n[1] Build & type-check');
 
 // Runs `astro check` to validate TypeScript types
 test('astro check passes', () => {
-  run('npx astro check', { timeout: 60000 });
+  run('pnpm exec astro check', { timeout: 60000 });
 });
 
 // Runs a full static build to ensure no runtime errors
 test('astro build succeeds', () => {
-  run('npm run build', { timeout: 60000 });
+  run('pnpm build', { timeout: 60000 });
 });
 
 // ---------------------------------------------------------------------------
@@ -82,13 +82,15 @@ const adminPath = resolve(root, 'src/pages/admin.astro');
 const adminSrc = readFileSync(adminPath, 'utf8');
 
 // Extract the import block from ../admin/local-file-storage.js
-const storageImportMatch = adminSrc.match(/import\s*\{([^}]+)\}\s*from\s*['"]\.\.\/admin\/local-file-storage\.js['"]/);
+const storageImportMatch = adminSrc.match(
+  /import\s*\{([^}]+)\}\s*from\s*['"]\.\.\/admin\/local-file-storage\.js['"]/,
+);
 // Set of function names already imported from local-file-storage.js
 const storageUsed = new Set(
   (storageImportMatch?.[1] || '')
     .split(',')
     .map((s) => s.trim())
-    .filter(Boolean)
+    .filter(Boolean),
 );
 
 // Functions exported by local-file-storage.js
@@ -103,7 +105,7 @@ const STORAGE_EXPORTS = [
   'ensureProjectHandles',
   'readFile',
   'writeFile',
-  'listPostFiles'
+  'listPostFiles',
 ];
 
 // Find functions called from local-file-storage that are NOT imported
@@ -115,19 +117,23 @@ for (const fn of STORAGE_EXPORTS) {
   const matches = scriptCode.match(regex);
   if (matches && !storageUsed.has(fn)) {
     test(`admin.astro imports ${fn} (used but not imported)`, () => {
-      throw new Error(`${fn}() is called in admin.astro but not imported from local-file-storage.js`);
+      throw new Error(
+        `${fn}() is called in admin.astro but not imported from local-file-storage.js`,
+      );
     });
   }
 }
 
 // Also verify content-workflow imports
-const cwImportMatch = adminSrc.match(/import\s*\{([^}]+)\}\s*from\s*['"]\.\.\/content-workflow['"]/);
+const cwImportMatch = adminSrc.match(
+  /import\s*\{([^}]+)\}\s*from\s*['"]\.\.\/content-workflow['"]/,
+);
 // Set of function names already imported from content-workflow
 const cwUsed = new Set(
   (cwImportMatch?.[1] || '')
     .split(',')
     .map((s) => s.trim())
-    .filter(Boolean)
+    .filter(Boolean),
 );
 
 // Functions exported by content-workflow module
@@ -138,18 +144,19 @@ const CW_EXPORTS = [
   'INDEX_FILE',
   'parseMarkdown',
   'slugFromTitle',
-  'todayLocalDate'
+  'todayLocalDate',
 ];
 
 // Check each content-workflow export for usage without import
 for (const fn of CW_EXPORTS) {
   const regex = new RegExp(`\\b${fn}\\b`);
-  const matchAfterImport = scriptCode.slice(scriptCode.indexOf('import {')).match(regex);
   // Find usage after the import block
   const afterImports = scriptCode.slice(scriptCode.indexOf('const config'));
   if (afterImports.match(regex) && !cwUsed.has(fn)) {
     test(`admin.astro imports ${fn} from content-workflow`, () => {
-      throw new Error(`${fn} is used in admin.astro but not imported from content-workflow`);
+      throw new Error(
+        `${fn} is used in admin.astro but not imported from content-workflow`,
+      );
     });
   }
 }
@@ -172,11 +179,16 @@ const POST_PROPS = new Set([
   'title',
   'postId',
   'slug',
-  'postDir'
+  'postDir',
 ]);
 
 // Scripts that consume listPosts() output and reference post.XXX properties
-const callerFiles = ['edit-post.mjs', 'update-slug.mjs', 'open-assets.mjs', 'preview-post.mjs'];
+const callerFiles = [
+  'edit-post.mjs',
+  'update-slug.mjs',
+  'open-assets.mjs',
+  'preview-post.mjs',
+];
 
 // Verify every post.XXX reference in caller scripts is a known return property
 for (const callerFile of callerFiles) {
@@ -190,7 +202,7 @@ for (const callerFile of callerFiles) {
 
       test(`scripts/${callerFile} references post.${prop}`, () => {
         throw new Error(
-          `post.${prop} is referenced in ${callerFile} but listPosts() returns: ${[...POST_PROPS].join(', ')}`
+          `post.${prop} is referenced in ${callerFile} but listPosts() returns: ${[...POST_PROPS].join(', ')}`,
         );
       });
     }
@@ -256,7 +268,9 @@ test('both locales have matching key structure', () => {
 // The default locale must be listed in supportedLocales
 test('supportedLocales includes defaultLocale', () => {
   if (!settings.supportedLocales?.includes(settings.defaultLocale)) {
-    throw new Error(`defaultLocale "${settings.defaultLocale}" not in supportedLocales`);
+    throw new Error(
+      `defaultLocale "${settings.defaultLocale}" not in supportedLocales`,
+    );
   }
 });
 
@@ -277,13 +291,18 @@ const pct = Math.round((diff / Math.max(enLines, zhLines)) * 100);
 
 // Fail if line counts differ by more than 10%
 test(`README line counts similar (en: ${enLines}, zh: ${zhLines}, diff: ${diff}, ${pct}%)`, () => {
-  if (pct > 10) throw new Error(`README files diverged by ${pct}% — they should be kept in sync`);
+  if (pct > 10)
+    throw new Error(
+      `README files diverged by ${pct}% — they should be kept in sync`,
+    );
 });
 
 // ---------------------------------------------------------------------------
 // Results — print summary and exit with appropriate code
 // ---------------------------------------------------------------------------
-console.log(`\nResults: ${passed} passed, ${failed} failed, ${passed + failed} total`);
+console.log(
+  `\nResults: ${passed} passed, ${failed} failed, ${passed + failed} total`,
+);
 
 if (failed > 0) {
   process.exit(1);

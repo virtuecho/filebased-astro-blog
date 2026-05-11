@@ -11,9 +11,12 @@ export async function getStaticPaths() {
 }
 
 const { tag } = Astro.props;
-const posts = (await getPublishedPosts()).filter((p) => p.data.tags.includes(tag));
+const posts = (await getPublishedPosts()).filter((p) =>
+  p.data.tags.includes(tag),
+);
 const title = `${copy.labels.tag}: ${tag}`;
 ---
+
 <BaseLayout title={title}>
   <h1 class="page-title">{title}</h1>
   {posts.map((post) => <PostCard post={post} />)}

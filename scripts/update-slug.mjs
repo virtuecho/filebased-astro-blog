@@ -1,6 +1,10 @@
 import fs from 'node:fs/promises';
 import { argv } from 'node:process';
-import { buildMarkdown, parseMarkdown, slugFromTitle } from '../src/content-workflow.ts';
+import {
+  buildMarkdown,
+  parseMarkdown,
+  slugFromTitle,
+} from '../src/content-workflow.ts';
 import { cliCopy, defaults, listPosts } from './cli-utils.mjs';
 
 // Optional filter: only update posts matching this query
@@ -17,7 +21,8 @@ for (const post of posts) {
 
   // Skip if a filter is set and this post doesn't match
   if (only) {
-    const haystack = `${post.file} ${title} ${postId} ${currentSlug}`.toLowerCase();
+    const haystack =
+      `${post.file} ${title} ${postId} ${currentSlug}`.toLowerCase();
     if (!haystack.includes(only)) continue;
   }
 
@@ -41,7 +46,11 @@ for (const post of posts) {
   // Preserve postId and assetDir if they exist in frontmatter
   data.postId ||= postId;
   data.assetDir ||= post.postDir;
-  await fs.writeFile(post.filePath, buildMarkdown(data, body, defaults), 'utf8');
+  await fs.writeFile(
+    post.filePath,
+    buildMarkdown(data, body, defaults),
+    'utf8',
+  );
   changed += 1;
   console.log(`${cliCopy.messages.updatedSlug} ${post.file}`);
   console.log(`  ${currentSlug || '(none)'} -> ${nextSlug}`);

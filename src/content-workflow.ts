@@ -30,7 +30,7 @@ const fallbackDefaults: ContentDefaults = {
   unnamedPost: 'Untitled Post',
   category: 'Uncategorized',
   author: 'Author',
-  body: '## Section Heading\n\nStart writing your post here.\n'
+  body: '## Section Heading\n\nStart writing your post here.\n',
 };
 
 // Format a Date as YYYY-MM-DD in local time
@@ -51,13 +51,16 @@ export function createPostId(randomUuid?: () => string) {
     globalThis.crypto.getRandomValues(bytes);
   } else {
     // Fallback to Math.random when crypto API is unavailable
-    for (let i = 0; i < bytes.length; i += 1) bytes[i] = Math.floor(Math.random() * 256);
+    for (let i = 0; i < bytes.length; i += 1)
+      bytes[i] = Math.floor(Math.random() * 256);
   }
 
   // Set UUID v4 variant (10xx) and version (0100) bits
   bytes[6] = (bytes[6] & 0x0f) | 0x40;
   bytes[8] = (bytes[8] & 0x3f) | 0x80;
-  const hex = [...bytes].map((byte) => byte.toString(16).padStart(2, '0')).join('');
+  const hex = [...bytes]
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('');
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
@@ -92,7 +95,10 @@ export function slugFromTitle(title = '', postId = '') {
 export const INDEX_FILE = 'index.md';
 
 // Build the public URL path for a post from its slug or ID
-export function postUrl(data: { slug?: unknown; postId?: unknown }, fallbackId = '') {
+export function postUrl(
+  data: { slug?: unknown; postId?: unknown },
+  fallbackId = '',
+) {
   return `/posts/${String(data.slug || fallbackId || data.postId)}/`;
 }
 
@@ -108,7 +114,10 @@ function parseScalar(value: string) {
   if (trimmed === 'false') return false;
   if (trimmed === '[]') return [];
   // Handle quoted strings — attempt JSON parse for escape handling, fall back to stripping
-  if ((trimmed.startsWith('"') && trimmed.endsWith('"')) || (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
+  if (
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"))
+  ) {
     try {
       return JSON.parse(trimmed);
     } catch {
@@ -119,7 +128,10 @@ function parseScalar(value: string) {
 }
 
 // Parse a markdown string with YAML frontmatter into structured data and body
-export function parseMarkdown(markdown: string): { data: PostFrontmatter; body: string } {
+export function parseMarkdown(markdown: string): {
+  data: PostFrontmatter;
+  body: string;
+} {
   // No frontmatter delimiter — treat entire content as body
   if (!markdown.startsWith('---')) {
     return { data: {}, body: markdown };
@@ -182,11 +194,17 @@ function appendScalar(lines: string[], key: string, value: unknown) {
 }
 
 // Apply defaults and normalize types for all frontmatter fields
-export function normalizePostData(data: PostFrontmatter, defaults: Partial<ContentDefaults> = {}) {
+export function normalizePostData(
+  data: PostFrontmatter,
+  defaults: Partial<ContentDefaults> = {},
+) {
   const mergedDefaults = { ...fallbackDefaults, ...defaults };
   const postId = String(data.postId || createPostId());
   const title = String(data.title || mergedDefaults.untitledDraft);
-  const date = data.date instanceof Date ? todayLocalDate(data.date) : String(data.date || todayLocalDate());
+  const date =
+    data.date instanceof Date
+      ? todayLocalDate(data.date)
+      : String(data.date || todayLocalDate());
 
   return {
     ...data,
@@ -195,25 +213,34 @@ export function normalizePostData(data: PostFrontmatter, defaults: Partial<Conte
     title,
     description: data.description ? String(data.description) : undefined,
     date,
-    updated: data.updated instanceof Date ? todayLocalDate(data.updated) : data.updated ? String(data.updated) : undefined,
+    updated:
+      data.updated instanceof Date
+        ? todayLocalDate(data.updated)
+        : data.updated
+          ? String(data.updated)
+          : undefined,
     category: String(data.category || mergedDefaults.category),
     tags: Array.isArray(data.tags) ? data.tags.map(String).filter(Boolean) : [],
     author: String(data.author || mergedDefaults.author),
     cover: data.cover ? String(data.cover) : undefined,
     // Drafts are true by default; explicitly setting false opts out
-    draft: data.draft !== false
+    draft: data.draft !== false,
   } satisfies PostFrontmatter;
 }
 
 // Serialize frontmatter + body back into a full index.md string
-export function buildMarkdown(data: PostFrontmatter, body: string, defaults: Partial<ContentDefaults> = {}) {
+export function buildMarkdown(
+  data: PostFrontmatter,
+  body: string,
+  defaults: Partial<ContentDefaults> = {},
+) {
   const normalized = normalizePostData(data, defaults);
   const tags = Array.isArray(normalized.tags) ? normalized.tags : [];
   const lines = [
     '---',
     `postId: ${yamlString(normalized.postId)}`,
     `slug: ${yamlString(normalized.slug)}`,
-    `title: ${yamlString(normalized.title)}`
+    `title: ${yamlString(normalized.title)}`,
   ];
 
   appendScalar(lines, 'description', normalized.description);
@@ -245,7 +272,7 @@ export function buildMarkdown(data: PostFrontmatter, body: string, defaults: Par
     'tags',
     'author',
     'cover',
-    'draft'
+    'draft',
   ]);
 
   // Serialize any unrecognized / user-defined frontmatter keys

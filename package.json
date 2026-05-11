@@ -4,8 +4,19 @@
   "description": "An Astro static blog template with Markdown posts and a local browser admin.",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@10.29.2",
   "scripts": {
     "dev": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "typecheck": "astro check",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "docs:lint": "markdownlint-cli2 \"**/*.md\" \"#node_modules\"",
+    "arch:check": "tsx scripts/check-architecture.ts",
+    "check": "pnpm format:check && pnpm typecheck && pnpm lint && pnpm test && pnpm docs:lint && pnpm arch:check",
+    "prepare": "husky",
     "new-post": "tsx scripts/new-post.mjs",
     "edit-post": "tsx scripts/edit-post.mjs",
     "update-slug": "tsx scripts/update-slug.mjs",
@@ -14,9 +25,19 @@
     "add-assets": "tsx scripts/add-assets.mjs",
     "site-config": "tsx scripts/site-config.mjs",
     "site-assets": "tsx scripts/site-assets.mjs",
-    "build": "astro check && astro build",
-    "preview": "astro preview",
     "test": "node test.mjs"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,mjs,astro}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{md,json,css,html,yml,yaml}": [
+      "prettier --write"
+    ],
+    "*.md": [
+      "markdownlint-cli2"
+    ]
   },
   "dependencies": {
     "@astrojs/check": "latest",
@@ -27,6 +48,23 @@
     "typescript": "latest"
   },
   "devDependencies": {
-    "tsx": "^4.21.0"
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^25.6.2",
+    "eslint": "^10.3.0",
+    "eslint-plugin-astro": "^1.7.0",
+    "globals": "^17.6.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.4",
+    "markdownlint-cli2": "^0.22.1",
+    "prettier": "^3.8.3",
+    "prettier-plugin-astro": "^0.14.1",
+    "tsx": "^4.21.0",
+    "typescript-eslint": "^8.59.2"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp"
+    ]
   }
 }

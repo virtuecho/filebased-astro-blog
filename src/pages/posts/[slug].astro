@@ -5,9 +5,15 @@ import { postUrl } from '../../content-workflow';
 
 export async function getStaticPaths() {
   const posts = await getPublishedPosts();
-  return posts.map((post) => ({ params: { slug: postUrl(post.data, post.id).split('/').filter(Boolean).pop() }, props: { post } }));
+  return posts.map((post) => ({
+    params: {
+      slug: postUrl(post.data, post.id).split('/').filter(Boolean).pop(),
+    },
+    props: { post },
+  }));
 }
 
 const { post } = Astro.props;
 ---
+
 <PostLayout post={post} />

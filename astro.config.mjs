@@ -5,11 +5,16 @@ import { defineConfig } from 'astro/config';
 const CONTENT_DIR = path.resolve('src/content/posts');
 
 const mimeTypes = {
-  '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
-  '.png': 'image/png', '.gif': 'image/gif',
-  '.webp': 'image/webp', '.svg': 'image/svg+xml',
-  '.pdf': 'application/pdf', '.mp4': 'video/mp4',
-  '.webm': 'video/webm', '.mp3': 'audio/mpeg'
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.gif': 'image/gif',
+  '.webp': 'image/webp',
+  '.svg': 'image/svg+xml',
+  '.pdf': 'application/pdf',
+  '.mp4': 'video/mp4',
+  '.webm': 'video/webm',
+  '.mp3': 'audio/mpeg',
 };
 
 function serveAsset(postId, filename, res) {
@@ -45,18 +50,21 @@ function postAssetsPlugin() {
       server.middlewares.use((req, res, next) => {
         const match = req.url?.match(/^\/images\/posts\/([^/]+)\/(.+)$/);
         if (!match) return next();
-        serveAsset(match[1], match[2], res) || next();
+        if (!serveAsset(match[1], match[2], res)) next();
       });
     },
     writeBundle() {
       const outDir = path.resolve('dist');
-      for (const entryName of fs.readdirSync(CONTENT_DIR, { withFileTypes: true })) {
-        if (!entryName.isDirectory() || entryName.name.startsWith('_')) continue;
+      for (const entryName of fs.readdirSync(CONTENT_DIR, {
+        withFileTypes: true,
+      })) {
+        if (!entryName.isDirectory() || entryName.name.startsWith('_'))
+          continue;
         const src = path.join(CONTENT_DIR, entryName.name);
         const dest = path.join(outDir, 'images', 'posts', entryName.name);
         copyDirRecursive(src, dest);
       }
-    }
+    },
   };
 }
 
@@ -64,6 +72,6 @@ export default defineConfig({
   site: 'https://your-domain.com',
   output: 'static',
   vite: {
-    plugins: [postAssetsPlugin()]
-  }
+    plugins: [postAssetsPlugin()],
+  },
 });

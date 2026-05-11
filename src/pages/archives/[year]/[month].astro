@@ -15,11 +15,17 @@ export async function getStaticPaths() {
 }
 
 const { year, month } = Astro.props;
-const posts = (await getPublishedPosts()).filter((p: CollectionEntry<'posts'>) => {
-  return String(p.data.date.getFullYear()) === year && String(p.data.date.getMonth() + 1).padStart(2, '0') === month;
-});
+const posts = (await getPublishedPosts()).filter(
+  (p: CollectionEntry<'posts'>) => {
+    return (
+      String(p.data.date.getFullYear()) === year &&
+      String(p.data.date.getMonth() + 1).padStart(2, '0') === month
+    );
+  },
+);
 const title = `${copy.labels.archive}: ${year}/${month}`;
 ---
+
 <BaseLayout title={title}>
   <h1 class="page-title">{title}</h1>
   {posts.map((post: CollectionEntry<'posts'>) => <PostCard post={post} />)}

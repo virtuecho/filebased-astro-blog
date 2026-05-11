@@ -51,28 +51,39 @@ async function withStore(mode, run) {
       callback(event);
     };
 
-    transaction.addEventListener('complete', finish(() => {
-      db.close();
-      resolve(result);
-    }));
-    transaction.addEventListener('error', finish(() => {
-      db.close();
-      reject(transaction.error);
-    }));
-    transaction.addEventListener('abort', finish(() => {
-      db.close();
-      reject(transaction.error);
-    }));
+    transaction.addEventListener(
+      'complete',
+      finish(() => {
+        db.close();
+        resolve(result);
+      }),
+    );
+    transaction.addEventListener(
+      'error',
+      finish(() => {
+        db.close();
+        reject(transaction.error);
+      }),
+    );
+    transaction.addEventListener(
+      'abort',
+      finish(() => {
+        db.close();
+        reject(transaction.error);
+      }),
+    );
 
     Promise.resolve()
       .then(() => run(store))
       .then((value) => {
         result = value ?? null;
       })
-      .catch(finish((error) => {
-        db.close();
-        reject(error);
-      }));
+      .catch(
+        finish((error) => {
+          db.close();
+          reject(error);
+        }),
+      );
   });
 }
 
@@ -88,7 +99,9 @@ export async function loadProjectRootHandle() {
   return withStore('readonly', (store) => {
     return new Promise((resolve, reject) => {
       const request = store.get(ROOT_HANDLE_KEY);
-      request.addEventListener('success', () => resolve(request.result || null));
+      request.addEventListener('success', () =>
+        resolve(request.result || null),
+      );
       request.addEventListener('error', () => reject(request.error));
     });
   });
@@ -172,6 +185,9 @@ export async function listPostFiles(postsDir, parseMarkdown, indexFile) {
   return posts.sort((a, b) => {
     const ad = new Date(a.data.date || 0).getTime();
     const bd = new Date(b.data.date || 0).getTime();
-    return bd - ad || String(a.data.title || '').localeCompare(String(b.data.title || ''));
+    return (
+      bd - ad ||
+      String(a.data.title || '').localeCompare(String(b.data.title || ''))
+    );
   });
 }

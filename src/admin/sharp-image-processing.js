@@ -7,7 +7,7 @@ const PROCESSABLE_IMAGE_FORMATS = new Set(['jpeg', 'png', 'webp']);
 const CONTENT_TYPES = {
   jpeg: 'image/jpeg',
   png: 'image/png',
-  webp: 'image/webp'
+  webp: 'image/webp',
 };
 // Quality setting for WebP output (0–100)
 const WEBP_QUALITY = 90;
@@ -15,7 +15,9 @@ const WEBP_QUALITY = 90;
 const JPEG_QUALITY = 92;
 
 // Create a tagged error for non-processable images (multi-page, unsupported format, etc.)
-function unsupportedImageError(message = 'Unsupported image for sharp processing.') {
+function unsupportedImageError(
+  message = 'Unsupported image for sharp processing.',
+) {
   const error = new Error(message);
   error.code = 'UNSUPPORTED_IMAGE_PROCESSING';
   return error;
@@ -72,7 +74,10 @@ export async function processImageInput(input, filename, options = {}) {
   }
 
   const sourceFormat = String(metadata.format || '').toLowerCase();
-  const outputFormat = targetFormatFor(sourceFormat, Boolean(options.convertToWebp));
+  const outputFormat = targetFormatFor(
+    sourceFormat,
+    Boolean(options.convertToWebp),
+  );
   const outputName = outputNameFor(filename, Boolean(options.convertToWebp));
 
   // Auto-orient corrects EXIF rotation so images display upright
@@ -83,6 +88,6 @@ export async function processImageInput(input, filename, options = {}) {
     data: await pipeline.toBuffer(),
     outputFormat,
     outputName,
-    contentType: CONTENT_TYPES[outputFormat] || 'application/octet-stream'
+    contentType: CONTENT_TYPES[outputFormat] || 'application/octet-stream',
   };
 }

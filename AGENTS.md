@@ -1,156 +1,191 @@
 # AGENTS.md
 
-## Project overview
+This file is the navigation map for coding agents working in this repository.
+Read it before making changes, then follow the deeper docs it points to.
 
-This is an Astro static blog template. Content lives in plain Markdown files — no database. Posts and their attachments are co-located in one directory per post, making migration trivial. The admin page (`/admin/`) is a local browser writing tool that uses the File System Access API.
+## Project Identity
 
-- **Framework**: Astro (static output)
-- **Language**: TypeScript (`.ts`, `.astro`), JavaScript (`.mjs` CLI scripts)
-- **Content**: Markdown in `src/content/posts/{postId}/index.md`
-- **Config**: `src/site-settings.json` (user-editable); `src/site.config.ts` (thin wrapper re-export)
+`filebased-astro-blog` is an Astro static blog template. It is intentionally
+file-based and simple:
 
-## Setup commands
+- Astro builds static HTML.
+- Posts are Markdown files.
+- Each post owns one directory with `index.md` and its attachments.
+- `/admin/` is a local browser writing tool using the File System Access API.
+- `src/site-settings.json` is the user-editable source of truth for copy,
+  language, theme, typography, and admin text.
+- CLI scripts exist for advanced local workflows.
+
+Do not redesign the product while doing hygiene, tooling, docs, or small feature
+work.
+
+## Non-negotiable Rules
+
+- Do not push unless the user explicitly asks.
+- Do not commit unless the user explicitly asks.
+- Use pnpm only. Do not add npm or yarn lockfiles.
+- Keep TypeScript strict mode enabled.
+- Do not introduce a database, login system, server backend, or cloud CMS unless
+  explicitly requested.
+- Keep posts file-based.
+- Keep post content and assets co-located in `src/content/posts/{postId}/`.
+- Keep `README.md` and `README.zh-CN.md` structurally in sync.
+- Keep `src/site-settings.json` as the user-editable settings source.
+- Do not commit generated folders such as `dist/`, `.astro/`,
+  `.post-preview/`, or `node_modules/`.
+
+## Source Of Truth Docs
+
+Start here:
+
+- `README.md` for English user-facing setup and workflows
+- `README.zh-CN.md` for Chinese user-facing setup and workflows
+- `docs/engineering/ARCHITECTURE.md` for product and architecture boundaries
+- `docs/engineering/CI_AND_HOOKS.md` for validation, CI, and hooks
+- `docs/engineering/COMMIT_CONVENTION.md` for commit messages
+- `docs/engineering/AI_CODE_REVIEW_CHECKLIST.md` for review criteria
+- `docs/prompts/AGENT_TASK_TEMPLATE.md` for future agent tasks
+- `docs/prompts/CODE_REVIEW_PROMPT.md` for review prompts
+
+## Preferred Stack
+
+- Astro
+- TypeScript
+- pnpm
+- Prettier
+- ESLint flat config
+- markdownlint-cli2
+- Husky
+- lint-staged
+- GitHub Actions
+
+Use TypeScript for new source files by default. Existing JavaScript remains only
+where documented by `scripts/check-architecture.ts`.
+
+## Directory Structure
+
+```text
+src/pages/              Astro pages and generated routes
+src/content/posts/      Markdown post content
+src/content/posts/{id}/ one post directory: index.md plus attachments
+src/admin/              local admin storage and image helpers
+src/components/         reusable Astro components
+src/layouts/            page and post layouts
+src/site-settings.json  user-editable settings and localized copy
+scripts/                local CLI tools and repository checks
+docs/engineering/       engineering policy and architecture docs
+docs/prompts/           reusable agent and review prompts
+public/images/site/     site-wide images
+templates/              post templates
+```
+
+## Naming Conventions
+
+- `postId` is stable identity and should not change after creation.
+- `slug` is public URL identity and may change intentionally.
+- Post directories use `postId`.
+- Post entry files are named `index.md`.
+- Body images use relative paths such as `./photo.jpg`.
+- Site-wide images go under `public/images/site/`.
+- CLI scripts use `.mjs` while the current CLI remains JavaScript-based.
+
+## Validation Commands
+
+Install dependencies:
 
 ```bash
-npm install          # install dependencies
-npm run dev          # start Astro dev server at http://localhost:4321
-npm run build        # type-check + static build to dist/
-npm run preview      # preview dist/ locally
+pnpm install
 ```
 
-## Key architecture
-
-### Post structure (co-located)
-
-```
-src/content/posts/{postId}/
-  index.md           # the post (required)
-  cover.jpg          # attachments live here
-  photo.png
-```
-
-- `postId` is a UUID generated at post creation time — it is the **stable identity**
-- Admin creates: directory + `index.md` in one step
-- Attachments are uploaded into the same directory
-- Body images use **relative paths**: `![img](./img.jpg)`
-- Cover path in frontmatter: `cover: "./cover.jpg"` — any filename works, `cover.jpg` is only a default suggestion in the CLI template
-
-### Content collection
-
-- Defined in `src/content.config.ts` with `glob({ pattern: '**/*.{md,mdx}', base: './src/content/posts' })`
-- Astro resolves relative image paths in markdown automatically
-
-### Config architecture
-
-- **`src/site-settings.json`**: the single source of truth for all user-facing settings (theme, typography, copy for all locales, language). Edit this file directly or via admin/CLI.
-- **`src/site.config.ts`**: thin wrapper that imports the JSON and re-exports `siteConfig`, `copy`, `contentDefaults`, `dateLocale`, `activeLocale`, `getCopy()`, `SupportedLocale` type.
-- Adding a new locale: add a key under `copy`, add to `supportedLocales` array, add to `dateLocales`.
-
-### Vote dev server for post images
-
-`astro.config.mjs` includes a Vite plugin that:
-- Serves `/images/posts/{postId}/file` from `src/content/posts/{postId}/file` during dev
-- Copies non-`.md` files to `dist/images/posts/` during build
-
-### Admin page (`src/pages/admin.astro`)
-
-- Uses browser File System Access API (Chrome/Edge only)
-- Two tabs: Posts | Settings
-- `local-file-storage.js` handles IndexedDB persistence for the root handle
-- Settings tab reads/writes `src/site-settings.json`
-- Site images are uploaded to `public/images/site/`
-
-### CLI scripts
-
-All in `scripts/`, run via `tsx`:
-
-| Script | Purpose |
-|--------|---------|
-| `new-post.mjs` | Create draft post directory + index.md |
-| `edit-post.mjs` | Open post in `$EDITOR` |
-| `update-slug.mjs` | Regenerate slug from title |
-| `preview-post.mjs` | Render standalone HTML preview |
-| `open-assets.mjs` | Open post directory in file manager |
-| `add-assets.mjs` | Copy/process images into post directory |
-| `site-config.mjs` | View/edit site settings (interactive or `--flags`) |
-| `site-assets.mjs` | Copy images to `public/images/site/` |
-
-### Image processing
-
-- **Admin (browser)**: Canvas API for WebP conversion / metadata stripping
-- **CLI**: `sharp` via `src/admin/sharp-image-processing.js`
-- Both paths support `--webp` and `--strip-metadata` flags
-- Only static JPEG/PNG/WebP images are processed
-
-## Verification
+Run local development:
 
 ```bash
-npm test             # run full automated test suite
+pnpm dev
 ```
 
-The test suite (`test.mjs`) checks:
+Run focused checks:
 
-1. **Build & type-check** — `astro check` + `astro build`
-2. **CLI script syntax** — `node --check` on every `scripts/*.mjs`
-3. **admin.astro import integrity** — every external function used is present in the import block
-4. **CLI property integrity** — `listPosts()` return properties match what callers reference
-5. **site-settings.json validity** — valid JSON, required keys exist, both locales have matching key structure
-6. **README parity** — English and Chinese README files are within 10% line-count divergence
-
-Run `npm test` after any code change before committing. Run manually to verify runtime behavior:
-- `npm run dev` → open `http://localhost:4321` and `http://localhost:4321/admin/`
-- Run CLI scripts to confirm they work
-
-## Commit message conventions
-
-Follow the existing format:
-
-```
-type(scope): description
+```bash
+pnpm format
+pnpm format:check
+pnpm typecheck
+pnpm lint
+pnpm test
+pnpm docs:lint
+pnpm arch:check
+pnpm build
 ```
 
-Types used: `feat`, `fix`, `refactor`, `docs`, `chore`
+Run the standard quality gate:
 
-Scopes used: `config`, `admin`, `assets`, `posts`, `readme`, `site-config`
+```bash
+pnpm check
+```
+
+Before committing, prefer:
+
+```bash
+pnpm check
+pnpm build
+```
+
+## Commit Rules
+
+Use Conventional Commit headers:
+
+```text
+<type>(optional-scope): <description>
+```
+
+Allowed types:
+
+```text
+feat
+fix
+refactor
+perf
+style
+test
+docs
+build
+ops
+chore
+```
 
 Examples:
-- `feat(config): add admin Settings panel and CLI site-config with full site editing`
-- `refactor(posts): co-locate posts and attachments in one directory per post`
-- `fix(admin): show project folder picker on both Posts and Settings tabs`
 
-## Language / i18n notes
+```text
+build: migrate package management to pnpm
+ops(ci): add quality gates and local hooks
+docs(agents): document repository workflow
+build(architecture): add repository cleanliness checks
+```
 
-- Two supported locales: `en` (default) and `zh-CN`
-- All UI copy lives in `site-settings.json` under `copy.en` / `copy['zh-CN']`
-- When adding a new config key to one locale, add it to both
-- README exists in both English (`README.md`) and Chinese (`README.zh-CN.md`) — keep them in sync
+Do not amend already pushed commits unless explicitly requested.
 
-## Code style
+## Agent Workflow
 
-- All existing codes must has **comments** on it unless explicitly requested — follow this pattern
-- TypeScript: strict mode (extends `astro/tsconfigs/strict`)
-- Astro components: frontmatter script at top, HTML below
-- CLI scripts: `.mjs` extension, run via `tsx`
-- Imports: use relative paths from the importing file's location
-- Follow existing naming conventions and patterns when adding new files
+1. Read relevant files before editing.
+2. Plan first when the task is ambiguous or large.
+3. If the user already explicitly requested implementation, make small,
+   reviewable changes without waiting for another approval step.
+4. Preserve unrelated user changes.
+5. Prefer existing patterns over new abstractions.
+6. Keep app behavior unchanged unless behavior change is the task.
+7. Update both README files when user-facing commands or workflows change.
+8. Add or update docs when repository policy changes.
+9. Run the relevant validation commands and report exactly what ran.
+10. Do not push, deploy, publish, or commit unless explicitly asked.
 
-## Agent workflow rules
+## JavaScript Exceptions
 
-**Before implementing any change:**
+This repository still has intentional JavaScript files:
 
-1. Read the relevant files and understand the existing patterns
-2. Propose a clear plan — explain what will change and why
-3. Wait for the user to approve before writing code
+- `.mjs` CLI scripts in `scripts/`
+- `src/admin/local-file-storage.js`
+- `src/admin/sharp-image-processing.js`
+- `src/pages/rss.xml.js`
+- `src/pages/sitemap.xml.js`
 
-**When the user asks for changes to be committed:**
-
-- Summarize the changes in a commit message that follows the project's conventions
-- Do NOT commit automatically unless the user explicitly asks you to
-- Suggest the commit message for the user to review
-
-**Never run these commands unless the user explicitly asks for them:**
-
-- `git push` or any variant that pushes to a remote
-- `git commit --amend` on already-pushed commits
-- Force push of any kind
-- `npm publish` or any deployment command
+New source files should be TypeScript unless there is a documented reason to do
+otherwise.

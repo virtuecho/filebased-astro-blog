@@ -5,7 +5,7 @@ import { cliCopy, selectPost } from './cli-utils.mjs';
 import {
   isProcessableImageMetadata,
   processImageInput,
-  readImageMetadata
+  readImageMetadata,
 } from '../src/admin/sharp-image-processing.js';
 
 // Raw CLI arguments (excluding node and script path)
@@ -15,7 +15,7 @@ const args = argv.slice(2);
 function parseAddAssetsArgs(rawArgs) {
   const options = {
     convertToWebp: false,
-    stripMetadata: false
+    stripMetadata: false,
   };
   let query = '';
   const files = [];
@@ -30,7 +30,9 @@ function parseAddAssetsArgs(rawArgs) {
       continue;
     }
     if (arg.startsWith('--')) {
-      throw new Error(`${cliCopy.messages.usageAddAssets}\nUnknown option: ${arg}`);
+      throw new Error(
+        `${cliCopy.messages.usageAddAssets}\nUnknown option: ${arg}`,
+      );
     }
     // First non-flag arg is the post query; everything after are file paths
     if (!query) {
@@ -59,13 +61,20 @@ async function copyOrProcessAsset(post, source, options, seenTargets) {
   const absoluteSource = path.resolve(source);
   const metadata = await inspectImage(absoluteSource);
   // Only process if flags are set AND the image format is supported by sharp
-  const shouldProcess = (options.convertToWebp || options.stripMetadata) && isProcessableImageMetadata(metadata);
-  const targetName = processedOutputName(absoluteSource, shouldProcess && options.convertToWebp);
+  const shouldProcess =
+    (options.convertToWebp || options.stripMetadata) &&
+    isProcessableImageMetadata(metadata);
+  const targetName = processedOutputName(
+    absoluteSource,
+    shouldProcess && options.convertToWebp,
+  );
   const normalizedTarget = targetName.toLowerCase();
 
   // Detect filename collisions after processing (case-insensitive)
   if (seenTargets.has(normalizedTarget)) {
-    throw new Error(`Conflicting output filename after processing: ${targetName}`);
+    throw new Error(
+      `Conflicting output filename after processing: ${targetName}`,
+    );
   }
   seenTargets.add(normalizedTarget);
 
@@ -73,7 +82,11 @@ async function copyOrProcessAsset(post, source, options, seenTargets) {
   if (shouldProcess) {
     // Read into buffer and process with sharp
     const sourceBuffer = await fs.readFile(absoluteSource);
-    const result = await processImageInput(sourceBuffer, absoluteSource, options);
+    const result = await processImageInput(
+      sourceBuffer,
+      absoluteSource,
+      options,
+    );
     await fs.writeFile(target, result.data);
   } else {
     // Straight copy for non-image files or when no processing flags are set
@@ -85,7 +98,7 @@ async function copyOrProcessAsset(post, source, options, seenTargets) {
     targetName,
     processed: shouldProcess,
     // Skipped = flags were set but file type is not processable
-    skipped: (options.convertToWebp || options.stripMetadata) && !shouldProcess
+    skipped: (options.convertToWebp || options.stripMetadata) && !shouldProcess,
   };
 }
 

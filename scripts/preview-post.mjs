@@ -18,13 +18,18 @@ function escapeHtml(value) {
 // Rewrite relative asset URLs ("./img.jpg") to absolute file:// URLs so they load in the standalone preview
 function rewriteAssetUrls(html, postDir) {
   const dirUrl = pathToFileURL(postDir).href;
-  return html.replaceAll('src="./', `src="${dirUrl}/`).replaceAll('href="./', `href="${dirUrl}/`);
+  return html
+    .replaceAll('src="./', `src="${dirUrl}/`)
+    .replaceAll('href="./', `href="${dirUrl}/`);
 }
 
 // Parse CLI arguments: anything not --no-open is part of the post query
 const args = argv.slice(2);
 const noOpen = args.includes('--no-open');
-const query = args.filter((arg) => arg !== '--no-open').join(' ').trim();
+const query = args
+  .filter((arg) => arg !== '--no-open')
+  .join(' ')
+  .trim();
 
 // If no query and stdin is not a TTY, show usage and exit
 if (!query && !process.stdin.isTTY) {
@@ -39,9 +44,17 @@ if (post) {
   const cssPath = path.join(root, 'src/styles.css');
   const css = await fs.readFile(cssPath, 'utf8').catch(() => '');
   // Convert markdown body to HTML and rewrite asset paths
-  const bodyHtml = rewriteAssetUrls(marked.parse(post.body || ''), post.postDir);
+  const bodyHtml = rewriteAssetUrls(
+    marked.parse(post.body || ''),
+    post.postDir,
+  );
   // Build cover image tag if one is set
-  const cover = post.data.cover ? rewriteAssetUrls(`<img src="${escapeHtml(post.data.cover)}" alt="${escapeHtml(post.title)}" />`, post.postDir) : '';
+  const cover = post.data.cover
+    ? rewriteAssetUrls(
+        `<img src="${escapeHtml(post.data.cover)}" alt="${escapeHtml(post.title)}" />`,
+        post.postDir,
+      )
+    : '';
   // Write preview to .post-preview/ (gitignored)
   const previewDir = path.join(root, '.post-preview');
   const previewPath = path.join(previewDir, `${post.postId}.html`);

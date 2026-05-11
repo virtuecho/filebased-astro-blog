@@ -15,15 +15,15 @@ const postSchema = z.object({
   assetDir: z.string().optional(),
   cover: z.string().optional(),
   draft: z.boolean().default(false),
-  author: z.string().default(contentDefaults.author)
+  author: z.string().default(contentDefaults.author),
 });
 
 const posts = defineCollection({
   loader: glob({
     pattern: '**/*.{md,mdx}',
-    base: './src/content/posts'
+    base: './src/content/posts',
   }),
-  schema: postSchema
+  schema: postSchema,
 });
 
 export const collections = { posts };

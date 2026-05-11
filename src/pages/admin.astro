@@ -6,22 +6,31 @@ const admin = copy.admin;
 const adminConfig = JSON.stringify({
   admin: copy.admin,
   labels: copy.labels,
-  defaults: copy.contentDefaults
+  defaults: copy.contentDefaults,
 });
 ---
+
 <BaseLayout title={admin.pageTitle} showSidebar={false}>
   <h1 class="page-title">{admin.pageTitle}</h1>
   {admin.intro && <div class="notice">{admin.intro}</div>}
 
   <div class="admin-tabs">
-    <button id="tabPosts" class="admin-tab active" type="button">{admin.tabPosts}</button>
-    <button id="tabSettings" class="admin-tab" type="button">{admin.tabSettings}</button>
+    <button id="tabPosts" class="admin-tab active" type="button"
+      >{admin.tabPosts}</button
+    >
+    <button id="tabSettings" class="admin-tab" type="button"
+      >{admin.tabSettings}</button
+    >
   </div>
 
   <section class="admin-section root-bar">
     <div class="admin-toolbar">
-      <button id="pickRoot" class="admin-button primary" type="button">{admin.pickRoot}</button>
-      <button id="refreshPosts" class="admin-button" type="button" disabled>{admin.refreshPosts}</button>
+      <button id="pickRoot" class="admin-button primary" type="button"
+        >{admin.pickRoot}</button
+      >
+      <button id="refreshPosts" class="admin-button" type="button" disabled
+        >{admin.refreshPosts}</button
+      >
       <span id="rootStatus" class="meta">{admin.rootInitial}</span>
     </div>
     {admin.rootHelp && <p class="meta">{admin.rootHelp}</p>}
@@ -29,12 +38,23 @@ const adminConfig = JSON.stringify({
 
   <div id="postsPanel">
     <div class="admin-shell">
-
       <section class="admin-section">
         <div class="admin-toolbar">
-          <button id="newPost" class="admin-button primary" type="button" disabled>{admin.newPost}</button>
-          <button id="savePost" class="admin-button primary" type="button" disabled>{admin.savePost}</button>
-          <button id="updateSlug" class="admin-button" type="button" disabled>{admin.regenerateSlug}</button>
+          <button
+            id="newPost"
+            class="admin-button primary"
+            type="button"
+            disabled>{admin.newPost}</button
+          >
+          <button
+            id="savePost"
+            class="admin-button primary"
+            type="button"
+            disabled>{admin.savePost}</button
+          >
+          <button id="updateSlug" class="admin-button" type="button" disabled
+            >{admin.regenerateSlug}</button
+          >
           <span id="saveStatus" class="meta"></span>
         </div>
       </section>
@@ -42,7 +62,9 @@ const adminConfig = JSON.stringify({
       <div class="admin-grid">
         <section class="admin-section">
           <h2 class="admin-title">{admin.listTitle}</h2>
-          <div id="postList" class="admin-list meta">{admin.listEmptyBeforeRoot}</div>
+          <div id="postList" class="admin-list meta">
+            {admin.listEmptyBeforeRoot}
+          </div>
         </section>
 
         <section class="admin-section">
@@ -50,15 +72,38 @@ const adminConfig = JSON.stringify({
           <div class="admin-form">
             <label>postId <input id="postId" type="text" readonly /></label>
             <label>slug <input id="slug" type="text" /></label>
-            <label>{admin.fieldLabels.title} <input id="title" type="text" /></label>
-            <label>{admin.fieldLabels.description} <input id="description" type="text" /></label>
-            <label>{admin.fieldLabels.date} <input id="date" type="date" /></label>
-            <label>{admin.fieldLabels.updated} <input id="updated" type="date" /></label>
-            <label>{admin.fieldLabels.category} <input id="category" type="text" /></label>
-            <label>{admin.fieldLabels.tags} <input id="tags" type="text" /></label>
-            <label>{admin.fieldLabels.author} <input id="author" type="text" /></label>
-            <label>{admin.fieldLabels.cover} <input id="cover" type="text" /></label>
-            <label class="admin-check"><input id="draft" type="checkbox" /> {admin.fieldLabels.draft}</label>
+            <label
+              >{admin.fieldLabels.title} <input id="title" type="text" /></label
+            >
+            <label
+              >{admin.fieldLabels.description}
+              <input id="description" type="text" /></label
+            >
+            <label
+              >{admin.fieldLabels.date} <input id="date" type="date" /></label
+            >
+            <label
+              >{admin.fieldLabels.updated}
+              <input id="updated" type="date" /></label
+            >
+            <label
+              >{admin.fieldLabels.category}
+              <input id="category" type="text" /></label
+            >
+            <label
+              >{admin.fieldLabels.tags} <input id="tags" type="text" /></label
+            >
+            <label
+              >{admin.fieldLabels.author}
+              <input id="author" type="text" /></label
+            >
+            <label
+              >{admin.fieldLabels.cover} <input id="cover" type="text" /></label
+            >
+            <label class="admin-check"
+              ><input id="draft" type="checkbox" />
+              {admin.fieldLabels.draft}</label
+            >
           </div>
         </section>
       </div>
@@ -66,7 +111,11 @@ const adminConfig = JSON.stringify({
       <section class="admin-section">
         <h2 class="admin-title">{admin.bodyTitle}</h2>
         <div class="editor-grid">
-          <textarea id="body" class="admin-editor" spellcheck="false" placeholder={admin.bodyPlaceholder}></textarea>
+          <textarea
+            id="body"
+            class="admin-editor"
+            spellcheck="false"
+            placeholder={admin.bodyPlaceholder}></textarea>
           <div class="article-body preview-pane" id="preview"></div>
         </div>
       </section>
@@ -75,14 +124,24 @@ const adminConfig = JSON.stringify({
         <h2 class="admin-title">{admin.assetsTitle}</h2>
         <div class="admin-toolbar">
           <input id="assetFiles" type="file" multiple disabled />
-          <button id="uploadAssets" class="admin-button" type="button" disabled>{admin.uploadAssets}</button>
+          <button id="uploadAssets" class="admin-button" type="button" disabled
+            >{admin.uploadAssets}</button
+          >
         </div>
         <div class="asset-options">
-          <label class="admin-check"><input id="assetConvertWebp" type="checkbox" disabled /> {admin.assetOptionWebp}</label>
-          <label class="admin-check"><input id="assetStripMetadata" type="checkbox" disabled /> {admin.assetOptionStripMetadata}</label>
+          <label class="admin-check"
+            ><input id="assetConvertWebp" type="checkbox" disabled />
+            {admin.assetOptionWebp}</label
+          >
+          <label class="admin-check"
+            ><input id="assetStripMetadata" type="checkbox" disabled />
+            {admin.assetOptionStripMetadata}</label
+          >
         </div>
         <p class="meta">{admin.assetProcessingHelp}</p>
-        <p id="assetHint" class="meta" hidden={!admin.assetHintBeforePost}>{admin.assetHintBeforePost}</p>
+        <p id="assetHint" class="meta" hidden={!admin.assetHintBeforePost}>
+          {admin.assetHintBeforePost}
+        </p>
         <div id="assetList" class="asset-list"></div>
       </section>
     </div>
@@ -92,7 +151,12 @@ const adminConfig = JSON.stringify({
     <div class="admin-shell">
       <section class="admin-section">
         <div class="admin-toolbar">
-          <button id="saveSettings" class="admin-button primary" type="button" disabled>{admin.settingsSave}</button>
+          <button
+            id="saveSettings"
+            class="admin-button primary"
+            type="button"
+            disabled>{admin.settingsSave}</button
+          >
           <span id="settingsStatus" class="meta"></span>
         </div>
       </section>
@@ -104,27 +168,49 @@ const adminConfig = JSON.stringify({
         </div>
       </section>
 
-      {admin.settingsIdentitySection && (
-        <section class="admin-section">
-          <h2 class="admin-title">{admin.settingsIdentitySection}</h2>
-          {admin.settingsIdentityLangNote && <p class="meta">{admin.settingsIdentityLangNote}</p>}
-          <div class="admin-form">
-            <label>en Title <input id="sSiteTitleEn" type="text" /></label>
-            <label>en Description <input id="sSiteDescEn" type="text" /></label>
-            <label>en Footer <input id="sSiteFooterEn" type="text" /></label>
-            <label>zh-CN 标题 <input id="sSiteTitleZh" type="text" /></label>
-            <label>zh-CN 摘要 <input id="sSiteDescZh" type="text" /></label>
-            <label>zh-CN 页脚 <input id="sSiteFooterZh" type="text" /></label>
-          </div>
-        </section>
-      )}
+      {
+        admin.settingsIdentitySection && (
+          <section class="admin-section">
+            <h2 class="admin-title">{admin.settingsIdentitySection}</h2>
+            {admin.settingsIdentityLangNote && (
+              <p class="meta">{admin.settingsIdentityLangNote}</p>
+            )}
+            <div class="admin-form">
+              <label>
+                en Title <input id="sSiteTitleEn" type="text" />
+              </label>
+              <label>
+                en Description <input id="sSiteDescEn" type="text" />
+              </label>
+              <label>
+                en Footer <input id="sSiteFooterEn" type="text" />
+              </label>
+              <label>
+                zh-CN 标题 <input id="sSiteTitleZh" type="text" />
+              </label>
+              <label>
+                zh-CN 摘要 <input id="sSiteDescZh" type="text" />
+              </label>
+              <label>
+                zh-CN 页脚 <input id="sSiteFooterZh" type="text" />
+              </label>
+            </div>
+          </section>
+        )
+      }
 
       <section class="admin-section">
         <h2 class="admin-title">{admin.settingsHomeSection}</h2>
         {admin.settingsHideHint && <p class="meta">{admin.settingsHideHint}</p>}
         <div class="admin-form">
-          <label>en {admin.settingsHomeNotice} <input id="sHomeNoticeEn" type="text" /></label>
-          <label>zh-CN {admin.settingsHomeNotice} <input id="sHomeNoticeZh" type="text" /></label>
+          <label
+            >en {admin.settingsHomeNotice}
+            <input id="sHomeNoticeEn" type="text" /></label
+          >
+          <label
+            >zh-CN {admin.settingsHomeNotice}
+            <input id="sHomeNoticeZh" type="text" /></label
+          >
         </div>
       </section>
 
@@ -132,10 +218,22 @@ const adminConfig = JSON.stringify({
         <h2 class="admin-title">{admin.settingsSidebarSection}</h2>
         {admin.settingsHideHint && <p class="meta">{admin.settingsHideHint}</p>}
         <div class="admin-form">
-          <label>en {admin.settingsSidebarAboutTitle} <input id="sSidebarTitleEn" type="text" /></label>
-          <label>en {admin.settingsSidebarAboutText} <input id="sSidebarTextEn" type="text" /></label>
-          <label>zh-CN {admin.settingsSidebarAboutTitle} <input id="sSidebarTitleZh" type="text" /></label>
-          <label>zh-CN {admin.settingsSidebarAboutText} <input id="sSidebarTextZh" type="text" /></label>
+          <label
+            >en {admin.settingsSidebarAboutTitle}
+            <input id="sSidebarTitleEn" type="text" /></label
+          >
+          <label
+            >en {admin.settingsSidebarAboutText}
+            <input id="sSidebarTextEn" type="text" /></label
+          >
+          <label
+            >zh-CN {admin.settingsSidebarAboutTitle}
+            <input id="sSidebarTitleZh" type="text" /></label
+          >
+          <label
+            >zh-CN {admin.settingsSidebarAboutText}
+            <input id="sSidebarTextZh" type="text" /></label
+          >
         </div>
       </section>
 
@@ -143,29 +241,71 @@ const adminConfig = JSON.stringify({
         <h2 class="admin-title">{admin.settingsAdminMessagesSection}</h2>
         {admin.settingsHideHint && <p class="meta">{admin.settingsHideHint}</p>}
         <div class="admin-form">
-          <label>en {admin.settingsAdminIntro} <input id="sAdminIntroEn" type="text" /></label>
-          <label>zh-CN {admin.settingsAdminIntro} <input id="sAdminIntroZh" type="text" /></label>
-          <label>en {admin.settingsAdminRootHelp} <input id="sAdminRootHelpEn" type="text" /></label>
-          <label>zh-CN {admin.settingsAdminRootHelp} <input id="sAdminRootHelpZh" type="text" /></label>
-          <label>en {admin.settingsAdminAssetHint} <input id="sAdminAssetHintEn" type="text" /></label>
-          <label>zh-CN {admin.settingsAdminAssetHint} <input id="sAdminAssetHintZh" type="text" /></label>
+          <label
+            >en {admin.settingsAdminIntro}
+            <input id="sAdminIntroEn" type="text" /></label
+          >
+          <label
+            >zh-CN {admin.settingsAdminIntro}
+            <input id="sAdminIntroZh" type="text" /></label
+          >
+          <label
+            >en {admin.settingsAdminRootHelp}
+            <input id="sAdminRootHelpEn" type="text" /></label
+          >
+          <label
+            >zh-CN {admin.settingsAdminRootHelp}
+            <input id="sAdminRootHelpZh" type="text" /></label
+          >
+          <label
+            >en {admin.settingsAdminAssetHint}
+            <input id="sAdminAssetHintEn" type="text" /></label
+          >
+          <label
+            >zh-CN {admin.settingsAdminAssetHint}
+            <input id="sAdminAssetHintZh" type="text" /></label
+          >
         </div>
       </section>
 
       <section class="admin-section">
         <h2 class="admin-title">{admin.settingsBgSection}</h2>
         <div class="admin-form">
-          <label>{admin.settingsBgBody} <input id="sBgBody" type="text" /></label>
-          <label>{admin.settingsBgHeader} <input id="sBgHeader" type="text" /></label>
-          <label>{admin.settingsBgSite} <input id="sBgSite" type="text" /></label>
+          <label
+            >{admin.settingsBgBody} <input id="sBgBody" type="text" /></label
+          >
+          <label
+            >{admin.settingsBgHeader}
+            <input id="sBgHeader" type="text" /></label
+          >
+          <label
+            >{admin.settingsBgSite} <input id="sBgSite" type="text" /></label
+          >
         </div>
         <div class="admin-toolbar" style="margin-top:10px">
-          <input id="siteImageFiles" type="file" multiple accept="image/*" disabled />
-          <button id="uploadSiteImages" class="admin-button" type="button" disabled>Upload To /images/site/</button>
+          <input
+            id="siteImageFiles"
+            type="file"
+            multiple
+            accept="image/*"
+            disabled
+          />
+          <button
+            id="uploadSiteImages"
+            class="admin-button"
+            type="button"
+            disabled>Upload To /images/site/</button
+          >
         </div>
         <div class="asset-options">
-          <label class="admin-check"><input id="siteImageWebp" type="checkbox" disabled /> {admin.assetOptionWebp}</label>
-          <label class="admin-check"><input id="siteImageStripMeta" type="checkbox" disabled /> {admin.assetOptionStripMetadata}</label>
+          <label class="admin-check"
+            ><input id="siteImageWebp" type="checkbox" disabled />
+            {admin.assetOptionWebp}</label
+          >
+          <label class="admin-check"
+            ><input id="siteImageStripMeta" type="checkbox" disabled />
+            {admin.assetOptionStripMetadata}</label
+          >
         </div>
         <div id="siteImageList" class="asset-list"></div>
       </section>
@@ -173,27 +313,83 @@ const adminConfig = JSON.stringify({
       <section class="admin-section">
         <h2 class="admin-title">{admin.settingsColorsSection}</h2>
         <div class="admin-form">
-          <label>{admin.settingsHeaderTextColor} <input id="sHeaderTextColor" type="color" /></label>
-          <label>{admin.settingsHeaderDescColor} <input id="sHeaderDescColor" type="color" /></label>
-          <label>{admin.settingsHeaderHeight} <input id="sHeaderHeight" type="text" /></label>
+          <label
+            >{admin.settingsHeaderTextColor}
+            <input id="sHeaderTextColor" type="color" /></label
+          >
+          <label
+            >{admin.settingsHeaderDescColor}
+            <input id="sHeaderDescColor" type="color" /></label
+          >
+          <label
+            >{admin.settingsHeaderHeight}
+            <input id="sHeaderHeight" type="text" /></label
+          >
         </div>
       </section>
 
       <section class="admin-section">
         <h2 class="admin-title">{admin.settingsTypographySection}</h2>
         <div class="admin-form">
-          <label>{admin.settingsFontFamily} <input id="sFontFamily" type="text" placeholder={admin.settingsEmptyPlaceholder} /></label>
-          <label>{admin.settingsBaseFontSize} <input id="sBaseFontSize" type="text" placeholder={admin.settingsEmptyPlaceholder} /></label>
-          <label>{admin.settingsLineHeight} <input id="sLineHeight" type="text" placeholder={admin.settingsEmptyPlaceholder} /></label>
-          <label>{admin.settingsHeadingFont} <input id="sHeadingFont" type="text" placeholder={admin.settingsEmptyPlaceholder} /></label>
-          <label>{admin.settingsHeadingWeight} <input id="sHeadingWeight" type="text" placeholder={admin.settingsEmptyPlaceholder} /></label>
-          <label>{admin.settingsCodeFont} <input id="sCodeFont" type="text" placeholder={admin.settingsEmptyPlaceholder} /></label>
+          <label
+            >{admin.settingsFontFamily}
+            <input
+              id="sFontFamily"
+              type="text"
+              placeholder={admin.settingsEmptyPlaceholder}
+            /></label
+          >
+          <label
+            >{admin.settingsBaseFontSize}
+            <input
+              id="sBaseFontSize"
+              type="text"
+              placeholder={admin.settingsEmptyPlaceholder}
+            /></label
+          >
+          <label
+            >{admin.settingsLineHeight}
+            <input
+              id="sLineHeight"
+              type="text"
+              placeholder={admin.settingsEmptyPlaceholder}
+            /></label
+          >
+          <label
+            >{admin.settingsHeadingFont}
+            <input
+              id="sHeadingFont"
+              type="text"
+              placeholder={admin.settingsEmptyPlaceholder}
+            /></label
+          >
+          <label
+            >{admin.settingsHeadingWeight}
+            <input
+              id="sHeadingWeight"
+              type="text"
+              placeholder={admin.settingsEmptyPlaceholder}
+            /></label
+          >
+          <label
+            >{admin.settingsCodeFont}
+            <input
+              id="sCodeFont"
+              type="text"
+              placeholder={admin.settingsEmptyPlaceholder}
+            /></label
+          >
         </div>
       </section>
 
       <section class="admin-section">
         <h2 class="admin-title">Preview</h2>
-        <iframe id="sitePreview" title="Site Preview" src="about:blank" style="width:100%;min-height:640px;border:1px solid var(--line);background:#fff"></iframe>
+        <iframe
+          id="sitePreview"
+          title="Site Preview"
+          src="about:blank"
+          style="width:100%;min-height:640px;border:1px solid var(--line);background:#fff"
+        ></iframe>
       </section>
     </div>
   </div>
@@ -201,6 +397,7 @@ const adminConfig = JSON.stringify({
   <div id="admin-config" data-config={adminConfig} hidden></div>
 
   <script>
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-nocheck
     import { marked } from 'marked';
     import {
@@ -210,7 +407,7 @@ const adminConfig = JSON.stringify({
       INDEX_FILE,
       parseMarkdown,
       slugFromTitle,
-      todayLocalDate
+      todayLocalDate,
     } from '../content-workflow';
     import {
       clearProjectRootHandle,
@@ -223,11 +420,13 @@ const adminConfig = JSON.stringify({
       readFile,
       requestHandlePermission,
       saveProjectRootHandle,
-      writeFile
+      writeFile,
     } from '../admin/local-file-storage.js';
 
     // Parse the JSON config injected by the server into a data attribute
-    const config = JSON.parse(document.getElementById('admin-config').dataset.config);
+    const config = JSON.parse(
+      document.getElementById('admin-config').dataset.config,
+    );
     const adminCopy = config.admin;
     const labelCopy = config.labels;
     const defaults = config.defaults;
@@ -242,7 +441,7 @@ const adminConfig = JSON.stringify({
       currentFile: null,
       currentPostDir: null,
       posts: [],
-      needsRootReconnect: false
+      needsRootReconnect: false,
     };
 
     // Shorthand to get a DOM element by id
@@ -262,17 +461,21 @@ const adminConfig = JSON.stringify({
       assetConvertWebp: $('assetConvertWebp'),
       assetStripMetadata: $('assetStripMetadata'),
       draft: $('draft'),
-      body: $('body')
+      body: $('body'),
     };
 
     // MIME types that can be re-encoded (JPEG, PNG, WebP)
-    const PROCESSABLE_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
+    const PROCESSABLE_IMAGE_TYPES = new Set([
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+    ]);
     // File extension → MIME type mapping for inferring image type from filename
     const EXTENSION_TO_MIME = {
       '.jpg': 'image/jpeg',
       '.jpeg': 'image/jpeg',
       '.png': 'image/png',
-      '.webp': 'image/webp'
+      '.webp': 'image/webp',
     };
 
     // Collect all form values into a post data object
@@ -285,10 +488,13 @@ const adminConfig = JSON.stringify({
         date: fields.date.value || todayLocalDate(),
         updated: fields.updated.value,
         category: fields.category.value || defaults.category,
-        tags: fields.tags.value.split(',').map((tag) => tag.trim()).filter(Boolean),
+        tags: fields.tags.value
+          .split(',')
+          .map((tag) => tag.trim())
+          .filter(Boolean),
         author: fields.author.value || defaults.author,
         cover: fields.cover.value,
-        draft: fields.draft.checked
+        draft: fields.draft.checked,
       };
     }
 
@@ -361,7 +567,8 @@ const adminConfig = JSON.stringify({
       fields.assetStripMetadata.checked = false;
       fields.draft.checked = true;
       fields.body.value = '';
-      $('postList').innerHTML = `<p class="meta">${adminCopy.listEmptyBeforeRoot}</p>`;
+      $('postList').innerHTML =
+        `<p class="meta">${adminCopy.listEmptyBeforeRoot}</p>`;
       $('assetList').innerHTML = '';
       updatePreview();
       updateAssetHint();
@@ -374,7 +581,9 @@ const adminConfig = JSON.stringify({
 
     // Toggle the root picker button label between "pick" and "reconnect"
     function setRootButtonLabel(needsReconnect) {
-      $('pickRoot').textContent = needsReconnect ? adminCopy.reconnectRoot : adminCopy.pickRoot;
+      $('pickRoot').textContent = needsReconnect
+        ? adminCopy.reconnectRoot
+        : adminCopy.pickRoot;
     }
 
     // Establish working directory handles from a root handle
@@ -389,7 +598,8 @@ const adminConfig = JSON.stringify({
       resetCurrentPost();
       try {
         const srcDir = await handles.postsDir.parent;
-        state.siteSettingsHandle = await srcDir.getFileHandle('site-settings.json');
+        state.siteSettingsHandle =
+          await srcDir.getFileHandle('site-settings.json');
       } catch {
         state.siteSettingsHandle = null;
       }
@@ -417,7 +627,11 @@ const adminConfig = JSON.stringify({
 
     // Scan the content directory and refresh the post list in state + UI
     async function listPosts() {
-      state.posts = await listPostFiles(state.postsDir, parseMarkdown, INDEX_FILE);
+      state.posts = await listPostFiles(
+        state.postsDir,
+        parseMarkdown,
+        INDEX_FILE,
+      );
       renderPostList();
     }
 
@@ -478,7 +692,7 @@ const adminConfig = JSON.stringify({
         category: defaults.category,
         tags: [],
         author: defaults.author,
-        draft: true
+        draft: true,
       };
 
       state.currentPostDir = await getDir(state.postsDir, postId, true);
@@ -502,7 +716,10 @@ const adminConfig = JSON.stringify({
 
     // Regenerate the slug field from the current title value
     function updateSlugFromTitle() {
-      fields.slug.value = slugFromTitle(fields.title.value, fields.postId.value);
+      fields.slug.value = slugFromTitle(
+        fields.title.value,
+        fields.postId.value,
+      );
       setStatus(adminCopy.slugUpdated);
     }
 
@@ -538,7 +755,8 @@ const adminConfig = JSON.stringify({
       const list = $('siteImageList');
       list.innerHTML = '';
       if (!state.imagesSiteDir) {
-        list.innerHTML = '<p class="meta">Select a project root to view site images.</p>';
+        list.innerHTML =
+          '<p class="meta">Select a project root to view site images.</p>';
         return;
       }
 
@@ -554,7 +772,8 @@ const adminConfig = JSON.stringify({
         nameNode.textContent = name;
 
         const pathNode = document.createElement('code');
-        pathNode.style.cssText = 'font-size:12px;color:var(--muted);margin:0 8px;';
+        pathNode.style.cssText =
+          'font-size:12px;color:var(--muted);margin:0 8px;';
         pathNode.textContent = path;
 
         const btnGroup = document.createElement('span');
@@ -572,7 +791,9 @@ const adminConfig = JSON.stringify({
         btnHeader.className = 'admin-button';
         btnHeader.textContent = 'Header';
         btnHeader.title = `${adminCopy.settingsBgHeader}: ${path}`;
-        btnHeader.addEventListener('click', () => setBgField('sBgHeader', path));
+        btnHeader.addEventListener('click', () =>
+          setBgField('sBgHeader', path),
+        );
 
         const btnSite = document.createElement('button');
         btnSite.type = 'button';
@@ -608,19 +829,25 @@ const adminConfig = JSON.stringify({
     // Convert a canvas to a Blob via toBlob() wrapped in a promise
     async function canvasBlob(canvas, type, quality) {
       return new Promise((resolve, reject) => {
-        canvas.toBlob((blob) => {
-          if (blob) {
-            resolve(blob);
-            return;
-          }
-          reject(new Error(`Could not export image as ${type}.`));
-        }, type, quality);
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              resolve(blob);
+              return;
+            }
+            reject(new Error(`Could not export image as ${type}.`));
+          },
+          type,
+          quality,
+        );
       });
     }
 
     // Re-encode an image file (convert to WebP and/or strip metadata) in the browser
     async function reencodeImageFile(file, options, sourceType) {
-      const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+      const bitmap = await createImageBitmap(file, {
+        imageOrientation: 'from-image',
+      });
       try {
         const canvas = document.createElement('canvas');
         canvas.width = bitmap.width;
@@ -629,11 +856,16 @@ const adminConfig = JSON.stringify({
         if (!context) throw new Error('Canvas 2D context is not available.');
         context.drawImage(bitmap, 0, 0);
         const targetType = options.convertToWebp ? 'image/webp' : sourceType;
-        const quality = targetType === 'image/png' ? undefined : (targetType === 'image/webp' ? 0.9 : 0.92);
+        const quality =
+          targetType === 'image/png'
+            ? undefined
+            : targetType === 'image/webp'
+              ? 0.9
+              : 0.92;
         const blob = await canvasBlob(canvas, targetType, quality);
         return new File([blob], outputAssetName(file, options.convertToWebp), {
           type: blob.type || targetType,
-          lastModified: Date.now()
+          lastModified: Date.now(),
         });
       } finally {
         bitmap.close();
@@ -646,11 +878,19 @@ const adminConfig = JSON.stringify({
       const sourceType = inferProcessableImageType(file);
 
       if (!wantsProcessing || !sourceType) {
-        return { file, processed: false, skipped: wantsProcessing && !sourceType };
+        return {
+          file,
+          processed: false,
+          skipped: wantsProcessing && !sourceType,
+        };
       }
 
       try {
-        const processedFile = await reencodeImageFile(file, options, sourceType);
+        const processedFile = await reencodeImageFile(
+          file,
+          options,
+          sourceType,
+        );
         return { file: processedFile, processed: true, skipped: false };
       } catch {
         return { file, processed: false, skipped: true };
@@ -674,7 +914,9 @@ const adminConfig = JSON.stringify({
         insert.type = 'button';
         insert.className = 'admin-button';
         insert.textContent = adminCopy.insertAsset;
-        insert.addEventListener('click', () => insertAtCursor(`![${name}](./${encodeURIComponent(name)})`));
+        insert.addEventListener('click', () =>
+          insertAtCursor(`![${name}](./${encodeURIComponent(name)})`),
+        );
         item.append(nameNode, insert);
         list.appendChild(item);
       }
@@ -698,7 +940,7 @@ const adminConfig = JSON.stringify({
         const input = $('assetFiles');
         const options = {
           convertToWebp: fields.assetConvertWebp.checked,
-          stripMetadata: fields.assetStripMetadata.checked
+          stripMetadata: fields.assetStripMetadata.checked,
         };
         let processedCount = 0;
         let skippedCount = 0;
@@ -706,7 +948,11 @@ const adminConfig = JSON.stringify({
           const prepared = await prepareAssetUpload(file, options);
           processedCount += prepared.processed ? 1 : 0;
           skippedCount += prepared.skipped ? 1 : 0;
-          const handle = await getFile(state.currentPostDir, prepared.file.name, true);
+          const handle = await getFile(
+            state.currentPostDir,
+            prepared.file.name,
+            true,
+          );
           const writable = await handle.createWritable();
           await writable.write(prepared.file);
           await writable.close();
@@ -718,7 +964,7 @@ const adminConfig = JSON.stringify({
             ? adminCopy.assetUploadedPartial
             : processedCount > 0
               ? adminCopy.assetUploadedProcessed
-              : adminCopy.assetUploaded
+              : adminCopy.assetUploaded,
         );
       } catch (error) {
         setStatus(`${adminCopy.assetUploadFailed} ${error.message}`);
@@ -737,7 +983,10 @@ const adminConfig = JSON.stringify({
         if (!rememberedRoot) return;
 
         setRootStatus(adminCopy.restoringRoot);
-        const permission = await queryHandlePermission(rememberedRoot, 'readwrite');
+        const permission = await queryHandlePermission(
+          rememberedRoot,
+          'readwrite',
+        );
 
         if (permission === 'granted') {
           await connectRoot(rememberedRoot, adminCopy.rootRestored, false);
@@ -762,7 +1011,10 @@ const adminConfig = JSON.stringify({
 
       try {
         if (state.needsRootReconnect && state.root) {
-          const granted = await requestHandlePermission(state.root, 'readwrite');
+          const granted = await requestHandlePermission(
+            state.root,
+            'readwrite',
+          );
           if (granted) {
             await connectRoot(state.root, adminCopy.rootRestored);
             return;
@@ -799,7 +1051,11 @@ const adminConfig = JSON.stringify({
       $('tabPosts').classList.toggle('active', isPosts);
       $('tabSettings').classList.toggle('active', !isPosts);
       $('refreshPosts').hidden = !isPosts;
-      try { sessionStorage.setItem('adminActiveTab', name); } catch {}
+      try {
+        sessionStorage.setItem('adminActiveTab', name);
+      } catch {
+        // Ignore browsers that block sessionStorage.
+      }
       if (!isPosts && state.root) {
         loadSettingsForm().catch(() => {});
         renderSiteImages().catch(() => {});
@@ -808,9 +1064,6 @@ const adminConfig = JSON.stringify({
 
     $('tabPosts').addEventListener('click', () => showTab('posts'));
     $('tabSettings').addEventListener('click', () => showTab('settings'));
-
-    // --- Site settings ---
-    const SITE_SETTINGS_PATH = 'src/site-settings.json';
 
     // Lazily resolve and cache the site-settings.json file handle
     async function getSettingsHandle() {
@@ -851,7 +1104,7 @@ const adminConfig = JSON.stringify({
     // Force-reload the site preview iframe so changes are visible
     function refreshPreview() {
       const iframe = $('sitePreview');
-      iframe.src = iframe.src;
+      iframe.contentWindow?.location.reload();
     }
 
     // Populate all settings form fields from the current site-settings.json
@@ -860,9 +1113,12 @@ const adminConfig = JSON.stringify({
       if (!settings) return;
 
       const lang = String(settings.defaultLocale || 'en');
-      $('sLang').innerHTML = (settings.supportedLocales || ['en']).map((l) =>
-        `<option value="${l}" ${l === lang ? 'selected' : ''}>${l}</option>`
-      ).join('');
+      $('sLang').innerHTML = (settings.supportedLocales || ['en'])
+        .map(
+          (l) =>
+            `<option value="${l}" ${l === lang ? 'selected' : ''}>${l}</option>`,
+        )
+        .join('');
 
       const en = settings.copy?.en?.site || {};
       const zh = settings.copy?.['zh-CN']?.site || {};
@@ -996,12 +1252,15 @@ const adminConfig = JSON.stringify({
         const input = $('siteImageFiles');
         const options = {
           convertToWebp: $('siteImageWebp').checked,
-          stripMetadata: $('siteImageStripMeta').checked
+          stripMetadata: $('siteImageStripMeta').checked,
         };
         const uploaded = [];
         for (const file of input.files || []) {
           const prepared = await prepareAssetUpload(file, options);
-          const handle = await state.imagesSiteDir.getFileHandle(prepared.file.name, { create: true });
+          const handle = await state.imagesSiteDir.getFileHandle(
+            prepared.file.name,
+            { create: true },
+          );
           const writable = await handle.createWritable();
           await writable.write(prepared.file);
           await writable.close();
@@ -1009,7 +1268,9 @@ const adminConfig = JSON.stringify({
         }
         input.value = '';
         await renderSiteImages();
-        const paths = uploaded.map((n) => `/images/site/${encodeURIComponent(n)}`).join(', ');
+        const paths = uploaded
+          .map((n) => `/images/site/${encodeURIComponent(n)}`)
+          .join(', ');
         setSettingsStatus(`${uploaded.length} image(s) uploaded: ${paths}`);
       } catch (error) {
         setSettingsStatus(`Upload failed: ${error.message}`);
@@ -1022,7 +1283,11 @@ const adminConfig = JSON.stringify({
     setRootButtonLabel(false);
     // Restore the last-active tab from sessionStorage
     let activeTab = 'posts';
-    try { activeTab = sessionStorage.getItem('adminActiveTab') || 'posts'; } catch {}
+    try {
+      activeTab = sessionStorage.getItem('adminActiveTab') || 'posts';
+    } catch {
+      // Keep the default tab when sessionStorage is unavailable.
+    }
     // Attempt to restore a previously-saved root handle on page load
     restoreSavedRoot().then(() => {
       if (activeTab === 'settings' && state.root) {
@@ -1053,12 +1318,16 @@ const adminConfig = JSON.stringify({
       cursor: pointer;
       border-bottom: 2px solid transparent;
       margin-bottom: -2px;
-      transition: color 0.15s, border-color 0.15s;
+      transition:
+        color 0.15s,
+        border-color 0.15s;
     }
     .admin-tab.active {
       color: var(--text);
       border-bottom-color: var(--text);
     }
-    .admin-tab:hover { color: var(--text); }
+    .admin-tab:hover {
+      color: var(--text);
+    }
   </style>
 </BaseLayout>

@@ -5,7 +5,7 @@ import { copy } from '../src/site.config.ts';
 import {
   isProcessableImageMetadata,
   processImageInput,
-  readImageMetadata
+  readImageMetadata,
 } from '../src/admin/sharp-image-processing.js';
 
 // CLI-specific localized copy strings
@@ -17,7 +17,9 @@ const siteAssetsDir = path.join(root, 'public/images/site');
 
 // Print usage help and exit
 function usage() {
-  console.log('Usage: npm run site-assets -- <file...> [--webp] [--strip-metadata]');
+  console.log(
+    'Usage: pnpm site-assets -- <file...> [--webp] [--strip-metadata]',
+  );
   process.exit(0);
 }
 
@@ -25,7 +27,7 @@ function usage() {
 function parseArgs(rawArgs) {
   const options = {
     convertToWebp: false,
-    stripMetadata: false
+    stripMetadata: false,
   };
   const files = [];
 
@@ -59,13 +61,20 @@ async function processFile(source, options, seenTargets) {
   const absoluteSource = path.resolve(source);
   const metadata = await readImageMetadata(absoluteSource);
   // Only process if flags are set AND the image format is supported by sharp
-  const shouldProcess = (options.convertToWebp || options.stripMetadata) && isProcessableImageMetadata(metadata);
-  const targetName = outputName(absoluteSource, shouldProcess && options.convertToWebp);
+  const shouldProcess =
+    (options.convertToWebp || options.stripMetadata) &&
+    isProcessableImageMetadata(metadata);
+  const targetName = outputName(
+    absoluteSource,
+    shouldProcess && options.convertToWebp,
+  );
   const normalized = targetName.toLowerCase();
 
   // Detect filename collisions after processing (case-insensitive)
   if (seenTargets.has(normalized)) {
-    throw new Error(`Conflicting output filename after processing: ${targetName}`);
+    throw new Error(
+      `Conflicting output filename after processing: ${targetName}`,
+    );
   }
   seenTargets.add(normalized);
 
@@ -73,7 +82,11 @@ async function processFile(source, options, seenTargets) {
   if (shouldProcess) {
     // Read into buffer and process with sharp
     const sourceBuffer = await fs.readFile(absoluteSource);
-    const result = await processImageInput(sourceBuffer, absoluteSource, options);
+    const result = await processImageInput(
+      sourceBuffer,
+      absoluteSource,
+      options,
+    );
     await fs.writeFile(target, result.data);
   } else {
     // Straight copy for non-image files or when no processing flags are set
@@ -85,7 +98,7 @@ async function processFile(source, options, seenTargets) {
     targetName,
     processed: shouldProcess,
     // Skipped = flags were set but file type is not processable
-    skipped: (options.convertToWebp || options.stripMetadata) && !shouldProcess
+    skipped: (options.convertToWebp || options.stripMetadata) && !shouldProcess,
   };
 }
 
@@ -111,7 +124,9 @@ try {
     console.log(`\n${label}`);
     console.log(result.target);
     // Show the public URL path for the copied/processed file
-    console.log(`Site path: /images/site/${encodeURIComponent(result.targetName)}`);
+    console.log(
+      `Site path: /images/site/${encodeURIComponent(result.targetName)}`,
+    );
   }
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error));
