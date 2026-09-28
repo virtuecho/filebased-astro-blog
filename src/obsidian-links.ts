@@ -29,7 +29,7 @@ interface NoteIndex {
   byName: Map<string, Note>;
 }
 
-const postsRoot = resolve(process.cwd(), 'src/content/posts');
+const postsRoot = resolve(process.cwd(), 'posts');
 
 function markdownPaths() {
   if (!existsSync(postsRoot)) return [];
@@ -53,7 +53,7 @@ export function createNoteIndex(paths: string[]): NoteIndex {
   for (const filename of paths) {
     if (filename.includes('/') || filename.includes('\\')) {
       throw new Error(
-        `Markdown posts must be directly inside "src/content/posts/". Move "${filename}" there.`,
+        `Markdown posts must be directly inside "posts/". Move "${filename}" there.`,
       );
     }
 
@@ -93,7 +93,7 @@ function noteUrl(
   const target = normalizeName(path);
   if (target.includes('/')) {
     throw new Error(
-      `Markdown posts are flat. Move the note into "src/content/posts/" and link by filename, such as "[[${basename(target)}]]".`,
+      `Markdown posts are flat. Move the note into "posts/" and link by filename, such as "[[${basename(target)}]]".`,
     );
   }
 

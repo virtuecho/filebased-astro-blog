@@ -8,14 +8,14 @@
 Markdown 笔记 -> Astro -> 静态网站
 ```
 
-项目没有本地写作页面、数据库、草稿状态或附件管理器。`src/content/posts/` 根目录下的每个 `.md` 文件在构建时都会进入公开网站。未公开或私人的笔记请放在这个目录之外。
+项目没有本地写作页面、数据库、草稿状态或附件管理器。要发布文章，只需把 Markdown 文件放到项目根目录的 `posts/` 文件夹中。写文章时只需要操作这个文件夹；其中每个 `.md` 文件都会公开发布。未公开或私人的笔记请放在这个文件夹之外。
 
 ## 内容格式
 
-每篇文章是一个直接放在 `src/content/posts/` 根目录下的 `.md` 文件。文件名决定公开 URL。文章目录保持扁平，文件名必须唯一。YAML frontmatter 可省略：
+每篇文章是一个直接放在 `posts/` 文件夹下的 `.md` 文件。文件名决定公开 URL。文件夹保持扁平，文件名必须唯一。YAML frontmatter 可省略：
 
 ```text
-src/content/posts/入门.md  ->  /posts/%E5%85%A5%E9%97%A8/
+posts/入门.md  ->  /posts/%E5%85%A5%E9%97%A8/
 ```
 
 如果提供 frontmatter，其中的标题和日期会覆盖文件名和文件创建日期；分类和标签可选：
@@ -56,13 +56,7 @@ Astro 支持标准 Markdown 和 GitHub Flavored Markdown。本项目额外支持
 
 ## 项目结构
 
-```text
-src/content/posts/  发布到网站的 Markdown 笔记
-src/pages/          静态页面、归档、RSS 和 sitemap
-src/components/     共用页面组件
-src/site-settings.json  网站文案、语言、主题和字体
-public/             原样提供给浏览器的静态文件
-```
+日常发布文章时，只需要操作 `posts/`。添加或编辑文章不需要改动项目里的其他文件。
 
 ## 本地预览
 
@@ -72,10 +66,6 @@ pnpm dev
 ```
 
 打开 `http://localhost:4321/`。在 Obsidian 中编辑 `.md` 文件后刷新页面即可预览。
-
-## 网站设置
-
-编辑 `src/site-settings.json` 可修改网站文案、语言、颜色、背景和字体。网站设置与文章内容分开保存。
 
 ## 检查和构建
 

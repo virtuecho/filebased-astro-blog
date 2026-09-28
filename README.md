@@ -8,14 +8,14 @@ A static blog built from Obsidian-friendly Markdown files. Write notes in Obsidi
 Markdown notes -> Astro -> static website
 ```
 
-There is no local writing page, database, draft state, or attachment manager. Every `.md` file directly inside `src/content/posts/` is included in the public site when it is built. Keep private or unpublished notes outside that folder.
+There is no local writing page, database, draft state, or attachment manager. To publish, put Markdown files directly in the root `posts/` folder. That is the only folder blog authors need to edit; every `.md` file there is public. Keep private or unpublished notes outside it.
 
 ## Content Model
 
-Each post is one `.md` file directly inside `src/content/posts/`. Its filename determines its public URL. Keep this folder flat; note filenames must be unique. YAML frontmatter is optional:
+Each post is one `.md` file directly inside `posts/`. Its filename determines its public URL. Keep this folder flat; note filenames must be unique. YAML frontmatter is optional:
 
 ```text
-src/content/posts/Getting Started.md  ->  /posts/getting-started/
+posts/Getting Started.md  ->  /posts/getting-started/
 ```
 
 When frontmatter is present, title and date can override the file-derived title and creation date. Category and tags are optional:
@@ -56,13 +56,8 @@ Astro renders standard Markdown and GitHub Flavored Markdown. Obsidian-specific 
 
 ## Project Structure
 
-```text
-src/content/posts/  Published Markdown notes
-src/pages/          Static pages, archives, RSS, and sitemap
-src/components/     Shared page components
-src/site-settings.json  Site copy, locale, theme, and typography
-public/             Static files served as-is
-```
+For regular publishing, only use `posts/`. The remaining project files are
+template internals and do not need changes to add or edit articles.
 
 ## Local Development
 
@@ -72,10 +67,6 @@ pnpm dev
 ```
 
 Open the local site at `http://localhost:4321/`. Edit `.md` files in Obsidian, then refresh the page to preview changes.
-
-## Site Settings
-
-Edit `src/site-settings.json` to change site copy, language, colors, backgrounds, or typography. Site settings are separate from post content.
 
 ## Checks and Build
 

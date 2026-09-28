@@ -1,5 +1,5 @@
 // Single source of truth for all user-facing site settings
-import siteSettings from './site-settings.json';
+import siteSettings from '../.config/site-settings.json';
 
 // Re-export the full settings object for direct access by consumers
 export const siteConfig = siteSettings;

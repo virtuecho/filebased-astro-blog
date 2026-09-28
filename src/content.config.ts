@@ -16,7 +16,7 @@ const postSchema = z.object({
 const posts = defineCollection({
   loader: glob({
     pattern: '*.md',
-    base: './src/content/posts',
+    base: './posts',
   }),
   schema: postSchema,
 });

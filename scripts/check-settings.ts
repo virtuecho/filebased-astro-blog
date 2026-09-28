@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 type JsonObject = Record<string, unknown>;
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const settingsPath = path.join(root, 'src/site-settings.json');
+const settingsPath = path.join(root, '.config/site-settings.json');
 const settings = JSON.parse(readFileSync(settingsPath, 'utf8')) as JsonObject;
 const errors: string[] = [];
 

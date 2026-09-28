@@ -10,15 +10,17 @@ and content workflows.
 Markdown notes:
 
 - Astro builds static HTML.
-- Every `.md` file directly under `src/content/posts/` is public when built.
+- Every `.md` file directly under `posts/` is public when built.
+- Blog authors only need to edit Markdown files in `posts/`; template source
+  and configuration remain internal for normal publishing.
 - Note filenames must be unique and determine their `/posts/` URL.
 - Obsidian wikilinks, Markdown note links, callouts, highlights, comments, tags,
   math, task markers, and optional YAML properties are supported.
 - There is no local writing page, draft state, or attachment manager.
-- `src/site-settings.json` is the user-editable source of truth for site copy,
-  language, theme, and typography.
+- `.config/site-settings.json` holds the template's site copy, language, theme,
+  and typography. Blog authors do not need to edit it.
 
-Keep private or unpublished notes outside `src/content/posts/`. Do not redesign
+Keep private or unpublished notes outside `posts/`. Do not redesign
 the product during hygiene, tooling, docs, or small feature work.
 
 ## Non-negotiable Rules
@@ -30,7 +32,7 @@ the product during hygiene, tooling, docs, or small feature work.
   explicitly requested.
 - Keep posts as plain Markdown files.
 - Keep `README.md` and `README.zh-CN.md` structurally aligned.
-- Keep `src/site-settings.json` as the user-editable site settings source.
+- Keep `.config/site-settings.json` as the site settings source.
 - Do not commit generated folders such as `dist/`, `.astro/`, or `node_modules/`.
 
 ## Preferred Stack
@@ -48,12 +50,13 @@ JavaScript.
 ## Directory Structure
 
 ```text
+.config/              Internal tool configuration
 src/pages/             Astro pages and generated routes
-src/content/posts/     Published Obsidian-friendly Markdown notes
+posts/                 Published Obsidian-friendly Markdown notes
 src/components/        Reusable Astro components
 src/layouts/           Page and post layouts
 src/obsidian-links.ts  Obsidian link rendering
-src/site-settings.json User-editable settings and localized copy
+src/site.config.ts      Site settings accessor
 scripts/               Repository checks
 public/                Static files served as-is
 ```
@@ -64,10 +67,10 @@ public/                Static files served as-is
   are derived from the file when those properties are omitted. Committed notes
   use their first Git addition date; uncommitted notes use filesystem creation
   time.
-- Keep notes directly in `src/content/posts/`. Their unique filenames determine
+- Keep notes directly in `posts/`. Their unique filenames determine
   public URLs and wikilink targets; nested note folders are unsupported.
-- Category and tags are optional; locale defaults are in `site-settings.json`.
-- Every note directly under `src/content/posts/` is public; do not add draft/private
+- Category and tags are optional; locale defaults are in `.config/site-settings.json`.
+- Every note directly under `posts/` is public; do not add draft/private
   filtering.
 - Do not add post attachment upload, copy, processing, or embedding workflows.
 - Preserve support for Obsidian wikilinks, Markdown note links, callouts,
@@ -122,7 +125,7 @@ Do not amend already pushed commits unless explicitly requested.
 JavaScript files remain only where framework or tooling conventions require
 it:
 
-- `astro.config.mjs`
+- `.config/astro.config.mjs`
 - `.mjs` scripts in `scripts/`
 - `src/pages/rss.xml.js`
 - `src/pages/sitemap.xml.js`

@@ -19,7 +19,7 @@ const render = remarkObsidianLinks(paths);
 
 function transform(children: TestNode[], path = 'Current Note.md') {
   const tree: TestNode = { type: 'root', children };
-  render(tree, { path: `src/content/posts/${path}` });
+  render(tree, { path: `posts/${path}` });
   return tree.children || [];
 }
 

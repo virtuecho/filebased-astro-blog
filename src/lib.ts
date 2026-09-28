@@ -4,7 +4,7 @@ import { basename, resolve } from 'node:path';
 import { getCollection } from 'astro:content';
 import { dateLocale } from './site.config';
 
-const postsRoot = resolve(process.cwd(), 'src/content/posts');
+const postsRoot = resolve(process.cwd(), 'posts');
 let createdDates: Map<string, Date> | undefined;
 
 function hasMarkdownNotes() {
@@ -16,7 +16,7 @@ function hasMarkdownNotes() {
   );
   if (folder) {
     throw new Error(
-      `Keep Markdown posts directly inside "src/content/posts/"; found subfolder "${folder.name}".`,
+      `Keep Markdown posts directly inside "posts/"; found subfolder "${folder.name}".`,
     );
   }
   return entries.some((entry) => entry.isFile() && entry.name.endsWith('.md'));
@@ -37,7 +37,7 @@ function getCommittedCreationDates() {
         '--format=%x00%cI',
         '--name-only',
         '--',
-        'src/content/posts',
+        'posts',
       ],
       {
         cwd: process.cwd(),
@@ -51,12 +51,8 @@ function getCommittedCreationDates() {
       const line = token.replace(/^\r?\n/, '');
       if (/^\d{4}-\d{2}-\d{2}T/.test(line)) {
         date = new Date(line);
-      } else if (
-        date &&
-        line.startsWith('src/content/posts/') &&
-        line.endsWith('.md')
-      ) {
-        const path = line.replace(/^src\/content\/posts\//, '');
+      } else if (date && line.startsWith('posts/') && line.endsWith('.md')) {
+        const path = line.replace(/^posts\//, '');
         if (!path.includes('/') && !createdDates.has(path))
           createdDates.set(path, date);
       }
