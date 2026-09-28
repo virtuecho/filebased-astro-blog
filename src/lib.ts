@@ -108,6 +108,10 @@ export function postUrl(post: { id: string }) {
   return `/posts/${encodeURIComponent(post.id)}/`;
 }
 
+export function tagUrl(tag: string) {
+  return `/tag/${tag.split('/').map(encodeURIComponent).join('/')}/`;
+}
+
 export function formatDate(date?: Date) {
   if (!date) return '';
   return new Intl.DateTimeFormat(dateLocale, {

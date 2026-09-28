@@ -18,7 +18,7 @@ Each post is one `.md` file directly inside `posts/`. Its filename determines it
 posts/Getting Started.md  ->  /posts/getting-started/
 ```
 
-When frontmatter is present, title and date can override the file-derived title and creation date. Category and tags are optional:
+When frontmatter is present, title and date can override the file-derived title and creation date. Set `category` to place a post in a category; if omitted, it uses the active locale's configured default (`Uncategorized` in English or `未分类` in Chinese). Categories and their post lists are generated automatically. `tags` can contain multiple values:
 
 ```md
 ---

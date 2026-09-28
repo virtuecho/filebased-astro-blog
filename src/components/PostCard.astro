@@ -1,6 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { formatDate, postUrl } from '../lib';
+import { formatDate, postUrl, tagUrl } from '../lib';
 import { copy } from '../site.config';
 
 interface Props {
@@ -25,7 +25,7 @@ const url = postUrl(post);
     <div class="tag-list">
       {
         post.data.tags.map((tag: string) => (
-          <a class="tag" href={`/tag/${encodeURIComponent(tag)}/`}>
+          <a class="tag" href={tagUrl(tag)}>
             #{tag}
           </a>
         ))

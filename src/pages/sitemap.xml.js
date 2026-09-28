@@ -1,4 +1,4 @@
-import { getPosts, groupByMonth, postUrl } from '../lib';
+import { getPosts, groupByMonth, postUrl, tagUrl } from '../lib';
 
 export async function GET({ site }) {
   const posts = await getPosts();
@@ -13,8 +13,7 @@ export async function GET({ site }) {
   for (const post of posts) {
     urls.add(postUrl(post));
     urls.add(`/category/${encodeURIComponent(post.data.category)}/`);
-    for (const tag of post.data.tags)
-      urls.add(`/tag/${encodeURIComponent(tag)}/`);
+    for (const tag of post.data.tags) urls.add(tagUrl(tag));
   }
 
   for (const key of groupByMonth(posts).keys()) {

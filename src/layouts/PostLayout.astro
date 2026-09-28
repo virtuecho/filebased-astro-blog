@@ -2,7 +2,7 @@
 import type { CollectionEntry } from 'astro:content';
 import BaseLayout from './BaseLayout.astro';
 import { render } from 'astro:content';
-import { formatDate } from '../lib';
+import { formatDate, tagUrl } from '../lib';
 import { copy } from '../site.config';
 
 interface Props {
@@ -40,7 +40,7 @@ const { Content } = await render(post);
     <div class="tag-list">
       {
         post.data.tags.map((tag: string) => (
-          <a class="tag" href={`/tag/${encodeURIComponent(tag)}/`}>
+          <a class="tag" href={tagUrl(tag)}>
             #{tag}
           </a>
         ))
@@ -51,3 +51,35 @@ const { Content } = await render(post);
     </div>
   </article>
 </BaseLayout>
+
+<script>
+  const blocks = document.querySelectorAll<HTMLPreElement>(
+    '.article-body pre[data-language="mermaid"]',
+  );
+
+  if (blocks.length) {
+    const { default: mermaid } = await import('mermaid');
+    mermaid.initialize({
+      startOnLoad: false,
+      securityLevel: 'strict',
+      theme: 'neutral',
+    });
+
+    for (const block of blocks) {
+      const fallback = block.cloneNode(true);
+      const source = block.textContent ?? '';
+      block.className = 'mermaid';
+      block.removeAttribute('style');
+      block.removeAttribute('data-language');
+      block.removeAttribute('tabindex');
+      block.textContent = source;
+
+      try {
+        await mermaid.run({ nodes: [block] });
+      } catch (error) {
+        console.error('Could not render Mermaid diagram:', error);
+        block.replaceWith(fallback);
+      }
+    }
+  }
+</script>

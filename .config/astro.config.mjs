@@ -8,6 +8,7 @@ export default defineConfig({
   site: 'https://your-domain.com',
   output: 'static',
   markdown: {
+    shikiConfig: { theme: 'github-light' },
     remarkPlugins: [remarkObsidian, remarkObsidianLinks],
     rehypePlugins: [rehypeKatex, rehypeCallouts],
   },

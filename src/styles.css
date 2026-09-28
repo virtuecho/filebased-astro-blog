@@ -221,6 +221,26 @@ img {
   margin: 1em 0;
 }
 
+.article-body pre.astro-code {
+  overflow-x: auto;
+  padding: 1em;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #f6f8fa !important;
+  color: #1f2328 !important;
+}
+
+.article-body pre.mermaid {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.article-body pre.mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
 .article-body mark {
   background: #fff1a8;
   color: inherit;

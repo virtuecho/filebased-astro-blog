@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { countItems, getPosts } from '../lib';
+import { countItems, getPosts, tagUrl } from '../lib';
 import { copy } from '../site.config';
 const posts = await getPosts();
 const tags = countItems(posts.flatMap((p) => p.data.tags));
@@ -11,7 +11,7 @@ const tags = countItems(posts.flatMap((p) => p.data.tags));
   <div class="tag-list">
     {
       tags.map(([name, count]) => (
-        <a class="tag" href={`/tag/${encodeURIComponent(name)}/`}>
+        <a class="tag" href={tagUrl(name)}>
           {name} {count}
         </a>
       ))
