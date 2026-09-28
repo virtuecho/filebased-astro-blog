@@ -14,19 +14,17 @@ Describe the user-visible or engineering outcome.
 ## Preserve
 
 - Astro static output
-- Markdown posts under `src/content/posts/{postId}/index.md`
-- Per-post assets co-located with `index.md`
-- `src/site-settings.json` as user-editable source of truth
-- `/admin/` as a local browser writing tool
-- CLI scripts for advanced local workflows
+- Markdown notes under `src/content/posts/`
+- Obsidian Markdown rendering
+- `src/site-settings.json` as the site settings source of truth
 - README.md and README.zh-CN.md structural parity
 - TypeScript strict mode
 
 ## Non-goals
 
+- No local writing page, draft state, or attachment manager
 - No database unless explicitly requested
-- No login system unless explicitly requested
-- No server-hosted admin unless explicitly requested
+- No login system or server backend unless explicitly requested
 - No package manager other than pnpm
 
 ## Implementation Notes
@@ -42,14 +40,12 @@ Describe the user-visible or engineering outcome.
 Run:
 
 ```bash
-pnpm install
-pnpm format
 pnpm format:check
 pnpm typecheck
 pnpm lint
 pnpm test
 pnpm docs:lint
-pnpm content:check
+pnpm settings:check
 pnpm check
 pnpm build
 ```

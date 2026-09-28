@@ -1,10 +1,10 @@
 ---
 import { countItems, formatDate, groupByMonth } from '../lib';
-import type { getPublishedPosts } from '../lib';
+import type { getPosts } from '../lib';
 import { copy } from '../site.config';
-import { postUrl } from '../content-workflow';
+import { postUrl } from '../lib';
 
-type Posts = Awaited<ReturnType<typeof getPublishedPosts>>;
+type Posts = Awaited<ReturnType<typeof getPosts>>;
 
 interface Props {
   posts: Posts;
@@ -41,9 +41,13 @@ const showAbout = sidebar.aboutTitle || sidebar.aboutText;
         recent.map((post: Posts[number]) => (
           <li>
             <>
-              <a href={postUrl(post.data, post.id)}>{post.data.title}</a>
-              <br />
-              <span class="meta">{formatDate(post.data.date)}</span>
+              <a href={postUrl(post)}>{post.data.title}</a>
+              {post.data.date && (
+                <>
+                  <br />
+                  <span class="meta">{formatDate(post.data.date)}</span>
+                </>
+              )}
             </>
           </li>
         ))

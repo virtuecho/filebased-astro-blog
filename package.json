@@ -1,7 +1,7 @@
 {
   "name": "astro-file-blog-template",
   "version": "0.1.0",
-  "description": "An Astro static blog template with Markdown posts and a local browser admin.",
+  "description": "An Astro static blog template for Obsidian-friendly Markdown.",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.29.2",
@@ -14,16 +14,10 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "docs:lint": "markdownlint-cli2 \"**/*.md\" \"#node_modules\"",
-    "content:check": "tsx scripts/check-content.ts",
-    "check": "pnpm format:check && pnpm typecheck && pnpm lint && pnpm test && pnpm docs:lint && pnpm content:check",
-    "prepare": "husky",
-    "new-post": "tsx scripts/new-post.mjs",
-    "edit-post": "tsx scripts/edit-post.mjs",
-    "update-slug": "tsx scripts/update-slug.mjs",
-    "preview-post": "tsx scripts/preview-post.mjs",
-    "open-assets": "tsx scripts/open-assets.mjs",
-    "add-assets": "tsx scripts/add-assets.mjs",
-    "test": "tsx --test tests/content-workflow.test.ts"
+    "settings:check": "tsx scripts/check-settings.ts",
+    "test": "tsx --test tests/obsidian-markdown.test.ts",
+    "check": "pnpm format:check && pnpm typecheck && pnpm lint && pnpm test && pnpm docs:lint && pnpm settings:check",
+    "prepare": "husky"
   },
   "lint-staged": {
     "*.{ts,tsx,js,mjs,astro}": [
@@ -40,8 +34,12 @@
   "dependencies": {
     "@astrojs/check": "latest",
     "@astrojs/rss": "latest",
+    "@quartz-community/remark-obsidian": "^1.1.0",
     "astro": "latest",
-    "marked": "^18.0.2",
+    "github-slugger": "^2.0.0",
+    "katex": "^0.16.45",
+    "rehype-callouts": "^2.2.0",
+    "rehype-katex": "^7.0.1",
     "typescript": "latest"
   },
   "devDependencies": {

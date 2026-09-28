@@ -12,7 +12,7 @@ Examples:
 build: migrate package manager to pnpm
 ops(ci): add cleanliness gate
 docs(agents): document pnpm and validation workflow
-fix(admin): keep project folder picker available
+fix(markdown): resolve links with heading aliases
 ```
 
 ## Allowed Types
@@ -35,7 +35,7 @@ Descriptions are mandatory.
 Write the description in imperative mood:
 
 ```text
-fix(admin): preserve draft state while editing
+fix(posts): preserve dates while rendering notes
 ```
 
 Start the description with a lowercase letter:
@@ -56,8 +56,8 @@ Use a scope when it makes the change easier to scan.
 
 Common scopes:
 
-- `admin`
-- `assets`
+- `markdown`
+- `content`
 - `config`
 - `posts`
 - `readme`

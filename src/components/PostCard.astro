@@ -1,36 +1,22 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { formatDate } from '../lib';
+import { formatDate, postUrl } from '../lib';
 import { copy } from '../site.config';
-import { postUrl } from '../content-workflow';
 
 interface Props {
   post: CollectionEntry<'posts'>;
 }
 
 const { post } = Astro.props;
-const url = postUrl(post.data, post.id);
+const url = postUrl(post);
 ---
 
 <article class="post-card">
-  <a href={url} aria-label={post.data.title}>
-    {
-      post.data.cover ? (
-        <img
-          class="post-card-cover"
-          src={post.data.cover}
-          alt={post.data.title}
-          loading="lazy"
-        />
-      ) : (
-        <div class="post-card-cover" />
-      )
-    }
-  </a>
   <div>
     <h2 class="post-card-title"><a href={url}>{post.data.title}</a></h2>
     <div class="meta">
-      {formatDate(post.data.date)} | {copy.labels.category}: <a
+      {post.data.date && <>{formatDate(post.data.date)} | </>}
+      {copy.labels.category}: <a
         href={`/category/${encodeURIComponent(post.data.category)}/`}
         >{post.data.category}</a
       >

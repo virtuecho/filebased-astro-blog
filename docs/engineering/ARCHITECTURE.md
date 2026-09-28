@@ -1,159 +1,92 @@
 # Architecture
 
-This project is a static Astro blog template built around durable local files.
-The product boundary is intentionally small: Markdown posts, co-located assets,
-site settings in JSON, and static output that can be hosted anywhere.
-
-## Static Astro Boundary
-
-Astro builds the site to static files in `dist/`. Runtime behavior on the public
-site should not require a database, login server, remote admin service, or cloud
-CMS. The development server is local tooling only.
-
-Important routes live in `src/pages/`:
+This is a static blog generated from Obsidian-friendly Markdown files. Astro
+reads the notes and site settings, then builds the website, RSS feed, and
+sitemap. There is no local writing page, draft workflow, attachment manager,
+database, or server backend.
 
 ```text
-/                         homepage
-/posts/{slug}/            published posts
-/archives/                archive index
-/archives/{year}/{month}/ monthly archive
-/categories/              category index
-/category/{category}/     category listing
-/tags/                    tag index
-/tag/{tag}/               tag listing
-/about/                   configured about page
-/admin/                   local writing tool
-/rss.xml                  RSS feed
-/sitemap.xml              sitemap
+src/content/posts/**/*.md + src/site-settings.json
+                     |
+                    Astro
+                     |
+        static pages + RSS + sitemap
+                     |
+             static hosting
 ```
 
-## Markdown Content Model
+## Content
 
-Posts live under:
+Every `.md` file under `src/content/posts/` becomes a public post. Its relative
+path, without the `.md` extension, is the post route and the target used by
+Obsidian wikilinks. For example:
 
 ```text
-src/content/posts/{postId}/index.md
-src/content/posts/{postId}/attachments...
+src/content/posts/notes/First Note.md -> /posts/notes/first-note/
 ```
 
-Each post is a directory. `index.md` contains frontmatter plus Markdown body.
-Attachments sit beside the Markdown file so a post can be copied or backed up as
-one folder.
+The homepage and post listings sort by resolved creation date, newest first. File
+names determine URLs and do not determine display order. A basename wikilink
+such as `[[Note]]` must match exactly one note in the full collection. Use a
+folder-qualified path when names repeat, such as `[[projects/Note]]`; ambiguous
+short links fail the build. Slug collisions between different paths also fail
+the build.
 
-The content collection is defined in `src/content.config.ts` with a glob over
-`src/content/posts/**/*.{md,mdx}`. Astro resolves relative image paths in
-Markdown during build.
+YAML frontmatter is optional. When omitted, the title comes from the file name.
+An explicit `date` property overrides the note's creation date. For committed
+notes, the first Git commit that added the file supplies that date; uncommitted
+notes use the filesystem creation time. Category and author have locale
+defaults, and tags default to an empty list. Repeated filenames keep the same
+display title; their creation dates are shown in the list, sorted newest first.
 
-## Post Identity And URL Identity
+There is no draft state. Only put content intended for publication in the
+collection directory. Binary files and Obsidian `![[...]]` embeds are not
+managed or published as post attachments.
 
-`postId` is stable identity. It is generated when a post is created and should
-not change after creation. The post directory name uses this identity.
+## Obsidian Markdown
 
-`slug` is public URL identity:
+Astro provides standard Markdown and GitHub Flavored Markdown. Remark plugins
+parse wikilinks, highlights, comments, tags, math, and Obsidian task markers;
+rehype plugins render callouts and math. Wikilinks and Markdown links to notes
+map to `/posts/` routes, tags and highlights render inline, and comments are
+removed from published HTML.
 
-```text
-/posts/{slug}/
-```
-
-Slugs may change when a title changes. Old slugs are not stored by the template,
-so redirects are a deployment concern if a published slug changes.
-
-## Asset Co-location
-
-Post assets belong in the same directory as `index.md`.
-
-```text
-src/content/posts/{postId}/
-  index.md
-  cover.jpg
-  photo.png
-```
-
-Body images use relative Markdown paths such as:
+Supported examples:
 
 ```md
-![photo](./photo.png)
+[[Other Note]]
+[[Other Note#A Heading|read this section]]
+
+> [!tip] A callout
+> Helpful information.
+
+==Highlighted text==
+#topic
+$$x^2$$
+
+- [/] In progress
+  %%Private author note%%
 ```
 
-Site-wide assets live separately in `public/images/site/`.
+File embeds, block references, and community-plugin syntax such as Dataview are
+outside this template's scope.
 
-## Site Settings Source Of Truth
+## Site Settings
 
-`src/site-settings.json` is the user-editable source of truth for:
+`src/site-settings.json` is the user-editable source of truth for localized site
+copy, locale, theme, and typography. `src/site.config.ts` provides typed access
+to those settings.
 
-- site title, description, footer, navigation, and helper copy
-- active locale and supported locales
-- theme color and image settings
-- typography settings
-- admin and CLI copy
+## Static Routes
 
-`src/site.config.ts` is a thin wrapper that imports this JSON and re-exports
-typed helpers such as `siteConfig`, `copy`, `contentDefaults`, `dateLocale`, and
-`getCopy()`.
-
-When adding a locale, update `copy`, `supportedLocales`, and `dateLocales`.
-Locale key parity is enforced by `pnpm content:check`.
-
-## Admin Boundary
-
-`src/pages/admin.astro` is a local browser writing tool. It uses the File System
-Access API after the user grants folder permission. It writes normal files into
-the repository:
-
-```text
-/admin/ -> File System Access API -> src/content/posts/
-```
-
-The admin page is not a remote dashboard. It does not add authentication,
-server-side storage, or a database.
-
-`src/admin/local-file-storage.js` remains JavaScript because it is consumed as a
-browser module from the admin page. The admin page uses browser APIs for image
-processing; CLI asset commands copy files unchanged.
-
-## CLI Boundary
-
-CLI scripts live in `scripts/` and are run through `tsx`.
-
-```text
-pnpm new-post
-pnpm edit-post
-pnpm update-slug
-pnpm preview-post
-pnpm open-assets
-pnpm add-assets
-```
-
-The CLI is advanced local tooling. It should preserve the same content model as
-the admin UI.
-
-## RSS And Generated Routes
-
-`src/lib.ts` reads published posts from the Astro content collection.
-Generated pages, RSS, and sitemap consume that shared post model.
-
-`src/pages/rss.xml.js` and `src/pages/sitemap.xml.js` remain JavaScript because
-Astro endpoint filenames map directly to XML routes.
-
-## Future Extension Points
-
-The current template leaves room for future adapters without changing the post
-folder model:
-
-- Git-backed CMS
-- object storage for assets
-- remote admin API
-- database-backed admin
-- slug redirect registry
-- richer multilingual routing
+Astro pages build the homepage, post pages, archive pages, categories, tags,
+about page, RSS feed, and sitemap from the content collection. Post routes use
+the note's relative file path. The directory path is preserved in the public
+URL, and renaming a note changes that URL.
 
 ## Non-goals
 
-These are outside the current template unless explicitly requested:
-
-- database storage
-- login or account system
-- server-hosted admin dashboard
-- cloud CMS rewrite
-- moving posts away from local Markdown files
-- separating post assets from their post directory by default
+- Local browser-based writing or settings UI
+- Draft and unpublished-content filtering
+- Post attachment management or image processing
+- Database, login system, backend, or cloud CMS

@@ -10,19 +10,18 @@ missing validation, and repository hygiene issues. Put findings first.
 
 Check:
 
-- Product behavior changed intentionally and is documented.
 - The static Astro boundary is preserved.
 - No database, login system, server backend, or cloud CMS was added unless the
   task explicitly requested it.
-- Posts still live under `src/content/posts/{postId}/index.md`.
-- Post assets are still co-located with the Markdown file.
-- `src/site-settings.json` remains the user-editable source of truth.
-- Existing `.mjs` CLI scripts still work.
-- Package manager usage is pnpm-only.
-- `package-lock.json` and `yarn.lock` were not added.
-- Generated folders such as `dist/`, `.astro/`, `.post-preview/`, and
-  `node_modules/` were not committed.
-- README.md and README.zh-CN.md stayed structurally aligned.
+- Posts remain Markdown files under `src/content/posts/`.
+- Every note intended for publication is available in the static output.
+- No local writing page, draft workflow, or attachment manager was reintroduced.
+- Obsidian Markdown syntax renders as documented.
+- `src/site-settings.json` remains the user-editable settings source.
+- Package manager usage is pnpm-only; no npm or yarn lockfiles were added.
+- Generated folders such as `dist/`, `.astro/`, and `node_modules/` were not
+  committed.
+- README.md and README.zh-CN.md remain structurally aligned.
 - New docs pass Markdown lint.
 - New source is TypeScript unless a JavaScript exception is documented.
 - Tests and validation commands were run, or the gap is called out.
@@ -35,7 +34,7 @@ pnpm typecheck
 pnpm lint
 pnpm test
 pnpm docs:lint
-pnpm content:check
+pnpm settings:check
 pnpm check
 pnpm build
 ```

@@ -17,9 +17,15 @@ const { Content } = await render(post);
   <article>
     <h1 class="article-title">{post.data.title}</h1>
     <div class="article-meta meta">
-      {copy.labels.published}: {formatDate(post.data.date)} | {
-        copy.labels.category
-      }: <a href={`/category/${encodeURIComponent(post.data.category)}/`}
+      {
+        post.data.date && (
+          <>
+            {copy.labels.published}: {formatDate(post.data.date)} |{' '}
+          </>
+        )
+      }
+      {copy.labels.category}: <a
+        href={`/category/${encodeURIComponent(post.data.category)}/`}
         >{post.data.category}</a
       >
       {
@@ -31,16 +37,6 @@ const { Content } = await render(post);
         )
       }
     </div>
-    {
-      post.data.cover && (
-        <img
-          src={post.data.cover}
-          alt={post.data.title}
-          loading="eager"
-          style="margin-bottom: 18px; border: 1px solid var(--line);"
-        />
-      )
-    }
     <div class="tag-list">
       {
         post.data.tags.map((tag: string) => (

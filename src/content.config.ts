@@ -4,23 +4,18 @@ import { z } from 'astro/zod';
 import { contentDefaults } from './site.config';
 
 const postSchema = z.object({
-  postId: z.string().optional(),
-  slug: z.string().optional(),
-  title: z.string(),
+  title: z.string().optional(),
   description: z.string().optional(),
-  date: z.coerce.date(),
+  date: z.coerce.date().optional(),
   updated: z.coerce.date().optional(),
-  category: z.string(),
+  category: z.string().default(contentDefaults.category),
   tags: z.array(z.string()).default([]),
-  assetDir: z.string().optional(),
-  cover: z.string().optional(),
-  draft: z.boolean().default(false),
   author: z.string().default(contentDefaults.author),
 });
 
 const posts = defineCollection({
   loader: glob({
-    pattern: '**/*.{md,mdx}',
+    pattern: '**/*.md',
     base: './src/content/posts',
   }),
   schema: postSchema,

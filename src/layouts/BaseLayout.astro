@@ -3,7 +3,7 @@ import '../styles.css';
 import Header from '../components/Header.astro';
 import Sidebar from '../components/Sidebar.astro';
 import Footer from '../components/Footer.astro';
-import { getPublishedPosts } from '../lib';
+import { getPosts } from '../lib';
 import { activeLocale, copy, siteConfig } from '../site.config';
 
 interface Props {
@@ -18,7 +18,7 @@ const {
   showSidebar = true,
 } = Astro.props;
 
-const posts = await getPublishedPosts();
+const posts = await getPosts();
 const siteTitle = copy.site.title;
 const fullTitle = title === siteTitle ? siteTitle : `${title} - ${siteTitle}`;
 const theme = siteConfig.theme;

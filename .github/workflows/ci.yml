@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
@@ -44,8 +46,8 @@ jobs:
       - name: Lint docs
         run: pnpm docs:lint
 
-      - name: Check content invariants
-        run: pnpm content:check
+      - name: Check site settings
+        run: pnpm settings:check
 
       - name: Build static site
         run: pnpm build

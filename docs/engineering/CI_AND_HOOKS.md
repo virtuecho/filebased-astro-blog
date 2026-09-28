@@ -1,24 +1,14 @@
 # CI And Hooks
 
-The repository uses local hooks and CI to keep routine engineering hygiene
+The repository uses local hooks and CI to keep routine engineering checks
 mechanical.
 
 ## pnpm-only Policy
 
-Use pnpm for all Node package work.
+Use pnpm for all Node package work. Do not add `package-lock.json` or
+`yarn.lock`. Keep `pnpm-lock.yaml` and the pnpm version in `package.json`.
 
-```bash
-pnpm install
-pnpm dev
-pnpm build
-```
-
-Do not add `package-lock.json` or `yarn.lock`. Keep `pnpm-lock.yaml` and declare
-the pnpm version in `package.json`.
-
-## Required Scripts
-
-The main validation commands are:
+## Validation Commands
 
 ```bash
 pnpm format
@@ -27,102 +17,40 @@ pnpm typecheck
 pnpm lint
 pnpm test
 pnpm docs:lint
-pnpm content:check
+pnpm settings:check
 pnpm check
 pnpm build
 ```
 
-`pnpm check` runs the standard pre-commit quality gate:
+`pnpm check` runs formatting, type-checking, lint, tests, documentation lint, and
+settings checks. `pnpm build` separately verifies the static site output.
 
-```bash
-pnpm format:check && pnpm typecheck && pnpm lint && pnpm test && pnpm docs:lint && pnpm content:check
-```
+## Formatting And Linting
 
-`pnpm build` is kept separate so CI can prove the static output still builds.
+Prettier formats code, JSON, Markdown, CSS, HTML, and YAML. ESLint uses the flat
+config in `eslint.config.js` for TypeScript, JavaScript, and Astro files.
+Markdownlint checks user-facing and engineering documentation.
 
-## Formatting
+## Tests And Settings Checks
 
-Prettier formats code, JSON, Markdown, CSS, HTML, and YAML. Generated and vendor
-folders are excluded through `.prettierignore`.
-
-Use:
-
-```bash
-pnpm format
-pnpm format:check
-```
-
-## Linting
-
-ESLint uses a flat config in `eslint.config.js`. It covers TypeScript, existing
-JavaScript modules, `.mjs` CLI scripts, and Astro files.
-
-Use:
-
-```bash
-pnpm lint
-```
-
-## Documentation Linting
-
-Markdown is treated as source. `markdownlint-cli2` checks README files,
-engineering docs, prompt templates, and `AGENTS.md`.
-
-Use:
-
-```bash
-pnpm docs:lint
-```
-
-## Content Checks
-
-`scripts/check-content.ts` checks post ID and published slug uniqueness,
-and keeps English and Chinese settings keys aligned.
-
-Use:
-
-```bash
-pnpm content:check
-```
+`pnpm test` runs the built-in Node test runner through `tsx` for Obsidian syntax
+rendering helpers. `pnpm settings:check` checks that English and Chinese site
+copy keys match and the configured default locale is supported.
 
 ## Husky And lint-staged
 
-Husky installs Git hooks through:
-
-```bash
-pnpm prepare
-```
-
-The pre-commit hook runs:
-
-```bash
-pnpm exec lint-staged
-```
-
-`lint-staged` formats and lints only staged files. It is a fast local guard, not
-a replacement for `pnpm check`.
-
-The commit message hook validates Conventional Commit headers with
+Husky installs Git hooks through `pnpm prepare`. The pre-commit hook runs
+`pnpm exec lint-staged`, which formats and lints staged files. The commit message
+hook validates Conventional Commit headers with
 `scripts/validate-commit-msg.mjs`.
 
 ## GitHub Actions
 
-`.github/workflows/ci.yml` runs on pull requests and pushes to `main`.
-
-CI runs:
-
-```bash
-pnpm install --frozen-lockfile
-pnpm format:check
-pnpm typecheck
-pnpm lint
-pnpm test
-pnpm docs:lint
-pnpm content:check
-pnpm build
-```
-
-CI does not run `pnpm dev`, deploy, publish, or push.
+`.github/workflows/ci.yml` runs on pull requests and pushes to `main`. It
+installs from the frozen pnpm lockfile, runs the quality checks, and builds the
+static site. CI fetches full Git history because the first commit date supplies
+the creation date for notes without a `date` property. CI does not run
+`pnpm dev`, deploy, publish, or push.
 
 ## Before Committing
 
@@ -132,6 +60,3 @@ Run:
 pnpm check
 pnpm build
 ```
-
-For content-only changes, `pnpm check` is still recommended because docs,
-settings, and post metadata are part of the product surface.

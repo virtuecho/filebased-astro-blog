@@ -1,10 +1,9 @@
 import rss from '@astrojs/rss';
-import { getPublishedPosts } from '../lib';
+import { getPosts, postUrl } from '../lib';
 import { copy } from '../site.config';
-import { postUrl } from '../content-workflow';
 
 export async function GET(context) {
-  const posts = await getPublishedPosts();
+  const posts = await getPosts();
   return rss({
     title: copy.site.title,
     description: copy.site.description,
@@ -12,8 +11,8 @@ export async function GET(context) {
     items: posts.map((post) => ({
       title: post.data.title,
       description: post.data.description,
-      pubDate: post.data.date,
-      link: postUrl(post.data, post.id),
+      ...(post.data.date ? { pubDate: post.data.date } : {}),
+      link: postUrl(post),
     })),
   });
 }

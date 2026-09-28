@@ -1,8 +1,7 @@
-import { getPublishedPosts, groupByMonth } from '../lib';
-import { postUrl } from '../content-workflow';
+import { getPosts, groupByMonth, postUrl } from '../lib';
 
 export async function GET({ site }) {
-  const posts = await getPublishedPosts();
+  const posts = await getPosts();
   const urls = new Set([
     '/',
     '/archives/',
@@ -12,7 +11,7 @@ export async function GET({ site }) {
   ]);
 
   for (const post of posts) {
-    urls.add(postUrl(post.data, post.id));
+    urls.add(postUrl(post));
     urls.add(`/category/${encodeURIComponent(post.data.category)}/`);
     for (const tag of post.data.tags)
       urls.add(`/tag/${encodeURIComponent(tag)}/`);

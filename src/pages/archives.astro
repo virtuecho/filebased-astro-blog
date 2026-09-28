@@ -1,8 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getPublishedPosts, groupByMonth } from '../lib';
+import { getPosts, groupByMonth } from '../lib';
 import { copy } from '../site.config';
-const posts = await getPublishedPosts();
+const posts = await getPosts();
 const months = [...groupByMonth(posts).entries()];
 ---
 

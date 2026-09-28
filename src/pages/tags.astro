@@ -1,8 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { countItems, getPublishedPosts } from '../lib';
+import { countItems, getPosts } from '../lib';
 import { copy } from '../site.config';
-const posts = await getPublishedPosts();
+const posts = await getPosts();
 const tags = countItems(posts.flatMap((p) => p.data.tags));
 ---
 

@@ -1,725 +1,96 @@
-# Astro File Blog Template
+# Astro File-Based Blog
 
-This is a static blog template for people who want a simple, durable blog without a database.
+A static blog built from Obsidian-friendly Markdown files. Write notes in Obsidian or any text editor; Astro turns them into HTML for static hosting.
 
-The idea is inspired by classic livedoor-style blogs: a clear blog title, a short description, plain navigation, archive/category/tag pages, a sidebar, and an article-first layout. It does not copy livedoor code or branding.
-
-Chinese documentation: [README.zh-CN.md](./README.zh-CN.md)
-
-## What This Project Is
-
-This project turns local files into a website.
+## What This Project Does
 
 ```text
-Markdown files        -> blog posts
-public image folders  -> images and attachments
-Astro                 -> builds HTML pages
-static hosting        -> publishes the generated site
+Markdown notes -> Astro -> static website
 ```
 
-There is no database and no remote admin server. The current admin page is a local writing tool: it writes Markdown and assets into this repository after your browser gets folder permission.
+There is no local writing page, database, draft state, or attachment manager. Every Markdown file under `src/content/posts/` is included in the public site when it is built. Keep private or unpublished notes outside that folder.
 
-The recommended writing entrypoint is:
+## Content Model
+
+Each post is one `.md` file. Its path determines its public URL. YAML frontmatter is optional:
 
 ```text
-http://localhost:4321/admin/
+src/content/posts/Getting Started.md  ->  /posts/getting-started/
 ```
 
-The command line tools are kept for automation and advanced use.
+When frontmatter is present, title and date can override the file-derived title and creation date. Category and tags are optional:
+
+```md
+---
+title: Getting Started
+date: 2026-09-28
+category: Notes
+tags:
+  - obsidian
+  - markdown
+---
+
+Write the article here.
+```
+
+Folder paths are preserved and each path segment is slugified. For example, `src/content/posts/notes/First Note.md` becomes `/posts/notes/first-note/`. The homepage and post lists sort by creation date, newest first; file names only determine URLs. Committed notes use the date of their first Git commit, and uncommitted notes use the filesystem creation time. CI fetches Git history so this order survives a build checkout. Rename the file to change its public URL and update links that refer to it.
+
+Without frontmatter, the original file name supplies the title, including when multiple notes share that name. The list shows each note's creation date and sorts newest first.
+
+## Obsidian Markdown
+
+Astro renders standard Markdown and GitHub Flavored Markdown. Obsidian-specific support includes:
+
+- Note links and aliases: `[[Getting Started]]`, `[[Getting Started#Setup|setup]]`, or `[setup](Getting%20Started.md#Setup)`
+- A short wikilink such as `[[Note]]` works only when that note name is unique in the whole collection. If multiple files are named `Note.md`, use a folder-qualified link such as `[[projects/Note]]`; ambiguous short links fail the build instead of pointing to the wrong post.
+- Callouts: `> [!tip] A title`
+- Highlights: `==important text==`
+- Math equations: `$x^2$` and `$$...$$`
+- Task lists, including Obsidian status markers such as `[/]`
+- Inline tags: `#reading/list`
+- Comments: `%%hidden from the published page%%`
+- YAML properties in the frontmatter block
+
+`![[...]]` file embeds and local post images are not handled. Keep the content folder limited to Markdown notes. Standard Markdown links and externally hosted images can still be used.
 
 ## Project Structure
 
-The important folders are:
-
 ```text
-src/pages/              Astro pages: homepage, archive pages, admin page, RSS
-src/content/posts/      Markdown post files — each post lives in its own directory
-src/content/posts/{postId}/  every post is one directory: index.md + attachments
-public/images/site/     site-wide images, such as header or background images
-src/site-settings.json  all site copy, theme, language, and typography settings
-src/site.config.ts      TypeScript helper that reads from site-settings.json
-src/content-workflow.ts shared post rules used by /admin/ and CLI scripts
+src/content/posts/  Published Markdown notes
+src/pages/          Static pages, archives, RSS, and sitemap
+src/components/     Shared page components
+src/site-settings.json  Site copy, locale, theme, and typography
+public/             Static files served as-is
 ```
 
-A real post has this shape — one directory containing the markdown file and all attachments:
-
-```text
-src/content/posts/{postId}/
-  index.md
-  cover.jpg
-  photo.png
-```
-
-To migrate a post, copy this one directory. Everything moves together.
-
-## Install And Run
-
-Install dependencies:
+## Local Development
 
 ```bash
 pnpm install
-```
-
-Start the local development server:
-
-```bash
 pnpm dev
 ```
 
-Open the public site:
+Open the local site at `http://localhost:4321/`. Edit `.md` files in Obsidian, then refresh the page to preview changes.
 
-```text
-http://localhost:4321
-```
+## Site Settings
 
-Open the local writing admin:
+Edit `src/site-settings.json` to change site copy, language, colors, backgrounds, or typography. Site settings are separate from post content.
 
-```text
-http://localhost:4321/admin/
-```
-
-Use Chrome or Edge for `/admin/`, because it uses the browser File System Access API.
-
-To preview the production build:
+## Checks and Build
 
 ```bash
+pnpm check
 pnpm build
 pnpm preview
 ```
 
-`pnpm dev` is for editing. `pnpm build` checks and generates `dist/`. `pnpm preview` serves the generated `dist/` output.
-
-## Development Quality Gates
-
-This repository uses pnpm, Prettier, ESLint, markdownlint-cli2, Husky,
-lint-staged, and content checks for duplicate IDs, slugs, and locale keys.
-
-Useful commands:
-
-```bash
-pnpm format
-pnpm format:check
-pnpm typecheck
-pnpm lint
-pnpm test
-pnpm docs:lint
-pnpm content:check
-pnpm check
-```
-
-`pnpm check` runs format check, type-check, lint, focused content tests, docs
-lint, and content checks.
-
-Husky installs Git hooks through `pnpm prepare`. The pre-commit hook runs
-lint-staged on staged files, and the commit message hook validates Conventional
-Commit headers.
-
-## Site Copy, Language, And Theme
-
-All user-editable site configuration lives in a single JSON file:
-
-```text
-src/site-settings.json
-```
-
-`src/site.config.ts` is a thin TypeScript wrapper that reads this JSON and provides typed helper exports for the rest of the codebase. You normally only edit the JSON file.
-
-### Language
-
-```json
-"defaultLocale": "en",
-"supportedLocales": ["en", "zh-CN"]
-```
-
-To switch the visible site/admin/CLI copy to Chinese, change `defaultLocale` to `"zh-CN"`. This is copy-level language support. It is not full multilingual post routing yet.
-
-To add a new language, add a new key under `copy` in the JSON with all the translations, then add the locale to `supportedLocales` and `dateLocales`.
-
-### Site Identity
-
-```json
-"copy": {
-  "en": {
-    "site": {
-      "title": "File-Based Astro Blog",
-      "description": "A quiet static blog template powered by Markdown files.",
-      "footer": "Built with Astro. Deployable to any static hosting platform."
-    }
-  },
-  "zh-CN": {
-    "site": {
-      "title": "文件型 Astro 博客",
-      "description": "一个由 Markdown 文件驱动的朴素静态博客模板。",
-      "footer": "由 Astro 生成，可部署到任何静态托管平台。"
-    }
-  }
-}
-```
-
-### Theme — Background and Colors
-
-```json
-"theme": {
-  "bodyBackgroundImage": "/images/site/body.jpg",
-  "siteBackgroundImage": "",
-  "headerBackgroundImage": "/images/site/header.jpg",
-  "headerMinHeight": "160px",
-  "headerTextColor": "#111111",
-  "headerDescriptionColor": "#555555"
-}
-```
-
-Empty strings mean no image or fall back to the CSS default.
-
-### Theme — Typography
-
-```json
-"theme": {
-  "typography": {
-    "fontFamily": "Georgia, serif",
-    "baseFontSize": "16px",
-    "lineHeight": "1.7",
-    "headingFontFamily": "",
-    "headingFontWeight": "700",
-    "codeFontFamily": "Menlo, monospace"
-  }
-}
-```
-
-Each typography field accepts any valid CSS value. An empty string means the CSS built-in default is used instead.
-
-When you change `site-settings.json`, Astro's dev server detects the file change and hot-reloads the page so you can preview the result immediately.
-
-You can also edit settings in the `/admin/` **Settings** tab with a live preview,
-or edit `src/site-settings.json` directly.
-
-CSS lives in:
-
-```text
-src/styles.css
-```
-
-Useful selectors for further customization:
-
-```css
-body
-.site
-.header
-.blog-title
-.blog-description
-```
-
-Post cover images are configured per post (any filename works, not just `cover.jpg`):
-
-```md
-cover: "./cover.jpg"
-```
-
-## First Post In /admin/
-
-1. Run `pnpm dev`.
-2. Open `http://localhost:4321/admin/` in Chrome or Edge.
-3. Click `Choose Project Folder`.
-4. Select the project root folder, the folder containing `package.json`.
-5. Click `New Post`.
-
-When you click `New Post`, the admin immediately does three things:
-
-```text
-1. creates a random postId UUID
-2. creates src/content/posts/{postId}/ directory
-3. creates src/content/posts/{postId}/index.md with draft frontmatter
-```
-
-The new post starts as a draft:
-
-```md
-draft: true
-```
-
-Drafts do not appear on the public site, archive pages, category pages, tag pages, RSS, or sitemap.
-
-When you are ready to publish, uncheck the draft option in `/admin/`, or change the Markdown frontmatter to:
-
-```md
-draft: false
-```
-
-## Editing A Post In /admin/
-
-1. Open `/admin/`.
-2. Click `Choose Project Folder`.
-3. Click a post in the post list.
-4. Edit the frontmatter fields.
-5. Edit the Markdown body.
-6. Use the live preview pane while writing.
-7. Click `Save Post`.
-
-The admin edits normal Markdown files. Nothing is hidden in a database.
-
-## Uploading Assets In /admin/
-
-Assets belong to a post, so a post must exist before assets can be uploaded.
-
-That is why the upload control is disabled before you create or select a post. There is no normal "upload without UUID" state.
-
-After a post is selected:
-
-1. Click the file picker in the Assets section.
-2. Choose images or files.
-3. Optionally enable `Convert supported images to WebP`.
-4. Optionally enable `Strip metadata from supported images`.
-5. Click `Upload To Asset Folder`.
-6. The files are copied into `src/content/posts/{postId}/`, side by side with `index.md`.
-7. Click `Insert` beside an uploaded file to insert Markdown like:
-
-```md
-![image-name.jpg](./image-name.jpg)
-```
-
-Images in the post body use relative paths. Astro resolves them automatically during build.
-
-Processing rules:
-
-```text
-static JPEG/PNG/WebP   can be converted or re-encoded
-other file types       are copied unchanged
-```
-
-If WebP conversion is enabled, the uploaded filename changes to `.webp`, and the inserted Markdown path uses that filename.
-
-Implementation note:
-
-```text
-/admin/ uses browser-side image processing so it still works on static hosting
-The CLI copies files without processing them
-```
-
-The project still keeps the content model in Markdown files plus asset folders. That leaves room to later swap local file access for cloud object storage or a database-backed admin without changing how posts and assets are organized.
-
-In Markdown paths, do not write `public`. Image paths in the post body are relative to the post directory.
-
-## Markdown And Frontmatter
-
-Each post is one `.md` file. The top block between `---` lines is frontmatter. Frontmatter is metadata; the text after it is the post body.
-
-Example:
-
-```md
----
-postId: 'b6a1c0a6-3df8-4f6a-9e9a-44e08c1b9b42'
-slug: 'my-first-post'
-title: 'My First Post'
-description: 'A short summary.'
-date: 2026-04-28
-updated: 2026-04-28
-category: 'Notes'
-tags:
-  - astro
-  - markdown
-author: 'Author'
-cover: './cover.jpg'
-draft: true
----
-
-Write the post body here.
-```
-
-You can edit:
-
-```text
-slug, title, description, date, updated, category, tags, author, cover, draft, body
-```
-
-Avoid changing:
-
-```text
-postId, the directory name, or the asset files alongside index.md
-```
-
-The reference file is:
-
-```text
-src/content/posts/_draft-template.md
-```
-
-It is only a reference and is not published because it has `draft: true`. If you temporarily change it to `draft: false`, it becomes available at:
-
-```text
-/posts/draft-template/
-```
-
-Change it back to `draft: true` if you want it to remain only a reference.
-
-## postId And Slug
-
-`postId` is a random UUID. It is generated when a post is created. It is used for the directory name that contains the post and all its files.
-
-`slug` is the public URL part:
-
-```text
-/posts/{slug}/
-```
-
-The slug can change when the title changes. In `/admin/`, click `Regenerate Slug`. In the CLI, run:
-
-```bash
-pnpm update-slug
-```
-
-Old slugs are not stored. If the slug changes, the old URL stops working unless you add redirects yourself.
-
-Chinese titles are not automatically converted to pinyin. Write your own English or pinyin slug if you want a readable URL. Otherwise the fallback is:
-
-```text
-post-{first-8-chars-of-postId}
-```
-
-## Navigation And Generated Pages
-
-The top navigation is not stored in Markdown. It is built by:
-
-```text
-src/site-settings.json       navigation labels
-src/components/Header.astro  header markup and links
-```
-
-Default navigation labels are in `copy.en.nav`:
-
-```ts
-nav: {
-  home: 'Home',
-  archives: 'Archives',
-  categories: 'Categories',
-  tags: 'Tags',
-  about: 'About',
-  admin: 'Admin',
-  rss: 'RSS'
-}
-```
-
-The routes are:
-
-```text
-Home        /                 src/pages/index.astro
-Archives    /archives/        src/pages/archives.astro
-Categories  /categories/      src/pages/categories.astro
-Tags        /tags/            src/pages/tags.astro
-About       /about/           src/pages/about.astro
-Admin       /admin/           src/pages/admin.astro
-RSS         /rss.xml          src/pages/rss.xml.js
-```
-
-The generated pages read published Markdown posts:
-
-```text
-/archives/              reads date from every published post
-/archives/{year}/{mm}/  lists posts in that year/month
-/categories/            reads category from every published post
-/category/{category}/   lists posts with that category
-/tags/                  reads all tags from every published post
-/tag/{tag}/             lists posts containing that tag
-```
-
-For example:
-
-```md
-date: 2026-04-28
-category: "Notes"
-tags:
-
-- astro
-- markdown
-  draft: false
-```
-
-This post appears in:
-
-```text
-/archives/2026/04/
-/category/Notes/
-/tag/astro/
-/tag/markdown/
-```
-
-`/about/` is different. It does not read posts. It reads this section in `src/site-settings.json`:
-
-```ts
-about: {
-  title: 'About This Site',
-  paragraphs: [...],
-  principlesTitle: 'Design Principles',
-  principles: [...]
-}
-```
-
-## RSS
-
-The RSS feed is:
-
-```text
-/rss.xml
-```
-
-The source file is:
-
-```text
-src/pages/rss.xml.js
-```
-
-RSS reads published posts through:
-
-```text
-src/lib.ts -> getPublishedPosts()
-```
-
-`getPublishedPosts()` reads the Astro content collection in:
-
-```text
-src/content.config.ts
-```
-
-That collection loads:
-
-```text
-src/content/posts/**/*.{md,mdx}
-```
-
-RSS only includes posts with:
-
-```md
-draft: false
-```
-
-The feed is RSS 2.0 XML generated by `@astrojs/rss`.
-
-Each post becomes one `<item>`:
-
-```text
-item title        <- post frontmatter title
-item description  <- post frontmatter description
-item pubDate      <- post frontmatter date
-item link         <- /posts/{slug}/
-```
-
-The channel fields at the top of RSS:
-
-```xml
-<title>File-Based Astro Blog</title>
-<description>A quiet static blog template powered by Markdown files.</description>
-<link>https://your-domain.com/</link>
-```
-
-come from two places:
-
-```text
-<title>        src/site-settings.json -> copy.en.site.title
-<description>  src/site-settings.json -> copy.en.site.description
-<link>         astro.config.mjs -> site
-```
-
-Before deployment, edit:
-
-```js
-export default defineConfig({
-  site: 'https://your-domain.com',
-  output: 'static',
-});
-```
-
-To inspect RSS locally, run `pnpm dev` and open:
-
-```text
-http://localhost:4321/rss.xml
-```
-
-## Asset Folders
-
-There are two built-in image areas:
-
-```text
-src/content/posts/{postId}/   the post directory — markdown, images, and all attachments live together
-public/images/site/           site-wide images (header, background, etc.)
-```
-
-Post images, downloads, screenshots, and cover images all go into the post directory alongside `index.md`.
-
-Site-wide images (backgrounds, header images) go into `public/images/site/`:
-
-```text
-public/images/site/header.jpg
-public/images/site/body.jpg
-```
-
-This template does not create date folders by default. Archive pages are generated from frontmatter `date`; they are not physical folders.
-
-If you want date-based organization, create subfolders inside a post directory:
-
-```text
-src/content/posts/{postId}/2026-04-28/photo.jpg
-```
-
-That file is still connected to the post through `postId`.
-
-## Prompt Copy Configuration
-
-All prompt and helper copy lives in [`src/site-settings.json`](./src/site-settings.json).
-
-This file contains both locales under the `copy` key:
-
-```json
-"copy": {
-  "en": { ... },
-  "zh-CN": { ... }
-}
-```
-
-The homepage notice is configured by:
-
-```json
-copy.en.home.notice
-copy['zh-CN'].home.notice
-```
-
-Set a field to an empty string to hide that block in the rendered page:
-
-```json
-"notice": ""
-```
-
-The following copy fields can also be hidden the same way:
-
-```text
-copy.en.site.description
-copy['zh-CN'].site.description
-
-copy.en.site.footer
-copy['zh-CN'].site.footer
-
-copy.en.sidebar.aboutTitle
-copy['zh-CN'].sidebar.aboutTitle
-
-copy.en.sidebar.aboutText
-copy['zh-CN'].sidebar.aboutText
-
-copy.en.home.notice
-copy['zh-CN'].home.notice
-
-copy.en.admin.intro
-copy['zh-CN'].admin.intro
-
-copy.en.admin.rootHelp
-copy['zh-CN'].admin.rootHelp
-
-copy.en.admin.assetHintBeforePost
-copy['zh-CN'].admin.assetHintBeforePost
-```
-
-Notes:
-
-1. English and Chinese are configured separately. Clear both locale values if both versions should be hidden.
-2. Buttons, navigation labels, field labels, and status messages are also defined in `site-settings.json`, but they are part of the working UI and are not intended to be hidden.
-3. Edit these fields through the **Admin Settings** tab (`/admin/` → Settings) or directly in `site-settings.json`.
-
-## Before Commit
-
-`pnpm test` runs focused tests for Markdown frontmatter and post URL helpers.
-
-Run:
-
-```bash
-pnpm check
-pnpm build
-```
-
-The Git hooks are intentionally fast and scoped to staged files. The full
-`pnpm check` command is still the recommended pre-commit validation.
-
-## CLI Commands
-
-```bash
-pnpm dev           # local dev server
-pnpm build         # check and build dist/
-pnpm preview       # preview dist/
-pnpm new-post      # create a draft post and asset folder
-pnpm edit-post     # open a Markdown post
-pnpm update-slug   # regenerate slug from title
-pnpm preview-post  # render one post to .post-preview/
-pnpm open-assets   # open or print a post asset folder
-pnpm add-assets    # copy files into a post or site image folder
-```
-
-Examples:
-
-```bash
-pnpm edit-post -- 1
-pnpm update-slug -- my-post
-pnpm preview-post -- my-post --no-open
-pnpm open-assets -- my-post --print
-pnpm add-assets -- my-post ./cover.jpg
-pnpm add-assets -- my-post ./cover.jpg ./photo.png
-pnpm add-assets -- --site ./bg.jpg
-```
-
-Use `--site` to copy files into `public/images/site/`; otherwise, files go into
-the selected post's asset folder. Image conversion options are available in
-`/admin/`.
+`pnpm build` writes the static site to `dist/`; `pnpm preview` serves that build locally.
 
 ## Deployment
 
-Build command:
-
-```bash
-pnpm build
-```
-
-Output folder:
+Use any static host with these settings:
 
 ```text
-dist/
+Build command: pnpm build
+Output folder: dist
 ```
-
-Generic static hosting settings:
-
-```text
-Install command: pnpm install
-Build command:   pnpm build
-Output folder:   dist
-```
-
-Root-domain deployment:
-
-```js
-export default defineConfig({
-  site: 'https://your-domain.com',
-  output: 'static',
-});
-```
-
-GitHub Pages project site:
-
-```js
-export default defineConfig({
-  site: 'https://your-name.github.io',
-  base: '/repo-name',
-  output: 'static',
-});
-```
-
-User or organization GitHub Pages site usually does not need `base`.
-
-## Future Extension Points
-
-Current storage:
-
-```text
-/admin/ -> File System Access API -> local Markdown and assets
-```
-
-The local storage boundary is:
-
-```text
-src/admin/local-file-storage.js
-```
-
-Future storage adapters can target an API, database, object storage, or Git-backed CMS. This template keeps that path open, but does not implement cloud storage yet.

@@ -1,3 +1,5 @@
+@import 'katex/dist/katex.min.css';
+
 :root {
   --bg: #eeeeee;
   --paper: #ffffff;
@@ -167,23 +169,13 @@ img {
 }
 
 .post-card {
-  display: grid;
-  grid-template-columns: 150px minmax(0, 1fr);
-  gap: 16px;
+  display: block;
   padding: 18px 0;
   border-bottom: 1px solid var(--line);
 }
 
 .post-card:first-child {
   padding-top: 0;
-}
-
-.post-card-cover {
-  width: 150px;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  border: 1px solid var(--line);
-  background: var(--soft);
 }
 
 .post-card-title {
@@ -227,6 +219,43 @@ img {
 
 .article-body p {
   margin: 1em 0;
+}
+
+.article-body mark {
+  background: #fff1a8;
+  color: inherit;
+}
+
+.obsidian-tag {
+  color: var(--muted);
+  font-size: 0.9em;
+}
+
+.article-body .callout {
+  margin: 1.25em 0;
+  padding: 0.75em 1em;
+  border-left: 4px solid #8a9bb0;
+  background: var(--soft);
+}
+
+.callout-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin-bottom: 0.4em;
+  font-weight: 700;
+}
+
+details.callout > summary {
+  cursor: pointer;
+}
+
+.callout-content > :first-child {
+  margin-top: 0;
+}
+
+.callout-content > :last-child {
+  margin-bottom: 0;
 }
 
 .article-body img {
@@ -295,186 +324,6 @@ img {
   font-size: 13px;
 }
 
-.notice {
-  padding: 12px 14px;
-  background: #fffbe6;
-  border: 1px solid #e6dca8;
-  font-size: 14px;
-}
-
-.admin-shell {
-  display: grid;
-  gap: 18px;
-}
-
-.admin-section {
-  border-top: 1px solid var(--line);
-  padding-top: 16px;
-}
-
-.admin-title {
-  margin: 0 0 12px;
-  font-size: 18px;
-}
-
-.admin-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
-}
-
-.admin-button {
-  appearance: none;
-  border: 1px solid #bdbdbd;
-  background: var(--soft);
-  color: var(--text);
-  padding: 6px 12px;
-  font: inherit;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.admin-button.primary {
-  border-color: #777;
-  background: #333;
-  color: #fff;
-}
-
-.admin-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.admin-grid {
-  display: grid;
-  grid-template-columns: minmax(220px, 0.75fr) minmax(280px, 1.25fr);
-  gap: 24px;
-  align-items: start;
-}
-
-.admin-list {
-  display: grid;
-  gap: 8px;
-}
-
-.post-row {
-  display: grid;
-  gap: 2px;
-  width: 100%;
-  padding: 9px 10px;
-  border: 1px solid var(--line);
-  background: #fff;
-  color: var(--text);
-  text-align: left;
-  font: inherit;
-  cursor: pointer;
-}
-
-.post-row:hover {
-  background: var(--soft);
-}
-
-.post-row span {
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.admin-form {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px 14px;
-}
-
-.admin-form label {
-  display: grid;
-  gap: 4px;
-  color: #444;
-  font-size: 13px;
-}
-
-.admin-form input,
-.admin-editor {
-  width: 100%;
-  border: 1px solid var(--line);
-  background: #fff;
-  color: var(--text);
-  font: inherit;
-}
-
-.admin-form input {
-  min-height: 34px;
-  padding: 5px 8px;
-}
-
-.admin-form input[readonly] {
-  background: var(--soft);
-  color: var(--muted);
-}
-
-.admin-check {
-  align-content: end;
-}
-
-.admin-check input {
-  width: auto;
-  min-height: 0;
-  margin-right: 6px;
-}
-
-.asset-options {
-  display: grid;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.editor-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 18px;
-}
-
-.admin-editor {
-  min-height: 520px;
-  padding: 12px;
-  resize: vertical;
-  font-family: var(
-    --code-font-family,
-    ui-monospace,
-    SFMono-Regular,
-    Menlo,
-    Consolas,
-    monospace
-  );
-  font-size: 14px;
-  line-height: 1.65;
-}
-
-.preview-pane {
-  min-height: 520px;
-  padding: 12px;
-  border: 1px solid var(--line);
-  background: #fff;
-  overflow: auto;
-}
-
-.asset-list {
-  display: grid;
-  gap: 8px;
-}
-
-.asset-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 8px 10px;
-  border: 1px solid var(--line);
-  background: #fff;
-  font-size: 14px;
-}
-
 @media (max-width: 840px) {
   .site {
     border: 0;
@@ -496,21 +345,7 @@ img {
     padding-top: 24px;
     margin-top: 32px;
   }
-  .post-card {
-    grid-template-columns: 100px minmax(0, 1fr);
-    gap: 12px;
-  }
-  .post-card-cover {
-    width: 100px;
-  }
   .post-card-title {
     font-size: 18px;
-  }
-  .admin-grid,
-  .editor-grid {
-    grid-template-columns: 1fr;
-  }
-  .admin-form {
-    grid-template-columns: 1fr;
   }
 }

@@ -5,42 +5,37 @@ Read it before making changes, then follow the deeper docs it points to.
 
 ## Project Identity
 
-`filebased-astro-blog` is an Astro static blog template. It is intentionally
-file-based and simple:
+`filebased-astro-blog` is a static Astro blog generated from Obsidian-friendly
+Markdown notes:
 
 - Astro builds static HTML.
-- Posts are Markdown files.
-- Each post owns one directory with `index.md` and its attachments.
-- `/admin/` is a local browser writing tool using the File System Access API.
-- `src/site-settings.json` is the user-editable source of truth for copy,
-  language, theme, typography, and admin text.
-- CLI scripts exist for advanced local workflows.
+- Every `.md` file under `src/content/posts/` is public when built.
+- A note's relative file path determines its `/posts/` URL.
+- Obsidian wikilinks, Markdown note links, callouts, highlights, comments, tags,
+  math, task markers, and optional YAML properties are supported.
+- There is no local writing page, draft state, or attachment manager.
+- `src/site-settings.json` is the user-editable source of truth for site copy,
+  language, theme, and typography.
 
-Do not redesign the product while doing hygiene, tooling, docs, or small feature
-work.
+Keep private or unpublished notes outside `src/content/posts/`. Do not redesign
+the product during hygiene, tooling, docs, or small feature work.
 
 ## Non-negotiable Rules
 
-- Do not push unless the user explicitly asks.
-- Do not commit unless the user explicitly asks.
+- Do not push, deploy, or commit unless the user explicitly asks.
 - Use pnpm only. Do not add npm or yarn lockfiles.
 - Keep TypeScript strict mode enabled.
-- Do not introduce a database, login system, server backend, or cloud CMS unless
+- Do not add a database, login system, server backend, or cloud CMS unless
   explicitly requested.
-- Keep posts file-based.
-- Keep post content and assets co-located in `src/content/posts/{postId}/`.
-- Keep `README.md` and `README.zh-CN.md` structurally in sync.
-- Keep `src/site-settings.json` as the user-editable settings source.
-- Do not commit generated folders such as `dist/`, `.astro/`,
-  `.post-preview/`, or `node_modules/`.
+- Keep posts as plain Markdown files.
+- Keep `README.md` and `README.zh-CN.md` structurally aligned.
+- Keep `src/site-settings.json` as the user-editable site settings source.
+- Do not commit generated folders such as `dist/`, `.astro/`, or `node_modules/`.
 
 ## Source Of Truth Docs
 
-Start here:
-
-- `README.md` for English user-facing setup and workflows
-- `README.zh-CN.md` for Chinese user-facing setup and workflows
-- `docs/engineering/ARCHITECTURE.md` for product and architecture boundaries
+- `README.md` and `README.zh-CN.md` for setup and content workflows
+- `docs/engineering/ARCHITECTURE.md` for architecture boundaries
 - `docs/engineering/CI_AND_HOOKS.md` for validation, CI, and hooks
 - `docs/engineering/COMMIT_CONVENTION.md` for commit messages
 - `docs/engineering/AI_CODE_REVIEW_CHECKLIST.md` for review criteria
@@ -59,75 +54,56 @@ Start here:
 - lint-staged
 - GitHub Actions
 
-Use TypeScript for new source files by default. Existing JavaScript remains only
-where documented below.
+Use TypeScript for new source files unless a framework entry point requires
+JavaScript.
 
 ## Directory Structure
 
 ```text
-src/pages/              Astro pages and generated routes
-src/content/posts/      Markdown post content
-src/content/posts/{id}/ one post directory: index.md plus attachments
-src/admin/              browser file access helpers
-src/components/         reusable Astro components
-src/layouts/            page and post layouts
-src/site-settings.json  user-editable settings and localized copy
-scripts/                local CLI tools and repository checks
-docs/engineering/       engineering policy and architecture docs
-docs/prompts/           reusable agent and review prompts
-public/images/site/     site-wide images
-templates/              post templates
+src/pages/             Astro pages and generated routes
+src/content/posts/     Published Obsidian-friendly Markdown notes
+src/markdown/          Markdown rendering helpers
+src/components/        Reusable Astro components
+src/layouts/           Page and post layouts
+src/site-settings.json User-editable settings and localized copy
+scripts/               Repository checks and Git hooks
+public/                Static files served as-is
+docs/engineering/      Engineering policy and architecture docs
+docs/prompts/          Reusable agent and review prompts
 ```
 
-## Naming Conventions
+## Content Rules
 
-- `postId` is stable identity and should not change after creation.
-- `slug` is public URL identity and may change intentionally.
-- Post directories use `postId`.
-- Post entry files are named `index.md`.
-- Body images use relative paths such as `./photo.jpg`.
-- Site-wide images go under `public/images/site/`.
-- CLI scripts use `.mjs` while the current CLI remains JavaScript-based.
+- Notes must be `.md` files. Frontmatter is optional; title and creation date
+  are derived from the file when those properties are omitted. Committed notes
+  use their first Git addition date; uncommitted notes use filesystem creation
+  time.
+- The relative note path determines its public URL and wikilink target.
+- Category and tags are optional; locale defaults are in `site-settings.json`.
+- Every note under `src/content/posts/` is public; do not add draft/private
+  filtering.
+- Do not add post attachment upload, copy, processing, or embedding workflows.
+- Preserve support for Obsidian wikilinks, Markdown note links, callouts,
+  highlights, comments, tags, math, task markers, and ordinary Markdown.
 
 ## Validation Commands
 
-Install dependencies:
-
 ```bash
 pnpm install
-```
-
-Run local development:
-
-```bash
 pnpm dev
-```
-
-Run focused checks:
-
-```bash
 pnpm format
 pnpm format:check
 pnpm typecheck
 pnpm lint
 pnpm test
 pnpm docs:lint
-pnpm content:check
-pnpm build
-```
-
-Run the standard quality gate:
-
-```bash
-pnpm check
-```
-
-Before committing, prefer:
-
-```bash
+pnpm settings:check
 pnpm check
 pnpm build
 ```
+
+Run `pnpm check` and `pnpm build` before a requested commit. Report exactly
+which validation commands ran.
 
 ## Commit Rules
 
@@ -137,29 +113,8 @@ Use Conventional Commit headers:
 <type>(optional-scope): <description>
 ```
 
-Allowed types:
-
-```text
-feat
-fix
-refactor
-perf
-style
-test
-docs
-build
-ops
-chore
-```
-
-Examples:
-
-```text
-build: migrate package management to pnpm
-ops(ci): add quality gates and local hooks
-docs(agents): document repository workflow
-build(architecture): add repository cleanliness checks
-```
+Allowed types: `feat`, `fix`, `refactor`, `perf`, `style`, `test`, `docs`,
+`build`, `ops`, and `chore`.
 
 Do not amend already pushed commits unless explicitly requested.
 
@@ -167,24 +122,21 @@ Do not amend already pushed commits unless explicitly requested.
 
 1. Read relevant files before editing.
 2. Plan first when the task is ambiguous or large.
-3. If the user already explicitly requested implementation, make small,
-   reviewable changes without waiting for another approval step.
+3. If implementation is explicitly requested, make reviewable changes without
+   waiting for another approval step.
 4. Preserve unrelated user changes.
 5. Prefer existing patterns over new abstractions.
-6. Keep app behavior unchanged unless behavior change is the task.
-7. Update both README files when user-facing commands or workflows change.
-8. Add or update docs when repository policy changes.
-9. Run the relevant validation commands and report exactly what ran.
-10. Do not push, deploy, publish, or commit unless explicitly asked.
+6. Update both README files when user-facing workflows change.
+7. Update docs when repository policy changes.
+8. Run relevant validation and report exactly what ran.
+9. Do not push, deploy, publish, or commit unless explicitly asked.
 
 ## JavaScript Exceptions
 
-This repository still has intentional JavaScript files:
+JavaScript files remain only where framework or tooling conventions require
+it:
 
-- `.mjs` CLI scripts in `scripts/`
-- `src/admin/local-file-storage.js`
+- `astro.config.mjs`
+- `.mjs` scripts in `scripts/`
 - `src/pages/rss.xml.js`
 - `src/pages/sitemap.xml.js`
-
-New source files should be TypeScript unless there is a documented reason to do
-otherwise.
