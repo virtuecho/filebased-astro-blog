@@ -61,7 +61,6 @@ Common scopes:
 - `config`
 - `posts`
 - `readme`
-- `site-config`
 - `ci`
 - `agents`
 - `architecture`

@@ -38,14 +38,14 @@ jobs:
       - name: Lint source
         run: pnpm lint
 
-      - name: Run tests
+      - name: Run content tests
         run: pnpm test
 
       - name: Lint docs
         run: pnpm docs:lint
 
-      - name: Check architecture
-        run: pnpm arch:check
+      - name: Check content invariants
+        run: pnpm content:check
 
       - name: Build static site
         run: pnpm build

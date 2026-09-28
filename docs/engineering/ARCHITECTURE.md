@@ -92,7 +92,7 @@ typed helpers such as `siteConfig`, `copy`, `contentDefaults`, `dateLocale`, and
 `getCopy()`.
 
 When adding a locale, update `copy`, `supportedLocales`, and `dateLocales`.
-Locale key parity is enforced by `scripts/check-architecture.ts`.
+Locale key parity is enforced by `pnpm content:check`.
 
 ## Admin Boundary
 
@@ -108,9 +108,8 @@ The admin page is not a remote dashboard. It does not add authentication,
 server-side storage, or a database.
 
 `src/admin/local-file-storage.js` remains JavaScript because it is consumed as a
-browser module from the admin page. `src/admin/sharp-image-processing.js`
-remains JavaScript because the current CLI scripts are `.mjs` modules that
-consume it directly.
+browser module from the admin page. The admin page uses browser APIs for image
+processing; CLI asset commands copy files unchanged.
 
 ## CLI Boundary
 
@@ -123,8 +122,6 @@ pnpm update-slug
 pnpm preview-post
 pnpm open-assets
 pnpm add-assets
-pnpm site-config
-pnpm site-assets
 ```
 
 The CLI is advanced local tooling. It should preserve the same content model as

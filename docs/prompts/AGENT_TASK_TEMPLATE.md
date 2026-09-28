@@ -49,7 +49,7 @@ pnpm typecheck
 pnpm lint
 pnpm test
 pnpm docs:lint
-pnpm arch:check
+pnpm content:check
 pnpm check
 pnpm build
 ```

@@ -92,8 +92,7 @@ pnpm preview
 ## Development Quality Gates
 
 This repository uses pnpm, Prettier, ESLint, markdownlint-cli2, Husky,
-lint-staged, and an architecture check to keep routine project hygiene
-mechanical.
+lint-staged, and content checks for duplicate IDs, slugs, and locale keys.
 
 Useful commands:
 
@@ -104,12 +103,12 @@ pnpm typecheck
 pnpm lint
 pnpm test
 pnpm docs:lint
-pnpm arch:check
+pnpm content:check
 pnpm check
 ```
 
-`pnpm check` runs the standard local quality gate: format check, type-check,
-lint, tests, docs lint, and architecture check.
+`pnpm check` runs format check, type-check, lint, focused content tests, docs
+lint, and content checks.
 
 Husky installs Git hooks through `pnpm prepare`. The pre-commit hook runs
 lint-staged on staged files, and the commit message hook validates Conventional
@@ -191,10 +190,8 @@ Each typography field accepts any valid CSS value. An empty string means the CSS
 
 When you change `site-settings.json`, Astro's dev server detects the file change and hot-reloads the page so you can preview the result immediately.
 
-You can also edit settings through:
-
-- **Admin UI**: Open `/admin/`, click the **Settings** tab for a visual editor with live iframe preview.
-- **CLI**: `pnpm site-config` (interactive) or `pnpm site-config -- --flag value` (direct).
+You can also edit settings in the `/admin/` **Settings** tab with a live preview,
+or edit `src/site-settings.json` directly.
 
 CSS lives in:
 
@@ -295,7 +292,7 @@ Implementation note:
 
 ```text
 /admin/ uses browser-side image processing so it still works on static hosting
-CLI add-assets uses local sharp for the same options
+The CLI copies files without processing them
 ```
 
 The project still keeps the content model in Markdown files plus asset folders. That leaves room to later swap local file access for cloud object storage or a database-backed admin without changing how posts and assets are organized.
@@ -622,26 +619,11 @@ Notes:
 
 1. English and Chinese are configured separately. Clear both locale values if both versions should be hidden.
 2. Buttons, navigation labels, field labels, and status messages are also defined in `site-settings.json`, but they are part of the working UI and are not intended to be hidden.
-3. These fields can also be edited through the **Admin Settings tab** (`/admin/` → Settings) or the **CLI** (`pnpm site-config -- --notice-en ""`), so you do not need to edit the JSON file directly.
-
-## Testing
-
-```bash
-pnpm test
-```
-
-The test suite verifies:
-
-- Build and type-check pass
-- All CLI scripts have valid syntax
-- Imports in admin.astro are complete
-- CLI `listPosts()` return properties match callers
-- `site-settings.json` is valid and both locales match
-- README files are in sync (en and zh-CN)
-
-Run `pnpm test` after any code change. Run `pnpm check` before committing.
+3. Edit these fields through the **Admin Settings** tab (`/admin/` → Settings) or directly in `site-settings.json`.
 
 ## Before Commit
+
+`pnpm test` runs focused tests for Markdown frontmatter and post URL helpers.
 
 Run:
 
@@ -664,9 +646,7 @@ pnpm edit-post     # open a Markdown post
 pnpm update-slug   # regenerate slug from title
 pnpm preview-post  # render one post to .post-preview/
 pnpm open-assets   # open or print a post asset folder
-pnpm add-assets    # copy files into a post asset folder
-pnpm site-config   # view or change site settings (interactive or --flags)
-pnpm site-assets   # copy files into public/images/site/
+pnpm add-assets    # copy files into a post or site image folder
 ```
 
 Examples:
@@ -677,42 +657,13 @@ pnpm update-slug -- my-post
 pnpm preview-post -- my-post --no-open
 pnpm open-assets -- my-post --print
 pnpm add-assets -- my-post ./cover.jpg
-pnpm add-assets -- my-post ./cover.jpg --webp
-pnpm add-assets -- my-post ./cover.jpg ./photo.png --strip-metadata
-pnpm add-assets -- my-post ./cover.jpg ./scan.png --webp --strip-metadata
-pnpm site-config -- --lang zh-CN
-pnpm site-config -- --bg-header /images/site/header.jpg --font-family "Georgia, serif"
-pnpm site-assets -- ./bg.jpg --webp
+pnpm add-assets -- my-post ./cover.jpg ./photo.png
+pnpm add-assets -- --site ./bg.jpg
 ```
 
-`add-assets` options:
-
-```text
---webp             convert supported static JPEG/PNG/WebP images to .webp
---strip-metadata   re-encode supported static JPEG/PNG/WebP images without metadata
-```
-
-Files that are not static JPEG, PNG, or WebP are copied unchanged.
-
-`site-assets` works the same way but copies into `public/images/site/` for site-wide images (backgrounds, header images, etc.).
-
-`site-config` can be used interactively (`pnpm site-config`) or with direct flags:
-
-```bash
-pnpm site-config -- --show                # print current settings
-pnpm site-config -- --lang zh-CN          # switch language
-pnpm site-config -- --bg-header URL       # set header background
-pnpm site-config -- --font-family FONT    # set body font
-```
-
-All site settings can also be edited visually in the `/admin/` Settings tab, which includes a live iframe preview.
-
-Implementation note:
-
-```text
-CLI processing uses local sharp
-/admin/ processing uses browser APIs for static-hosting compatibility
-```
+Use `--site` to copy files into `public/images/site/`; otherwise, files go into
+the selected post's asset folder. Image conversion options are available in
+`/admin/`.
 
 ## Deployment
 

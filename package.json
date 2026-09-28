@@ -14,8 +14,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "docs:lint": "markdownlint-cli2 \"**/*.md\" \"#node_modules\"",
-    "arch:check": "tsx scripts/check-architecture.ts",
-    "check": "pnpm format:check && pnpm typecheck && pnpm lint && pnpm test && pnpm docs:lint && pnpm arch:check",
+    "content:check": "tsx scripts/check-content.ts",
+    "check": "pnpm format:check && pnpm typecheck && pnpm lint && pnpm test && pnpm docs:lint && pnpm content:check",
     "prepare": "husky",
     "new-post": "tsx scripts/new-post.mjs",
     "edit-post": "tsx scripts/edit-post.mjs",
@@ -23,9 +23,7 @@
     "preview-post": "tsx scripts/preview-post.mjs",
     "open-assets": "tsx scripts/open-assets.mjs",
     "add-assets": "tsx scripts/add-assets.mjs",
-    "site-config": "tsx scripts/site-config.mjs",
-    "site-assets": "tsx scripts/site-assets.mjs",
-    "test": "node test.mjs"
+    "test": "tsx --test tests/content-workflow.test.ts"
   },
   "lint-staged": {
     "*.{ts,tsx,js,mjs,astro}": [
@@ -44,7 +42,6 @@
     "@astrojs/rss": "latest",
     "astro": "latest",
     "marked": "^18.0.2",
-    "sharp": "^0.34.5",
     "typescript": "latest"
   },
   "devDependencies": {
@@ -63,8 +60,7 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "esbuild",
-      "sharp"
+      "esbuild"
     ]
   }
 }

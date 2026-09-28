@@ -60,7 +60,7 @@ Start here:
 - GitHub Actions
 
 Use TypeScript for new source files by default. Existing JavaScript remains only
-where documented by `scripts/check-architecture.ts`.
+where documented below.
 
 ## Directory Structure
 
@@ -68,7 +68,7 @@ where documented by `scripts/check-architecture.ts`.
 src/pages/              Astro pages and generated routes
 src/content/posts/      Markdown post content
 src/content/posts/{id}/ one post directory: index.md plus attachments
-src/admin/              local admin storage and image helpers
+src/admin/              browser file access helpers
 src/components/         reusable Astro components
 src/layouts/            page and post layouts
 src/site-settings.json  user-editable settings and localized copy
@@ -112,7 +112,7 @@ pnpm typecheck
 pnpm lint
 pnpm test
 pnpm docs:lint
-pnpm arch:check
+pnpm content:check
 pnpm build
 ```
 
@@ -183,7 +183,6 @@ This repository still has intentional JavaScript files:
 
 - `.mjs` CLI scripts in `scripts/`
 - `src/admin/local-file-storage.js`
-- `src/admin/sharp-image-processing.js`
 - `src/pages/rss.xml.js`
 - `src/pages/sitemap.xml.js`
 

@@ -13,9 +13,8 @@ pnpm dev
 pnpm build
 ```
 
-Do not add `package-lock.json` or `yarn.lock`. The architecture check requires
-`pnpm-lock.yaml` and verifies `package.json` declares `packageManager` with
-`pnpm@`.
+Do not add `package-lock.json` or `yarn.lock`. Keep `pnpm-lock.yaml` and declare
+the pnpm version in `package.json`.
 
 ## Required Scripts
 
@@ -28,7 +27,7 @@ pnpm typecheck
 pnpm lint
 pnpm test
 pnpm docs:lint
-pnpm arch:check
+pnpm content:check
 pnpm check
 pnpm build
 ```
@@ -36,7 +35,7 @@ pnpm build
 `pnpm check` runs the standard pre-commit quality gate:
 
 ```bash
-pnpm format:check && pnpm typecheck && pnpm lint && pnpm test && pnpm docs:lint && pnpm arch:check
+pnpm format:check && pnpm typecheck && pnpm lint && pnpm test && pnpm docs:lint && pnpm content:check
 ```
 
 `pnpm build` is kept separate so CI can prove the static output still builds.
@@ -75,17 +74,15 @@ Use:
 pnpm docs:lint
 ```
 
-## Architecture Check
+## Content Checks
 
-`scripts/check-architecture.ts` turns repository conventions into mechanical
-checks. It verifies package manager policy, strict TypeScript configuration,
-required docs, generated folder policy, JavaScript allowlists, post identity,
-published slug uniqueness, and locale key parity.
+`scripts/check-content.ts` checks post ID and published slug uniqueness,
+and keeps English and Chinese settings keys aligned.
 
 Use:
 
 ```bash
-pnpm arch:check
+pnpm content:check
 ```
 
 ## Husky And lint-staged
@@ -121,7 +118,7 @@ pnpm typecheck
 pnpm lint
 pnpm test
 pnpm docs:lint
-pnpm arch:check
+pnpm content:check
 pnpm build
 ```
 

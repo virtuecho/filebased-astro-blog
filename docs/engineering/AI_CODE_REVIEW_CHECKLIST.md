@@ -52,7 +52,7 @@ Start with behavioral risk, then validate tooling and docs.
 - Do docs avoid promising behavior that the app does not implement?
 - Does `pnpm docs:lint` pass?
 
-## Tests And Validation
+## Validation
 
 - Were these commands run when relevant?
 
@@ -62,7 +62,7 @@ pnpm typecheck
 pnpm lint
 pnpm test
 pnpm docs:lint
-pnpm arch:check
+pnpm content:check
 pnpm check
 pnpm build
 ```

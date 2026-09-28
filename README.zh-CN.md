@@ -92,7 +92,7 @@ pnpm preview
 ## 开发质量门禁
 
 这个仓库使用 pnpm、Prettier、ESLint、markdownlint-cli2、Husky、
-lint-staged 和架构检查，把日常工程清洁变成可执行流程。
+lint-staged 和内容检查，确保文章 ID、slug 和双语文案键没有重复或遗漏。
 
 常用命令：
 
@@ -103,12 +103,12 @@ pnpm typecheck
 pnpm lint
 pnpm test
 pnpm docs:lint
-pnpm arch:check
+pnpm content:check
 pnpm check
 ```
 
-`pnpm check` 会运行标准本地质量门禁：格式检查、类型检查、lint、测试、
-文档 lint 和架构检查。
+`pnpm check` 会运行格式检查、类型检查、lint、核心内容测试、文档 lint
+和内容检查。
 
 Husky 通过 `pnpm prepare` 安装 Git hooks。pre-commit hook 会对暂存文件运行
 lint-staged，commit message hook 会校验 Conventional Commit 标题。
@@ -189,10 +189,8 @@ src/site-settings.json
 
 修改 `site-settings.json` 后，Astro 开发服务器会检测文件变动并热更新页面，可以即时预览效果。
 
-你也可以通过以下方式编辑设置：
-
-- **Admin 界面**：打开 `/admin/`，点击 **Settings** 标签页，使用可视化编辑器并带有实时 iframe 预览。
-- **CLI 命令行**：`pnpm site-config`（交互式）或 `pnpm site-config -- --flag value`（直接设置）。
+你也可以在 `/admin/` 的 **Settings** 标签页编辑设置并实时预览，或者直接修改
+`src/site-settings.json`。
 
 CSS 在：
 
@@ -293,7 +291,7 @@ admin 编辑的是普通 Markdown 文件。内容没有藏在数据库里。
 
 ```text
 /admin/ 使用浏览器端图片处理，所以在静态托管上也能继续工作
-CLI add-assets 使用本地 sharp 提供同样的两个选项
+CLI 只复制文件，不做图片处理
 ```
 
 项目的内容模型仍然保持为 Markdown 文件加附件目录。这样以后如果要从本地文件访问升级到云端对象存储或数据库后台，也不用先改文章和附件的组织方式。
@@ -620,26 +618,11 @@ copy['zh-CN'].admin.assetHintBeforePost
 
 1. 中文和英文分别配置；如果两种语言都需要隐藏，需要同时清空两边的字段。
 2. 按钮文字、导航名称、表单字段名、状态提示也定义在 `site-settings.json` 中，但这些文案属于界面的一部分，不建议隐藏。
-3. 这些字段也可以通过 **Admin Settings 标签页**（`/admin/` → Settings）或 **CLI**（`pnpm site-config -- --notice-zh ""`）来编辑，不必直接修改 JSON 文件。
-
-## 测试
-
-```bash
-pnpm test
-```
-
-测试套件会验证：
-
-- 构建和类型检查通过
-- 所有 CLI 脚本语法正确
-- admin.astro 的 import 完整无误
-- CLI `listPosts()` 返回属性与调用方一致
-- `site-settings.json` 有效且两个语言的键结构一致
-- README 文件同步（英文和中文）
-
-每次修改代码后请运行 `pnpm test`。提交前建议运行 `pnpm check`。
+3. 通过 **Admin Settings** 标签页（`/admin/` → Settings）或直接修改 `site-settings.json` 编辑这些字段。
 
 ## 提交前
+
+`pnpm test` 只测试 Markdown frontmatter 和文章 URL 辅助函数。
 
 运行：
 
@@ -662,9 +645,7 @@ pnpm edit-post     # 打开 Markdown 文章
 pnpm update-slug   # 根据标题重新生成 slug
 pnpm preview-post  # 把某篇文章渲染到 .post-preview/
 pnpm open-assets   # 打开或打印文章附件目录
-pnpm add-assets    # 把文件复制到文章附件目录
-pnpm site-config   # 查看或修改站点设置（交互式或 --flags）
-pnpm site-assets   # 把文件复制到 public/images/site/
+pnpm add-assets    # 把文件复制到文章附件目录或全站图片目录
 ```
 
 例子：
@@ -675,42 +656,11 @@ pnpm update-slug -- my-post
 pnpm preview-post -- my-post --no-open
 pnpm open-assets -- my-post --print
 pnpm add-assets -- my-post ./cover.jpg
-pnpm add-assets -- my-post ./cover.jpg --webp
-pnpm add-assets -- my-post ./cover.jpg ./photo.png --strip-metadata
-pnpm add-assets -- my-post ./cover.jpg ./scan.png --webp --strip-metadata
-pnpm site-config -- --lang zh-CN
-pnpm site-config -- --bg-header /images/site/header.jpg --font-family "Georgia, serif"
-pnpm site-assets -- ./bg.jpg --webp
+pnpm add-assets -- my-post ./cover.jpg ./photo.png
+pnpm add-assets -- --site ./bg.jpg
 ```
 
-`add-assets` 选项：
-
-```text
---webp             将支持的静态 JPEG/PNG/WebP 图片转换为 .webp
---strip-metadata   将支持的静态 JPEG/PNG/WebP 图片重新编码并去掉 metadata
-```
-
-不是静态 JPEG、PNG、WebP 的文件会按原样复制。
-
-`site-assets` 以同样方式工作，但目标目录是 `public/images/site/`，用于站点全局图片（背景图、头图等）。
-
-`site-config` 可以交互式使用（`pnpm site-config`）或者带参数直接设置：
-
-```bash
-pnpm site-config -- --show                # 打印当前设置
-pnpm site-config -- --lang zh-CN          # 切换语言
-pnpm site-config -- --bg-header URL       # 设置头部背景
-pnpm site-config -- --font-family FONT    # 设置字体
-```
-
-所有站点设置也可以在 `/admin/` 的 Settings 标签页中可视化编辑，并带有实时 iframe 预览。
-
-实现说明：
-
-```text
-CLI 处理走本地 sharp
-/admin/ 处理走浏览器 API，以保持静态托管可用
-```
+使用 `--site` 将文件复制到 `public/images/site/`；不加此参数时，文件会复制到选中的文章附件目录。图片转换选项可在 `/admin/` 中使用。
 
 ## 部署
 
