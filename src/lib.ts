@@ -5,6 +5,7 @@ import { getCollection } from 'astro:content';
 import { dateLocale } from './site.config';
 
 const postsRoot = resolve(process.cwd(), 'posts');
+export const postsPerPage = 10;
 let createdDates: Map<string, Date> | undefined;
 
 function hasMarkdownNotes() {
@@ -102,6 +103,15 @@ export async function getPosts() {
     if (bDate === undefined) return -1;
     return bDate - aDate || a.id.localeCompare(b.id);
   });
+}
+
+export function paginatePosts<T>(posts: T[]) {
+  const totalPages = Math.ceil(posts.length / postsPerPage);
+  return Array.from({ length: totalPages }, (_, index) => ({
+    posts: posts.slice(index * postsPerPage, (index + 1) * postsPerPage),
+    currentPage: index + 1,
+    totalPages,
+  }));
 }
 
 export function postUrl(post: { id: string }) {

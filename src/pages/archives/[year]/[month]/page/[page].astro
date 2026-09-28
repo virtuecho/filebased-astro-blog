@@ -1,0 +1,33 @@
+---
+import type { GetStaticPaths } from 'astro';
+import PostList from '../../../../../components/PostList.astro';
+import { getPosts, groupByMonth, paginatePosts } from '../../../../../lib';
+import { copy } from '../../../../../site.config';
+
+export const getStaticPaths = (async () => {
+  const posts = await getPosts();
+
+  return [...groupByMonth(posts).entries()].flatMap(([ym, monthPosts]) => {
+    const [year, month] = ym.split('/');
+    return paginatePosts(monthPosts)
+      .slice(1)
+      .map(({ posts: pagePosts, currentPage, totalPages }) => ({
+        params: { year, month, page: String(currentPage) },
+        props: { year, month, posts: pagePosts, currentPage, totalPages },
+      }));
+  });
+}) satisfies GetStaticPaths;
+
+const { year, month, posts, currentPage, totalPages } = Astro.props;
+const title = `${copy.labels.archive}: ${year}/${month}`;
+const baseUrl = `/archives/${year}/${month}/`;
+---
+
+<PostList
+  title={title}
+  pageTitle={`${title} — ${currentPage}`}
+  posts={posts}
+  baseUrl={baseUrl}
+  currentPage={currentPage}
+  totalPages={totalPages}
+/>

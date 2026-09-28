@@ -37,6 +37,8 @@ Multiple notes may use the same frontmatter title. Their dates appear in the lis
 
 The build rejects filenames that would produce the same public URL. The homepage and post lists sort by creation date, newest first; file names only determine URLs. Committed notes use the date of their first Git commit, and uncommitted notes use the filesystem creation time. CI fetches Git history so this order survives a build checkout. Rename the file to change its public URL and update links that refer to it.
 
+Post listing pages show 10 posts per page, with numbered links to move between pages.
+
 Without frontmatter, the original file name supplies the title. The list shows each note's creation date and sorts newest first.
 
 ## Obsidian Markdown

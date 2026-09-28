@@ -1,31 +1,37 @@
 ---
-import BaseLayout from '../../../layouts/BaseLayout.astro';
-import PostCard from '../../../components/PostCard.astro';
-import { getPosts, groupByMonth } from '../../../lib';
-import type { CollectionEntry } from 'astro:content';
+import PostList from '../../../components/PostList.astro';
+import { getPosts, groupByMonth, paginatePosts } from '../../../lib';
 import { copy } from '../../../site.config';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
-  const months = [...groupByMonth(posts).keys()];
-  return months.map((ym) => {
+  return [...groupByMonth(posts).entries()].flatMap(([ym, monthPosts]) => {
     const [year, month] = ym.split('/');
-    return { params: { year, month }, props: { year, month } };
+    const firstPage = paginatePosts(monthPosts)[0];
+    if (!firstPage) return [];
+    return [
+      {
+        params: { year, month },
+        props: {
+          year,
+          month,
+          posts: firstPage.posts,
+          totalPages: firstPage.totalPages,
+        },
+      },
+    ];
   });
 }
 
-const { year, month } = Astro.props;
-const posts = (await getPosts()).filter((p: CollectionEntry<'posts'>) => {
-  return (
-    p.data.date &&
-    String(p.data.date.getFullYear()) === year &&
-    String(p.data.date.getMonth() + 1).padStart(2, '0') === month
-  );
-});
+const { year, month, posts, totalPages } = Astro.props;
 const title = `${copy.labels.archive}: ${year}/${month}`;
+const baseUrl = `/archives/${year}/${month}/`;
 ---
 
-<BaseLayout title={title}>
-  <h1 class="page-title">{title}</h1>
-  {posts.map((post: CollectionEntry<'posts'>) => <PostCard post={post} />)}
-</BaseLayout>
+<PostList
+  title={title}
+  posts={posts}
+  baseUrl={baseUrl}
+  currentPage={1}
+  totalPages={totalPages}
+/>

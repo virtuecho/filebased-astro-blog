@@ -1,0 +1,33 @@
+---
+import type { GetStaticPaths } from 'astro';
+import PostList from '../../../../components/PostList.astro';
+import { getPosts, paginatePosts } from '../../../../lib';
+import { copy } from '../../../../site.config';
+
+export const getStaticPaths = (async () => {
+  const posts = await getPosts();
+  const categories = [...new Set(posts.map((post) => post.data.category))];
+
+  return categories.flatMap((category) =>
+    paginatePosts(posts.filter((post) => post.data.category === category))
+      .slice(1)
+      .map(({ posts: pagePosts, currentPage, totalPages }) => ({
+        params: { category, page: String(currentPage) },
+        props: { category, posts: pagePosts, currentPage, totalPages },
+      })),
+  );
+}) satisfies GetStaticPaths;
+
+const { category, posts, currentPage, totalPages } = Astro.props;
+const title = `${copy.labels.category}: ${category}`;
+const baseUrl = `/category/${encodeURIComponent(category)}/`;
+---
+
+<PostList
+  title={title}
+  pageTitle={`${title} — ${currentPage}`}
+  posts={posts}
+  baseUrl={baseUrl}
+  currentPage={currentPage}
+  totalPages={totalPages}
+/>

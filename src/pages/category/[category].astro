@@ -1,24 +1,38 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import PostCard from '../../components/PostCard.astro';
-import { getPosts } from '../../lib';
+import PostList from '../../components/PostList.astro';
+import { getPosts, paginatePosts } from '../../lib';
 import { copy } from '../../site.config';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
   const categories = [...new Set(posts.map((p) => p.data.category))];
-  return categories.map((category) => ({
-    params: { category },
-    props: { category },
-  }));
+  return categories.flatMap((category) => {
+    const firstPage = paginatePosts(
+      posts.filter((post) => post.data.category === category),
+    )[0];
+    if (!firstPage) return [];
+    return [
+      {
+        params: { category },
+        props: {
+          category,
+          posts: firstPage.posts,
+          totalPages: firstPage.totalPages,
+        },
+      },
+    ];
+  });
 }
 
-const { category } = Astro.props;
-const posts = (await getPosts()).filter((p) => p.data.category === category);
+const { category, posts, totalPages } = Astro.props;
 const title = `${copy.labels.category}: ${category}`;
+const baseUrl = `/category/${encodeURIComponent(category)}/`;
 ---
 
-<BaseLayout title={title}>
-  <h1 class="page-title">{title}</h1>
-  {posts.map((post) => <PostCard post={post} />)}
-</BaseLayout>
+<PostList
+  title={title}
+  posts={posts}
+  baseUrl={baseUrl}
+  currentPage={1}
+  totalPages={totalPages}
+/>

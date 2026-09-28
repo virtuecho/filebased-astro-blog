@@ -1,0 +1,46 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostCard from './PostCard.astro';
+import PostPagination from './PostPagination.astro';
+
+interface Props {
+  title: string;
+  pageTitle?: string;
+  posts: CollectionEntry<'posts'>[];
+  baseUrl: string;
+  currentPage: number;
+  totalPages: number;
+  emptyMessage?: string;
+}
+
+const {
+  title,
+  pageTitle = title,
+  posts,
+  baseUrl,
+  currentPage,
+  totalPages,
+  emptyMessage,
+} = Astro.props;
+---
+
+<BaseLayout title={pageTitle}>
+  <h1 class="page-title">{title}</h1>
+  <div style="margin-top: 18px;">
+    {
+      posts.length > 0
+        ? posts.map((post) => <PostCard post={post} />)
+        : emptyMessage && <p class="meta">{emptyMessage}</p>
+    }
+    {
+      totalPages > 1 && (
+        <PostPagination
+          baseUrl={baseUrl}
+          currentPage={currentPage}
+          totalPages={totalPages}
+        />
+      )
+    }
+  </div>
+</BaseLayout>

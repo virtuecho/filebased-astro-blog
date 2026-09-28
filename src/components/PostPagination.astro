@@ -1,0 +1,135 @@
+---
+import { copy } from '../site.config';
+
+interface Props {
+  currentPage: number;
+  totalPages: number;
+  baseUrl: string;
+}
+
+const { currentPage, totalPages, baseUrl } = Astro.props;
+const visiblePageCount = 6;
+const startPage = Math.min(
+  Math.max(1, currentPage - 2),
+  Math.max(1, totalPages - visiblePageCount + 1),
+);
+const endPage = Math.min(totalPages, startPage + visiblePageCount - 1);
+const pageNumbers = Array.from(
+  { length: endPage - startPage + 1 },
+  (_, index) => startPage + index,
+);
+const pageUrl = (page: number) =>
+  page === 1
+    ? baseUrl
+    : baseUrl === '/'
+      ? `/page/${page}/`
+      : `${baseUrl}page/${page}/`;
+---
+
+<nav class="post-pagination" aria-label={copy.labels.pagination}>
+  {
+    currentPage === 1 ? (
+      <span
+        class="page-control"
+        aria-disabled="true"
+        aria-label={copy.labels.firstPage}
+      >
+        «
+      </span>
+    ) : (
+      <a
+        class="page-control"
+        href={pageUrl(1)}
+        aria-label={copy.labels.firstPage}
+      >
+        «
+      </a>
+    )
+  }
+  {
+    currentPage === 1 ? (
+      <span
+        class="page-control"
+        aria-disabled="true"
+        aria-label={copy.labels.previousPage}
+      >
+        ‹
+      </span>
+    ) : (
+      <a
+        class="page-control"
+        href={pageUrl(currentPage - 1)}
+        aria-label={copy.labels.previousPage}
+      >
+        ‹
+      </a>
+    )
+  }
+  {
+    startPage > 1 && (
+      <a class="page-number" href={pageUrl(1)}>
+        1
+      </a>
+    )
+  }
+  {startPage > 1 && <span class="page-ellipsis">…</span>}
+  {
+    pageNumbers.map((page) =>
+      page === currentPage ? (
+        <span class="page-number is-current" aria-current="page">
+          {page}
+        </span>
+      ) : (
+        <a class="page-number" href={pageUrl(page)}>
+          {page}
+        </a>
+      ),
+    )
+  }
+  {endPage < totalPages && <span class="page-ellipsis">…</span>}
+  {
+    endPage < totalPages && (
+      <a class="page-number" href={pageUrl(totalPages)}>
+        {totalPages}
+      </a>
+    )
+  }
+  {
+    currentPage === totalPages ? (
+      <span
+        class="page-control"
+        aria-disabled="true"
+        aria-label={copy.labels.nextPage}
+      >
+        ›
+      </span>
+    ) : (
+      <a
+        class="page-control"
+        href={pageUrl(currentPage + 1)}
+        aria-label={copy.labels.nextPage}
+      >
+        ›
+      </a>
+    )
+  }
+  {
+    currentPage === totalPages ? (
+      <span
+        class="page-control"
+        aria-disabled="true"
+        aria-label={copy.labels.lastPage}
+      >
+        »
+      </span>
+    ) : (
+      <a
+        class="page-control"
+        href={pageUrl(totalPages)}
+        aria-label={copy.labels.lastPage}
+      >
+        »
+      </a>
+    )
+  }
+</nav>

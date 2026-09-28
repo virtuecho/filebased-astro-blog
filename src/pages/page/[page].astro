@@ -1,0 +1,23 @@
+---
+import type { GetStaticPaths } from 'astro';
+import PostList from '../../components/PostList.astro';
+import { getPosts, paginatePosts } from '../../lib';
+import { copy } from '../../site.config';
+
+export const getStaticPaths = (async () => {
+  const pages = paginatePosts(await getPosts());
+  return pages.slice(1).map(({ posts, currentPage, totalPages }) => ({
+    params: { page: String(currentPage) },
+    props: { posts, currentPage, totalPages },
+  }));
+}) satisfies GetStaticPaths;
+---
+
+<PostList
+  title={copy.home.title}
+  pageTitle={`${copy.home.title} — ${Astro.params.page}`}
+  posts={Astro.props.posts}
+  baseUrl="/"
+  currentPage={Astro.props.currentPage}
+  totalPages={Astro.props.totalPages}
+/>

@@ -1,20 +1,17 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import PostCard from '../components/PostCard.astro';
-import { getPosts } from '../lib';
+import PostList from '../components/PostList.astro';
+import { getPosts, paginatePosts } from '../lib';
 import { copy } from '../site.config';
 const posts = await getPosts();
+const firstPage = paginatePosts(posts)[0];
 ---
 
-<BaseLayout title={copy.site.title}>
-  <h1 class="page-title">{copy.home.title}</h1>
-  <div style="margin-top: 18px;">
-    {
-      posts.length > 0 ? (
-        posts.map((post) => <PostCard post={post} />)
-      ) : (
-        <p class="meta">{copy.home.empty}</p>
-      )
-    }
-  </div>
-</BaseLayout>
+<PostList
+  title={copy.home.title}
+  pageTitle={copy.site.title}
+  posts={firstPage?.posts ?? []}
+  baseUrl="/"
+  currentPage={1}
+  totalPages={firstPage?.totalPages ?? 0}
+  emptyMessage={copy.home.empty}
+/>

@@ -325,6 +325,51 @@ details.callout > summary {
   padding-bottom: 8px;
 }
 
+.post-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 28px 0 8px;
+}
+
+.post-pagination a,
+.post-pagination .page-number,
+.post-pagination .page-control {
+  display: inline-flex;
+  min-width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--soft);
+  color: var(--text);
+}
+
+.post-pagination a:hover {
+  border-color: var(--link);
+  text-decoration: none;
+}
+
+.post-pagination .is-current {
+  border-color: var(--link);
+  background: var(--link);
+  color: #fff;
+}
+
+.post-pagination [aria-disabled='true'] {
+  color: var(--muted);
+  opacity: 0.5;
+}
+
+.post-pagination .page-ellipsis {
+  padding: 0 2px;
+  color: var(--muted);
+}
+
 .simple-list {
   list-style: none;
   padding: 0;
