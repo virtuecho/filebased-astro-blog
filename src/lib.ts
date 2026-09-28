@@ -1,19 +1,25 @@
 import { execFileSync } from 'node:child_process';
-import { readdirSync, statSync } from 'node:fs';
-import { basename, relative, resolve, sep } from 'node:path';
+import { existsSync, readdirSync, statSync } from 'node:fs';
+import { basename, resolve } from 'node:path';
 import { getCollection } from 'astro:content';
 import { dateLocale } from './site.config';
 
 const postsRoot = resolve(process.cwd(), 'src/content/posts');
 let createdDates: Map<string, Date> | undefined;
 
-function hasMarkdownNotes(directory = postsRoot): boolean {
-  return readdirSync(directory, { withFileTypes: true }).some((entry) => {
-    if (entry.name.startsWith('.')) return false;
-    if (entry.isDirectory())
-      return hasMarkdownNotes(resolve(directory, entry.name));
-    return entry.isFile() && entry.name.endsWith('.md');
-  });
+function hasMarkdownNotes() {
+  if (!existsSync(postsRoot)) return false;
+
+  const entries = readdirSync(postsRoot, { withFileTypes: true });
+  const folder = entries.find(
+    (entry) => entry.isDirectory() && !entry.name.startsWith('.'),
+  );
+  if (folder) {
+    throw new Error(
+      `Keep Markdown posts directly inside "src/content/posts/"; found subfolder "${folder.name}".`,
+    );
+  }
+  return entries.some((entry) => entry.isFile() && entry.name.endsWith('.md'));
 }
 
 function getCommittedCreationDates() {
@@ -51,7 +57,8 @@ function getCommittedCreationDates() {
         line.endsWith('.md')
       ) {
         const path = line.replace(/^src\/content\/posts\//, '');
-        if (!createdDates.has(path)) createdDates.set(path, date);
+        if (!path.includes('/') && !createdDates.has(path))
+          createdDates.set(path, date);
       }
     }
   } catch {
@@ -64,7 +71,7 @@ function getCommittedCreationDates() {
 function fileCreationDate(filePath?: string) {
   if (!filePath) return undefined;
 
-  const path = relative(postsRoot, filePath).split(sep).join('/');
+  const path = basename(filePath);
   const committedDate = getCommittedCreationDates().get(path);
   if (committedDate) return committedDate;
 
@@ -76,26 +83,17 @@ function fileCreationDate(filePath?: string) {
   }
 }
 
-function notePath(filePath: string | undefined, id: string) {
-  return filePath
-    ? relative(postsRoot, filePath).split(sep).join('/').replace(/\.md$/i, '')
-    : id;
-}
-
-function fallbackTitle(path: string) {
-  return basename(path);
-}
-
 export async function getPosts() {
   if (!hasMarkdownNotes()) return [];
 
   const entries = await getCollection('posts');
-  const paths = entries.map((post) => notePath(post.filePath, post.id));
-  const posts = entries.map((post, index) => ({
+  const posts = entries.map((post) => ({
     ...post,
     data: {
       ...post.data,
-      title: post.data.title?.trim() || fallbackTitle(paths[index]),
+      title:
+        post.data.title?.trim() ||
+        basename(post.filePath || post.id).replace(/\.md$/i, ''),
       date: post.data.date || fileCreationDate(post.filePath),
     },
   }));
@@ -111,11 +109,7 @@ export async function getPosts() {
 }
 
 export function postUrl(post: { id: string }) {
-  const path = post.id
-    .split('/')
-    .map((segment) => encodeURIComponent(segment))
-    .join('/');
-  return `/posts/${path}/`;
+  return `/posts/${encodeURIComponent(post.id)}/`;
 }
 
 export function formatDate(date?: Date) {
@@ -125,14 +119,6 @@ export function formatDate(date?: Date) {
     month: '2-digit',
     day: '2-digit',
   }).format(date);
-}
-
-export function slugifyText(text: string) {
-  return encodeURIComponent(text.trim().toLowerCase().replaceAll(' ', '-'));
-}
-
-export function unslugifyText(text: string) {
-  return decodeURIComponent(text);
 }
 
 export function groupByMonth(posts: Awaited<ReturnType<typeof getPosts>>) {

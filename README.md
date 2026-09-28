@@ -8,11 +8,11 @@ A static blog built from Obsidian-friendly Markdown files. Write notes in Obsidi
 Markdown notes -> Astro -> static website
 ```
 
-There is no local writing page, database, draft state, or attachment manager. Every Markdown file under `src/content/posts/` is included in the public site when it is built. Keep private or unpublished notes outside that folder.
+There is no local writing page, database, draft state, or attachment manager. Every `.md` file directly inside `src/content/posts/` is included in the public site when it is built. Keep private or unpublished notes outside that folder.
 
 ## Content Model
 
-Each post is one `.md` file. Its path determines its public URL. YAML frontmatter is optional:
+Each post is one `.md` file directly inside `src/content/posts/`. Its filename determines its public URL. Keep this folder flat; note filenames must be unique. YAML frontmatter is optional:
 
 ```text
 src/content/posts/Getting Started.md  ->  /posts/getting-started/
@@ -33,16 +33,17 @@ tags:
 Write the article here.
 ```
 
-Folder paths are preserved and each path segment is slugified. For example, `src/content/posts/notes/First Note.md` becomes `/posts/notes/first-note/`. The homepage and post lists sort by creation date, newest first; file names only determine URLs. Committed notes use the date of their first Git commit, and uncommitted notes use the filesystem creation time. CI fetches Git history so this order survives a build checkout. Rename the file to change its public URL and update links that refer to it.
+Multiple notes may use the same frontmatter title. Their dates appear in the list and determine its newest-first order.
 
-Without frontmatter, the original file name supplies the title, including when multiple notes share that name. The list shows each note's creation date and sorts newest first.
+The build rejects filenames that would produce the same public URL. The homepage and post lists sort by creation date, newest first; file names only determine URLs. Committed notes use the date of their first Git commit, and uncommitted notes use the filesystem creation time. CI fetches Git history so this order survives a build checkout. Rename the file to change its public URL and update links that refer to it.
+
+Without frontmatter, the original file name supplies the title. The list shows each note's creation date and sorts newest first.
 
 ## Obsidian Markdown
 
 Astro renders standard Markdown and GitHub Flavored Markdown. Obsidian-specific support includes:
 
-- Note links and aliases: `[[Getting Started]]`, `[[Getting Started#Setup|setup]]`, or `[setup](Getting%20Started.md#Setup)`
-- A short wikilink such as `[[Note]]` works only when that note name is unique in the whole collection. If multiple files are named `Note.md`, use a folder-qualified link such as `[[projects/Note]]`; ambiguous short links fail the build instead of pointing to the wrong post.
+- Note links and aliases resolve by filename: `[[Getting Started]]`, `[[Getting Started#Setup|setup]]`, or `[setup](Getting%20Started.md#Setup)`. Keep notes flat and use unique filenames; folder-qualified note links are rejected.
 - Callouts: `> [!tip] A title`
 - Highlights: `==important text==`
 - Math equations: `$x^2$` and `$$...$$`

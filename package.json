@@ -13,23 +13,9 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "docs:lint": "markdownlint-cli2 \"**/*.md\" \"#node_modules\"",
     "settings:check": "tsx scripts/check-settings.ts",
     "test": "tsx --test tests/obsidian-markdown.test.ts",
-    "check": "pnpm format:check && pnpm typecheck && pnpm lint && pnpm test && pnpm docs:lint && pnpm settings:check",
-    "prepare": "husky"
-  },
-  "lint-staged": {
-    "*.{ts,tsx,js,mjs,astro}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{md,json,css,html,yml,yaml}": [
-      "prettier --write"
-    ],
-    "*.md": [
-      "markdownlint-cli2"
-    ]
+    "check": "pnpm format:check && pnpm typecheck && pnpm lint && pnpm test && pnpm settings:check"
   },
   "dependencies": {
     "@astrojs/check": "latest",
@@ -48,9 +34,6 @@
     "eslint": "^10.3.0",
     "eslint-plugin-astro": "^1.7.0",
     "globals": "^17.6.0",
-    "husky": "^9.1.7",
-    "lint-staged": "^17.0.4",
-    "markdownlint-cli2": "^0.22.1",
     "prettier": "^3.8.3",
     "prettier-plugin-astro": "^0.14.1",
     "tsx": "^4.21.0",

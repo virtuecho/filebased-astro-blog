@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint';
 
 export default defineConfig([
   {
-    ignores: ['dist/**', 'node_modules/**', '.astro/**', '.post-preview/**'],
+    ignores: ['dist/**', 'node_modules/**', '.astro/**'],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

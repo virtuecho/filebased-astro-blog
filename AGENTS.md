@@ -1,7 +1,8 @@
 # AGENTS.md
 
 This file is the navigation map for coding agents working in this repository.
-Read it before making changes, then follow the deeper docs it points to.
+Read it before making changes. The English and Chinese READMEs describe setup
+and content workflows.
 
 ## Project Identity
 
@@ -9,8 +10,8 @@ Read it before making changes, then follow the deeper docs it points to.
 Markdown notes:
 
 - Astro builds static HTML.
-- Every `.md` file under `src/content/posts/` is public when built.
-- A note's relative file path determines its `/posts/` URL.
+- Every `.md` file directly under `src/content/posts/` is public when built.
+- Note filenames must be unique and determine their `/posts/` URL.
 - Obsidian wikilinks, Markdown note links, callouts, highlights, comments, tags,
   math, task markers, and optional YAML properties are supported.
 - There is no local writing page, draft state, or attachment manager.
@@ -32,16 +33,6 @@ the product during hygiene, tooling, docs, or small feature work.
 - Keep `src/site-settings.json` as the user-editable site settings source.
 - Do not commit generated folders such as `dist/`, `.astro/`, or `node_modules/`.
 
-## Source Of Truth Docs
-
-- `README.md` and `README.zh-CN.md` for setup and content workflows
-- `docs/engineering/ARCHITECTURE.md` for architecture boundaries
-- `docs/engineering/CI_AND_HOOKS.md` for validation, CI, and hooks
-- `docs/engineering/COMMIT_CONVENTION.md` for commit messages
-- `docs/engineering/AI_CODE_REVIEW_CHECKLIST.md` for review criteria
-- `docs/prompts/AGENT_TASK_TEMPLATE.md` for future agent tasks
-- `docs/prompts/CODE_REVIEW_PROMPT.md` for review prompts
-
 ## Preferred Stack
 
 - Astro
@@ -49,9 +40,6 @@ the product during hygiene, tooling, docs, or small feature work.
 - pnpm
 - Prettier
 - ESLint flat config
-- markdownlint-cli2
-- Husky
-- lint-staged
 - GitHub Actions
 
 Use TypeScript for new source files unless a framework entry point requires
@@ -62,14 +50,12 @@ JavaScript.
 ```text
 src/pages/             Astro pages and generated routes
 src/content/posts/     Published Obsidian-friendly Markdown notes
-src/markdown/          Markdown rendering helpers
 src/components/        Reusable Astro components
 src/layouts/           Page and post layouts
+src/obsidian-links.ts  Obsidian link rendering
 src/site-settings.json User-editable settings and localized copy
-scripts/               Repository checks and Git hooks
+scripts/               Repository checks
 public/                Static files served as-is
-docs/engineering/      Engineering policy and architecture docs
-docs/prompts/          Reusable agent and review prompts
 ```
 
 ## Content Rules
@@ -78,9 +64,10 @@ docs/prompts/          Reusable agent and review prompts
   are derived from the file when those properties are omitted. Committed notes
   use their first Git addition date; uncommitted notes use filesystem creation
   time.
-- The relative note path determines its public URL and wikilink target.
+- Keep notes directly in `src/content/posts/`. Their unique filenames determine
+  public URLs and wikilink targets; nested note folders are unsupported.
 - Category and tags are optional; locale defaults are in `site-settings.json`.
-- Every note under `src/content/posts/` is public; do not add draft/private
+- Every note directly under `src/content/posts/` is public; do not add draft/private
   filtering.
 - Do not add post attachment upload, copy, processing, or embedding workflows.
 - Preserve support for Obsidian wikilinks, Markdown note links, callouts,
@@ -96,7 +83,6 @@ pnpm format:check
 pnpm typecheck
 pnpm lint
 pnpm test
-pnpm docs:lint
 pnpm settings:check
 pnpm check
 pnpm build

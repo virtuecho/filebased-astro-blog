@@ -1,9 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {
-  createNoteIndex,
-  remarkObsidianLinks,
-} from '../src/markdown/obsidian-links';
+import { createNoteIndex, remarkObsidianLinks } from '../src/obsidian-links';
 
 interface TestNode {
   type: string;
@@ -17,12 +14,7 @@ interface TestNode {
   children?: TestNode[];
 }
 
-const paths = [
-  'Current Note.md',
-  'Notes/Daily Note.md',
-  'folder-a/Note.md',
-  'folder-b/Note.md',
-];
+const paths = ['Current Note.md', 'Daily Note.md', 'Note.md', 'Other Note.md'];
 const render = remarkObsidianLinks(paths);
 
 function transform(children: TestNode[], path = 'Current Note.md') {
@@ -35,7 +27,7 @@ test('turns Obsidian links into slugged routes with heading anchors', () => {
   const [link] = transform([
     {
       type: 'wikilink',
-      path: 'Notes/Daily Note.md',
+      path: 'Daily Note.md',
       heading: 'Background',
       alias: 'read more',
       embedded: false,
@@ -43,32 +35,32 @@ test('turns Obsidian links into slugged routes with heading anchors', () => {
   ]);
 
   assert.equal(link.type, 'link');
-  assert.equal(link.url, '/posts/notes/daily-note/#background');
+  assert.equal(link.url, '/posts/daily-note/#background');
   assert.equal(link.children?.[0]?.value, 'read more');
 });
 
-test('rejects ambiguous basename links and accepts folder-qualified links', () => {
+test('rejects folder-qualified note links and duplicate filenames', () => {
   assert.throws(
-    () => transform([{ type: 'wikilink', path: 'Note', embedded: false }]),
-    /Ambiguous Obsidian link.*Use a folder-qualified link/,
+    () =>
+      transform([{ type: 'wikilink', path: 'folder/Note', embedded: false }]),
+    /Markdown posts are flat/,
   );
-
-  const [link] = transform([
-    { type: 'wikilink', path: 'folder-b/Note', embedded: false },
-  ]);
-  assert.equal(link.url, '/posts/folder-b/note/');
+  assert.throws(
+    () => createNoteIndex(['Note.md', 'note.md']),
+    /Duplicate Markdown filename/,
+  );
 });
 
 test('rewrites Markdown internal links with URL-encoded paths', () => {
   const [link] = transform([
     {
       type: 'link',
-      url: 'Notes/Daily%20Note.md#Background',
+      url: 'Daily%20Note.md#Background',
       children: [{ type: 'text', value: 'read this note' }],
     },
   ]);
 
-  assert.equal(link.url, '/posts/notes/daily-note/#background');
+  assert.equal(link.url, '/posts/daily-note/#background');
 });
 
 test('keeps file embeds as plain text when there is no attachment handling', () => {
@@ -99,7 +91,7 @@ test('renders Obsidian highlights and tags as HTML elements', () => {
 
 test('rejects note paths that collapse to the same public route', () => {
   assert.throws(
-    () => createNoteIndex(['folder/My Note.md', 'folder/my-note.md']),
+    () => createNoteIndex(['My Note.md', 'my-note.md']),
     /Markdown route collision/,
   );
 });
