@@ -102,7 +102,7 @@ Detailed component spacing and layout rules remain in `src/styles.css`.
     "title": "About This Site",
     "paragraphs": [
       "A static blog generated from Obsidian-friendly Markdown files.",
-      "Astro turns each note into a public page and builds the archives, categories, tags, and sitemap."
+      "Astro turns each note into a public page and builds the archives, categories, and tags."
     ],
     "principlesTitle": "Design Principles",
     "principles": [

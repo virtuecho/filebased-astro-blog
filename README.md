@@ -131,3 +131,6 @@ Use any static host with these settings:
 Build command: pnpm build
 Output folder: dist
 ```
+
+To populate `sitemap.xml` with absolute URLs, set `SITE_URL` to the canonical
+site origin before building. Without it, the build emits an empty sitemap.

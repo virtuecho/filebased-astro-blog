@@ -104,3 +104,6 @@ pnpm preview
 Build command: pnpm build
 Output folder: dist
 ```
+
+要在 `sitemap.xml` 中生成绝对链接，请在构建前将 `SITE_URL` 设为网站的规范
+域名。未设置时，构建会生成空站点地图。
