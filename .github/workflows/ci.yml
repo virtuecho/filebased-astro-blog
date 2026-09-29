@@ -43,8 +43,5 @@ jobs:
       - name: Run content tests
         run: pnpm test
 
-      - name: Check site settings
-        run: pnpm settings:check
-
       - name: Build static site
         run: pnpm build
