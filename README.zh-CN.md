@@ -60,10 +60,9 @@ Astro 支持标准 Markdown 和 GitHub Flavored Markdown。本项目额外支持
 
 日常发布文章时，只需要操作 `posts/`。添加或编辑文章不需要改动项目里的其他文件。
 
-网站界面目前只有英文。要修改界面标签和描述，请编辑
-`INTERFACE.md` 中的 YAML 区块。主题设置仍在
-`.config/site-settings.json` 中。正文保留模板最初的默认值供参考；只有
-YAML frontmatter 会影响网站。
+网站界面目前只有英文。要修改界面标签、描述、主题或字体，请编辑
+`INTERFACE.md` 中标记的 JSON 代码块。该代码块中的值同时是当前设置和模板默认值。
+标准 JSON 不支持注释；说明文字可以写在代码块外，解析器会忽略代码块外的 Markdown 和 HTML 注释。
 
 ## 本地预览
 

@@ -17,10 +17,10 @@ Markdown notes:
 - Obsidian wikilinks, Markdown note links, callouts, highlights, comments, tags,
   math, task markers, and optional YAML properties are supported.
 - There is no local writing page, draft state, or attachment manager.
-- `INTERFACE.md` holds the English interface text in YAML
-  frontmatter and preserves the original defaults in its Markdown body.
-- `.config/site-settings.json` holds theme and typography settings.
-  Blog authors do not need to edit either file when publishing posts.
+- `INTERFACE.md` is the single source for interface text, theme, and
+  typography. The build reads its marked JSON code block from the Markdown
+  body and ignores surrounding text and comments.
+  Blog authors do not need to edit it when publishing posts.
 
 Keep private or unpublished notes outside `posts/`. Do not redesign
 the product during hygiene, tooling, docs, or small feature work.
@@ -34,8 +34,7 @@ the product during hygiene, tooling, docs, or small feature work.
   explicitly requested.
 - Keep posts as plain Markdown files.
 - Keep `README.md` and `README.zh-CN.md` structurally aligned.
-- Keep `.config/site-settings.json` as the theme settings source and
-  `INTERFACE.md` as the interface text source.
+- Keep `INTERFACE.md` as the single source for interface and theme settings.
 - Do not commit generated folders such as `dist/`, `.astro/`, or `node_modules/`.
 
 ## Preferred Stack

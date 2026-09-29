@@ -61,10 +61,10 @@ Astro renders standard Markdown and GitHub Flavored Markdown. Obsidian-specific 
 For regular publishing, only use `posts/`. The remaining project files are
 template internals and do not need changes to add or edit articles.
 
-The website interface is English-only. To change its labels and descriptions,
-edit the YAML block in `INTERFACE.md`. Theme settings remain in
-`.config/site-settings.json`. The Markdown body preserves the original defaults
-for reference; only the YAML frontmatter affects the site.
+The website interface is English-only. To change its labels, descriptions,
+theme, or typography, edit the marked JSON code block in `INTERFACE.md`. The
+values in that block are the active settings and defaults. Standard JSON does
+not support comments; write explanations in the surrounding Markdown instead.
 
 ## Local Development
 
