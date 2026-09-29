@@ -132,5 +132,6 @@ Build command: pnpm build
 Output folder: dist
 ```
 
-To populate `sitemap.xml` with absolute URLs, set `SITE_URL` to the canonical
-site origin before building. Without it, the build emits an empty sitemap.
+A sitemap is optional; search engines can still discover pages by following
+site links. This template emits an empty `sitemap.xml` unless `SITE_URL` is set
+to the canonical site origin, in which case it lists absolute URLs.

@@ -105,5 +105,6 @@ Build command: pnpm build
 Output folder: dist
 ```
 
-要在 `sitemap.xml` 中生成绝对链接，请在构建前将 `SITE_URL` 设为网站的规范
-域名。未设置时，构建会生成空站点地图。
+站点地图不是必需的；搜索引擎仍可沿着站内链接发现页面。此模板只有在设置
+网站规范域名 `SITE_URL` 后，才会在 `sitemap.xml` 中列出绝对链接；未设置时会
+生成空站点地图。
