@@ -10,7 +10,6 @@ const postSchema = z.object({
   updated: z.coerce.date().optional(),
   category: z.string().default(contentDefaults.category),
   tags: z.array(z.string()).default([]),
-  author: z.string().default(contentDefaults.author),
 });
 
 const posts = defineCollection({

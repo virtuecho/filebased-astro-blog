@@ -17,8 +17,10 @@ Markdown notes:
 - Obsidian wikilinks, Markdown note links, callouts, highlights, comments, tags,
   math, task markers, and optional YAML properties are supported.
 - There is no local writing page, draft state, or attachment manager.
-- `.config/site-settings.json` holds the template's site copy, language, theme,
-  and typography. Blog authors do not need to edit it.
+- `INTERFACE.md` holds the English interface text in YAML
+  frontmatter and preserves the original defaults in its Markdown body.
+- `.config/site-settings.json` holds theme and typography settings.
+  Blog authors do not need to edit either file when publishing posts.
 
 Keep private or unpublished notes outside `posts/`. Do not redesign
 the product during hygiene, tooling, docs, or small feature work.
@@ -32,7 +34,8 @@ the product during hygiene, tooling, docs, or small feature work.
   explicitly requested.
 - Keep posts as plain Markdown files.
 - Keep `README.md` and `README.zh-CN.md` structurally aligned.
-- Keep `.config/site-settings.json` as the site settings source.
+- Keep `.config/site-settings.json` as the theme settings source and
+  `INTERFACE.md` as the interface text source.
 - Do not commit generated folders such as `dist/`, `.astro/`, or `node_modules/`.
 
 ## Preferred Stack
@@ -69,7 +72,7 @@ public/                Static files served as-is
   time.
 - Keep notes directly in `posts/`. Their unique filenames determine
   public URLs and wikilink targets; nested note folders are unsupported.
-- Category and tags are optional; locale defaults are in `.config/site-settings.json`.
+- Category and tags are optional; the default category is `Uncategorized`.
 - Every note directly under `posts/` is public; do not add draft/private
   filtering.
 - Do not add post attachment upload, copy, processing, or embedding workflows.
@@ -86,7 +89,6 @@ pnpm format:check
 pnpm typecheck
 pnpm lint
 pnpm test
-pnpm settings:check
 pnpm check
 pnpm build
 ```

@@ -18,7 +18,7 @@ Each post is one `.md` file directly inside `posts/`. Its filename determines it
 posts/Getting Started.md  ->  /posts/getting-started/
 ```
 
-When frontmatter is present, title and date can override the file-derived title and creation date. Set `category` to place a post in a category; if omitted, it uses the active locale's configured default (`Uncategorized` in English or `未分类` in Chinese). Categories and their post lists are generated automatically. `tags` can contain multiple values:
+When frontmatter is present, title and date can override the file-derived title and creation date. Set `category` to place a post in a category; if omitted, it uses `Uncategorized`. Categories and their post lists are generated automatically. `tags` can contain multiple values:
 
 ```md
 ---
@@ -60,6 +60,11 @@ Astro renders standard Markdown and GitHub Flavored Markdown. Obsidian-specific 
 
 For regular publishing, only use `posts/`. The remaining project files are
 template internals and do not need changes to add or edit articles.
+
+The website interface is English-only. To change its labels and descriptions,
+edit the YAML block in `INTERFACE.md`. Theme settings remain in
+`.config/site-settings.json`. The Markdown body preserves the original defaults
+for reference; only the YAML frontmatter affects the site.
 
 ## Local Development
 

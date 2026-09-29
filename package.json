@@ -13,9 +13,8 @@
     "lint": "eslint --config .config/eslint.config.js .",
     "format": "prettier --config .config/prettier.config.cjs --ignore-path .gitignore --ignore-path .config/.prettierignore --write .",
     "format:check": "prettier --config .config/prettier.config.cjs --ignore-path .gitignore --ignore-path .config/.prettierignore --check .",
-    "settings:check": "tsx scripts/check-settings.ts",
     "test": "tsx --test tests/obsidian-markdown.test.ts",
-    "check": "pnpm format:check && pnpm typecheck && pnpm lint && pnpm test && pnpm settings:check"
+    "check": "pnpm format:check && pnpm typecheck && pnpm lint && pnpm test"
   },
   "dependencies": {
     "@astrojs/check": "latest",

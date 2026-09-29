@@ -18,7 +18,7 @@ Markdown 笔记 -> Astro -> 静态网站
 posts/入门.md  ->  /posts/%E5%85%A5%E9%97%A8/
 ```
 
-如果提供 frontmatter，其中的标题和日期会覆盖文件名和文件创建日期。用 `category` 设置文章分类；省略时使用当前站点语言的默认值（英文为 `Uncategorized`，中文为 `未分类`）。分类列表和分类文章页会根据文章自动生成。`tags` 可以填写多个值：
+如果提供 frontmatter，其中的标题和日期会覆盖文件名和文件创建日期。用 `category` 设置文章分类；省略时使用 `Uncategorized`。分类列表和分类文章页会根据文章自动生成。`tags` 可以填写多个值：
 
 ```md
 ---
@@ -59,6 +59,11 @@ Astro 支持标准 Markdown 和 GitHub Flavored Markdown。本项目额外支持
 ## 项目结构
 
 日常发布文章时，只需要操作 `posts/`。添加或编辑文章不需要改动项目里的其他文件。
+
+网站界面目前只有英文。要修改界面标签和描述，请编辑
+`INTERFACE.md` 中的 YAML 区块。主题设置仍在
+`.config/site-settings.json` 中。正文保留模板最初的默认值供参考；只有
+YAML frontmatter 会影响网站。
 
 ## 本地预览
 
