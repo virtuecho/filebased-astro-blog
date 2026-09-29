@@ -8,8 +8,8 @@ const postSchema = z.object({
   description: z.string().optional(),
   date: z.coerce.date().optional(),
   updated: z.coerce.date().optional(),
-  category: z.string().default(contentDefaults.category),
-  tags: z.array(z.string()).default([]),
+  category: z.string().trim().min(1).default(contentDefaults.category),
+  tags: z.array(z.string().trim().min(1)).default([]),
 });
 
 const posts = defineCollection({
