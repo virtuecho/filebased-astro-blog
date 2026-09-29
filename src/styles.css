@@ -314,6 +314,44 @@ details.callout > summary {
   padding-bottom: 8px;
 }
 
+.search-form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.search-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.search-controls input {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--text);
+  font: inherit;
+}
+
+.search-controls button {
+  padding: 0 14px;
+  border: 1px solid var(--link);
+  border-radius: 4px;
+  background: var(--link);
+  color: var(--pagination-active-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.search-results[hidden],
+.post-pagination[hidden],
+.post-card[hidden] {
+  display: none;
+}
+
 .post-pagination {
   display: flex;
   justify-content: center;
@@ -324,6 +362,7 @@ details.callout > summary {
 }
 
 .post-pagination a,
+.post-pagination button,
 .post-pagination .page-number,
 .post-pagination .page-control {
   display: inline-flex;
@@ -338,7 +377,13 @@ details.callout > summary {
   color: var(--text);
 }
 
-.post-pagination a:hover {
+.post-pagination button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.post-pagination a:hover,
+.post-pagination button:hover {
   border-color: var(--link);
   text-decoration: none;
 }

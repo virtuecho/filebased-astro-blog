@@ -5,6 +5,15 @@ type SiteCopy = {
   site: { title: string; description: string; footer: string };
   nav: Record<string, string>;
   home: { title: string; empty: string };
+  search: {
+    inputLabel: string;
+    placeholder: string;
+    help: string;
+    loading: string;
+    noResults: string;
+    results: string;
+    error: string;
+  };
   about: {
     title: string;
     paragraphs: string[];

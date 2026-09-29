@@ -9,6 +9,17 @@ are ignored.
 Standard JSON does not allow comments. Put explanations in the Markdown body
 outside the settings block.
 
+## Search text
+
+`nav.search` and `pages.searchTitle` name the navigation link and search page.
+The `search` values control the field label, placeholder, help, loading, empty
+result, result count, and error messages. Keep `{count}` in `search.results`;
+the page replaces it with the number of matches. Search matches the displayed
+title (which falls back to the filename), description, explicit category, tags,
+and Markdown body. It ignores dates and the default `Uncategorized` category.
+Matching ignores letter case; each space-separated term must appear as a
+substring somewhere in the searchable text.
+
 ## Theme settings
 
 The `theme` values control the site's main appearance without editing CSS.
@@ -68,6 +79,7 @@ Detailed component spacing and layout rules remain in `src/styles.css`.
   },
   "nav": {
     "home": "Home",
+    "search": "Search",
     "archives": "Archives",
     "categories": "Categories",
     "tags": "Tags",
@@ -76,6 +88,15 @@ Detailed component spacing and layout rules remain in `src/styles.css`.
   "home": {
     "title": "Latest Posts",
     "empty": "No posts yet."
+  },
+  "search": {
+    "inputLabel": "Search posts",
+    "placeholder": "Search titles and article text",
+    "help": "Search titles, descriptions, categories, tags, and Markdown text. All words must match.",
+    "loading": "Loading search index...",
+    "noResults": "No matching posts.",
+    "results": "{count} posts found.",
+    "error": "Could not load the search index. Please try again."
   },
   "about": {
     "title": "About This Site",
@@ -113,7 +134,8 @@ Detailed component spacing and layout rules remain in `src/styles.css`.
   "pages": {
     "archivesTitle": "Monthly Archives",
     "categoriesTitle": "Categories",
-    "tagsTitle": "Tags"
+    "tagsTitle": "Tags",
+    "searchTitle": "Search Posts"
   },
   "contentDefaults": {
     "category": "Uncategorized"

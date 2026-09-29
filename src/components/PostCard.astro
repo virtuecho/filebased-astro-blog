@@ -12,7 +12,7 @@ const url = postUrl(post);
 const showCategory = post.data.category !== copy.contentDefaults.category;
 ---
 
-<article class="post-card">
+<article class="post-card" data-post-url={url}>
   <div>
     <h2 class="post-card-title"><a href={url}>{post.data.title}</a></h2>
     {

@@ -1,0 +1,266 @@
+---
+import PostCard from '../components/PostCard.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getPosts, postsPerPage } from '../lib';
+import { copy } from '../site.config';
+
+const posts = await getPosts();
+---
+
+<BaseLayout title={copy.pages.searchTitle}>
+  <h1 class="page-title">{copy.pages.searchTitle}</h1>
+  <form id="post-search-form" class="search-form" role="search">
+    <label for="post-search">{copy.search.inputLabel}</label>
+    <div class="search-controls">
+      <input
+        id="post-search"
+        name="q"
+        type="search"
+        placeholder={copy.search.placeholder}
+        autocomplete="off"
+      />
+      <button type="submit">{copy.nav.search}</button>
+    </div>
+  </form>
+  <p
+    id="search-status"
+    class="meta"
+    aria-live="polite"
+    data-help={copy.search.help}
+    data-loading={copy.search.loading}
+    data-no-results={copy.search.noResults}
+    data-results={copy.search.results}
+    data-error={copy.search.error}
+  >
+    {copy.search.help}
+  </p>
+  <div
+    id="search-results"
+    class="search-results"
+    data-page-size={postsPerPage}
+    hidden
+  >
+    {posts.map((post) => <PostCard post={post} />)}
+  </div>
+  <nav
+    id="search-pagination"
+    class="post-pagination"
+    aria-label={copy.labels.pagination}
+    data-first-page={copy.labels.firstPage}
+    data-previous-page={copy.labels.previousPage}
+    data-next-page={copy.labels.nextPage}
+    data-last-page={copy.labels.lastPage}
+    hidden
+  >
+  </nav>
+</BaseLayout>
+
+<script>
+  interface SearchPost {
+    url: string;
+    searchText: string;
+  }
+
+  const form = document.querySelector<HTMLFormElement>('#post-search-form');
+  const input = document.querySelector<HTMLInputElement>('#post-search');
+  const status = document.querySelector<HTMLParagraphElement>('#search-status');
+  const results = document.querySelector<HTMLDivElement>('#search-results');
+  const pagination = document.querySelector<HTMLElement>('#search-pagination');
+  let indexPromise: Promise<SearchPost[]> | undefined;
+  let matchingCards: HTMLElement[] = [];
+  let currentPage = 1;
+  let isComposing = false;
+  let searchTimer: number | undefined;
+  let searchRequest = 0;
+
+  const cards = results
+    ? Array.from(results.querySelectorAll<HTMLElement>('[data-post-url]'))
+    : [];
+  const cardsByUrl = new Map(
+    cards.map((card) => [card.dataset.postUrl ?? '', card]),
+  );
+
+  function loadIndex() {
+    indexPromise ??= fetch('/search-index.json')
+      .then((response) => {
+        if (!response.ok) throw new Error('Search index request failed');
+        return response.json() as Promise<SearchPost[]>;
+      })
+      .catch((error: unknown) => {
+        indexPromise = undefined;
+        throw error;
+      });
+
+    return indexPromise;
+  }
+
+  function setPage(page: number) {
+    currentPage = page;
+    renderPage();
+    results?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function renderPage() {
+    if (!results || !pagination) return;
+
+    const pageSize = Number(results.dataset.pageSize);
+    const totalPages = Math.ceil(matchingCards.length / pageSize);
+    const start = Math.min(
+      Math.max(1, currentPage - 2),
+      Math.max(1, totalPages - 5),
+    );
+    const end = Math.min(totalPages, start + 5);
+    const firstVisibleCard = (currentPage - 1) * pageSize;
+
+    matchingCards.forEach((card, index) => {
+      card.hidden =
+        index < firstVisibleCard || index >= firstVisibleCard + pageSize;
+    });
+    results.hidden = matchingCards.length === 0;
+    pagination.replaceChildren();
+    pagination.hidden = totalPages <= 1;
+    if (totalPages <= 1) return;
+
+    const addControl = (
+      text: string,
+      label: string,
+      page: number,
+      disabled: boolean,
+    ) => {
+      const control = document.createElement(disabled ? 'span' : 'button');
+      control.className = 'page-control';
+      control.setAttribute('aria-label', label);
+      if (disabled) {
+        control.setAttribute('aria-disabled', 'true');
+      } else {
+        (control as HTMLButtonElement).type = 'button';
+        control.addEventListener('click', () => setPage(page));
+      }
+      control.textContent = text;
+      pagination.append(control);
+    };
+
+    const addPageNumber = (page: number) => {
+      if (page === currentPage) {
+        const current = document.createElement('span');
+        current.className = 'page-number is-current';
+        current.setAttribute('aria-current', 'page');
+        current.textContent = String(page);
+        pagination.append(current);
+        return;
+      }
+
+      const number = document.createElement('button');
+      number.type = 'button';
+      number.className = 'page-number';
+      number.textContent = String(page);
+      number.addEventListener('click', () => setPage(page));
+      pagination.append(number);
+    };
+
+    addControl('«', pagination.dataset.firstPage ?? '', 1, currentPage === 1);
+    addControl(
+      '‹',
+      pagination.dataset.previousPage ?? '',
+      currentPage - 1,
+      currentPage === 1,
+    );
+    if (start > 1) {
+      addPageNumber(1);
+      pagination.append('…');
+    }
+    for (let page = start; page <= end; page++) addPageNumber(page);
+    if (end < totalPages) {
+      pagination.append('…');
+      addPageNumber(totalPages);
+    }
+    addControl(
+      '›',
+      pagination.dataset.nextPage ?? '',
+      currentPage + 1,
+      currentPage === totalPages,
+    );
+    addControl(
+      '»',
+      pagination.dataset.lastPage ?? '',
+      totalPages,
+      currentPage === totalPages,
+    );
+  }
+
+  function scheduleSearch() {
+    if (searchTimer !== undefined) window.clearTimeout(searchTimer);
+    const request = ++searchRequest;
+    searchTimer = window.setTimeout(() => {
+      searchTimer = undefined;
+      void searchPosts(request);
+    }, 120);
+  }
+
+  async function searchPosts(request: number) {
+    if (!input || !status || !results) return;
+
+    const query = input.value.trim().toLocaleLowerCase();
+    for (const card of cards) card.hidden = true;
+    results.hidden = true;
+    if (pagination) {
+      pagination.replaceChildren();
+      pagination.hidden = true;
+    }
+
+    if (!query) {
+      matchingCards = [];
+      currentPage = 1;
+      status.textContent = status.dataset.help ?? '';
+      return;
+    }
+
+    status.textContent = status.dataset.loading ?? '';
+
+    try {
+      const terms = query.split(/\s+/);
+      const matches = (await loadIndex()).filter((post) =>
+        terms.every((term) => post.searchText.includes(term)),
+      );
+      if (request !== searchRequest) return;
+      matchingCards = matches
+        .map((post) => cardsByUrl.get(post.url))
+        .filter((card): card is HTMLElement => card !== undefined);
+      currentPage = 1;
+      renderPage();
+
+      status.textContent = matches.length
+        ? (status.dataset.results ?? '').replace(
+            '{count}',
+            String(matches.length),
+          )
+        : (status.dataset.noResults ?? '');
+    } catch {
+      if (request !== searchRequest) return;
+      status.textContent = status.dataset.error ?? '';
+    }
+  }
+
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (!isComposing) {
+      if (searchTimer !== undefined) window.clearTimeout(searchTimer);
+      searchTimer = undefined;
+      void searchPosts(++searchRequest);
+    }
+  });
+  input?.addEventListener('compositionstart', () => {
+    isComposing = true;
+    if (searchTimer !== undefined) window.clearTimeout(searchTimer);
+    searchTimer = undefined;
+    searchRequest++;
+  });
+  input?.addEventListener('compositionend', () => {
+    isComposing = false;
+    scheduleSearch();
+  });
+  input?.addEventListener('input', (event) => {
+    if (isComposing || (event as InputEvent).isComposing) return;
+    scheduleSearch();
+  });
+</script>

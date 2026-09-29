@@ -7,6 +7,7 @@ export async function GET({ site }) {
     '/archives/',
     '/categories/',
     '/tags/',
+    '/search/',
     '/about/',
   ]);
 

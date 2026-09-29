@@ -39,6 +39,16 @@ The build rejects filenames that would produce the same public URL. The homepage
 
 Post listing pages show 10 posts per page, with numbered links to move between pages.
 
+The navigation includes full-text search for the displayed title (the filename
+when no title is set), description, explicit category, tags, and Markdown body.
+Dates and the default `Uncategorized` category are not searched. Matching
+ignores letter case; each space-separated term must appear as a substring, and
+all terms must match. It uses a static index generated during the build; the
+browser downloads that index only when someone uses search. No database or
+search service is required. Search results use the same post cards as the
+homepage and show 10 posts per page with numbered pagination. Search waits
+until IME composition is complete before filtering.
+
 Without frontmatter, the original file name supplies the title. The list shows each note's creation date and sorts newest first.
 
 ## Obsidian Markdown
