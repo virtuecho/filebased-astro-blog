@@ -51,7 +51,7 @@ function getCommittedCreationDates() {
     for (const token of output.split('\0')) {
       const line = token.replace(/^\r?\n/, '');
       if (/^\d{4}-\d{2}-\d{2}T/.test(line)) {
-        date = new Date(line);
+        date = new Date(`${line.slice(0, 10)}T00:00:00.000Z`);
       } else if (date && line.startsWith('posts/') && line.endsWith('.md')) {
         const path = line.replace(/^posts\//, '');
         if (!path.includes('/') && !createdDates.has(path))
@@ -74,7 +74,15 @@ function fileCreationDate(filePath?: string) {
 
   try {
     const created = statSync(filePath).birthtime;
-    return created.getTime() > 0 ? created : undefined;
+    return created.getTime() > 0
+      ? new Date(
+          Date.UTC(
+            created.getFullYear(),
+            created.getMonth(),
+            created.getDate(),
+          ),
+        )
+      : undefined;
   } catch {
     return undefined;
   }
@@ -125,6 +133,7 @@ export function tagUrl(tag: string) {
 export function formatDate(date?: Date) {
   if (!date) return '';
   return new Intl.DateTimeFormat(dateLocale, {
+    timeZone: 'UTC',
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -135,8 +144,8 @@ export function groupByMonth(posts: Awaited<ReturnType<typeof getPosts>>) {
   const map = new Map<string, typeof posts>();
   for (const post of posts) {
     if (!post.data.date) continue;
-    const y = post.data.date.getFullYear();
-    const m = String(post.data.date.getMonth() + 1).padStart(2, '0');
+    const y = post.data.date.getUTCFullYear();
+    const m = String(post.data.date.getUTCMonth() + 1).padStart(2, '0');
     const key = `${y}/${m}`;
     if (!map.has(key)) map.set(key, []);
     map.get(key)!.push(post);
