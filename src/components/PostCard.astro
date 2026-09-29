@@ -1,6 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { formatDate, postUrl, tagUrl } from '../lib';
+import { firstExternalImage, formatDate, postUrl, tagUrl } from '../lib';
 import { copy } from '../site.config';
 
 interface Props {
@@ -10,10 +10,11 @@ interface Props {
 const { post } = Astro.props;
 const url = postUrl(post);
 const showCategory = post.data.category !== copy.contentDefaults.category;
+const image = firstExternalImage(post.body ?? '');
 ---
 
 <article class="post-card" data-post-url={url}>
-  <div>
+  <div class="post-card-content">
     <h2 class="post-card-title"><a href={url}>{post.data.title}</a></h2>
     {
       (post.data.date || showCategory) && (
@@ -46,4 +47,20 @@ const showCategory = post.data.category !== copy.contentDefaults.category;
       }
     </div>
   </div>
+  {
+    image && (
+      <a class="post-card-image-link" href={url}>
+        <img
+          class="post-card-image"
+          src={image.src}
+          alt={image.alt || post.data.title}
+          width="120"
+          height="90"
+          loading="lazy"
+          decoding="async"
+          referrerpolicy="no-referrer"
+        />
+      </a>
+    )
+  }
 </article>

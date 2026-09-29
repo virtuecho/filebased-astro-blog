@@ -126,6 +126,34 @@ export function postUrl(post: { id: string }) {
   return `/posts/${encodeURIComponent(post.id)}/`;
 }
 
+export function firstExternalImage(markdown: string) {
+  const images: { src: string; alt: string; position: number }[] = [];
+
+  for (const match of markdown.matchAll(
+    /!\[([^\]]*)\]\(\s*<?(https?:\/\/(?:[^()\s<>]|\([^()\s<>]*\))*)>?(?:\s+(?:"[^"]*"|'[^']*'))?\s*\)/gi,
+  )) {
+    const alt = match[1];
+    const src = match[2];
+    if (alt !== undefined && src !== undefined) {
+      images.push({ src, alt, position: match.index ?? 0 });
+    }
+  }
+
+  for (const match of markdown.matchAll(/<img\b[^>]*>/gi)) {
+    const src = match[0].match(/\bsrc\s*=\s*(["'])(https?:\/\/.*?)\1/i);
+    if (!src?.[2]) continue;
+
+    const alt = match[0].match(/\balt\s*=\s*(["'])(.*?)\1/i);
+    images.push({
+      src: src[2],
+      alt: alt?.[2] ?? '',
+      position: match.index ?? 0,
+    });
+  }
+
+  return images.sort((a, b) => a.position - b.position)[0];
+}
+
 export function tagUrl(tag: string) {
   return `/tag/${tag.split('/').map(encodeURIComponent).join('/')}/`;
 }
