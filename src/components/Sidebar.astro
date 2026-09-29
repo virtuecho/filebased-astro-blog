@@ -60,8 +60,8 @@ const showAbout = sidebar.aboutTitle || sidebar.aboutText;
       {
         categories.map(([name, count]) => (
           <li>
-            <a href={`/category/${encodeURIComponent(name)}/`}>{name}</a> (
-            {count})
+            <a href={`/category/${encodeURIComponent(name)}/`}>{name}</a>{' '}
+            {`(${count})`}
           </li>
         ))
       }

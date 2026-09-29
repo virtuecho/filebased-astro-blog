@@ -22,8 +22,24 @@ const posts = await getPosts();
 const siteTitle = copy.site.title;
 const fullTitle = title === siteTitle ? siteTitle : `${title} - ${siteTitle}`;
 const theme = siteConfig.theme;
+const colors = theme.colors;
 const t = theme.typography;
 const themeStyle = [
+  `--bg: ${colors.pageBackground}`,
+  `--paper: ${colors.siteBackground}`,
+  `--header-background: ${colors.headerBackground}`,
+  `--text: ${colors.text}`,
+  `--muted: ${colors.mutedText}`,
+  `--line: ${colors.border}`,
+  `--link: ${colors.link}`,
+  `--soft: ${colors.softBackground}`,
+  `--subtle-text: ${colors.subtleText}`,
+  `--code-background: ${colors.codeBackground}`,
+  `--code-text: ${colors.codeText}`,
+  `--highlight-background: ${colors.highlightBackground}`,
+  `--callout-accent: ${colors.calloutAccent}`,
+  `--pagination-active-text: ${colors.paginationActiveText}`,
+  `--max: ${theme.siteMaxWidth}`,
   theme.bodyBackgroundImage
     ? `--body-bg-image: url("${theme.bodyBackgroundImage}")`
     : '',

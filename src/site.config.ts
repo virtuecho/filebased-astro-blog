@@ -25,6 +25,23 @@ type SiteSettings = SiteCopy & {
     headerMinHeight: string;
     headerTextColor: string;
     headerDescriptionColor: string;
+    siteMaxWidth: string;
+    colors: {
+      pageBackground: string;
+      siteBackground: string;
+      headerBackground: string;
+      text: string;
+      mutedText: string;
+      border: string;
+      link: string;
+      softBackground: string;
+      subtleText: string;
+      codeBackground: string;
+      codeText: string;
+      highlightBackground: string;
+      calloutAccent: string;
+      paginationActiveText: string;
+    };
     typography: {
       fontFamily: string;
       baseFontSize: string;

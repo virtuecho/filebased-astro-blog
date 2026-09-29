@@ -12,8 +12,8 @@ const categories = countItems(posts.map((p) => p.data.category));
     {
       categories.map(([name, count]) => (
         <li>
-          <a href={`/category/${encodeURIComponent(name)}/`}>{name}</a> ({count}
-          )
+          <a href={`/category/${encodeURIComponent(name)}/`}>{name}</a>{' '}
+          {`(${count})`}
         </li>
       ))
     }

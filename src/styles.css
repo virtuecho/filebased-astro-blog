@@ -1,16 +1,5 @@
 @import 'katex/dist/katex.min.css';
 
-:root {
-  --bg: #eeeeee;
-  --paper: #ffffff;
-  --text: #222222;
-  --muted: #777777;
-  --line: #d8d8d8;
-  --link: #0645ad;
-  --soft: #f7f7f7;
-  --max: 1120px;
-}
-
 * {
   box-sizing: border-box;
 }
@@ -93,7 +82,7 @@ img {
   padding: 24px 32px 18px;
   min-height: var(--header-min-height, auto);
   border-bottom: 1px solid var(--line);
-  background-color: #fff;
+  background-color: var(--header-background);
   background-image: var(--header-bg-image, none);
   background-size: cover;
   background-position: center;
@@ -191,7 +180,7 @@ img {
 
 .excerpt {
   margin: 8px 0 0;
-  color: #444;
+  color: var(--subtle-text);
 }
 
 .article-title {
@@ -226,8 +215,8 @@ img {
   padding: 1em;
   border: 1px solid var(--line);
   border-radius: 4px;
-  background: #f6f8fa !important;
-  color: #1f2328 !important;
+  background: var(--code-background) !important;
+  color: var(--code-text) !important;
 }
 
 .article-body pre.mermaid {
@@ -242,7 +231,7 @@ img {
 }
 
 .article-body mark {
-  background: #fff1a8;
+  background: var(--highlight-background);
   color: inherit;
 }
 
@@ -254,7 +243,7 @@ img {
 .article-body .callout {
   margin: 1.25em 0;
   padding: 0.75em 1em;
-  border-left: 4px solid #8a9bb0;
+  border-left: 4px solid var(--callout-accent);
   background: var(--soft);
 }
 
@@ -314,7 +303,7 @@ details.callout > summary {
   padding: 2px 8px;
   border: 1px solid var(--line);
   background: var(--soft);
-  color: #444;
+  color: var(--subtle-text);
   font-size: 13px;
 }
 
@@ -357,7 +346,7 @@ details.callout > summary {
 .post-pagination .is-current {
   border-color: var(--link);
   background: var(--link);
-  color: #fff;
+  color: var(--pagination-active-text);
 }
 
 .post-pagination [aria-disabled='true'] {

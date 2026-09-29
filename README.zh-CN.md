@@ -61,8 +61,15 @@ Astro 支持标准 Markdown 和 GitHub Flavored Markdown。本项目额外支持
 日常发布文章时，只需要操作 `posts/`。添加或编辑文章不需要改动项目里的其他文件。
 
 网站界面目前只有英文。要修改界面标签、描述、主题或字体，请编辑
-`INTERFACE.md` 中标记的 JSON 代码块。该代码块中的值同时是当前设置和模板默认值。
-标准 JSON 不支持注释；说明文字可以写在代码块外，解析器会忽略代码块外的 Markdown 和 HTML 注释。
+`INTERFACE.md` 中标记的 JSON 代码块。该代码块中的值同时是当前设置和模板默认值；
+每项主题设置的说明也写在 `INTERFACE.md` 中。主要选项包括：
+
+- `theme.colors` 控制页面背景、网站画布、页头、文字、链接、边框、代码块、高亮、提示框和翻页按钮的颜色。
+- `theme.siteMaxWidth` 和 `theme.headerMinHeight` 分别控制网站最大宽度和页头最小高度。
+- `theme.typography` 控制正文、标题和代码字体，以及字号、行距和标题字重。字体列表只会使用访客设备上已有的字体，不会下载字体。
+- 本地背景图放在 `public/images/site/`，并在设置中填写网站路径，例如 `/images/site/header.webp`。`INTERFACE.md` 中的 `example-*.webp` 是占位路径，需要替换；否则浏览器会请求不存在的图片。
+
+设置区块使用标准 JSON，不支持注释。区块外的 Markdown 用于解释设置，构建时会忽略。
 
 ## 本地预览
 

@@ -63,8 +63,23 @@ template internals and do not need changes to add or edit articles.
 
 The website interface is English-only. To change its labels, descriptions,
 theme, or typography, edit the marked JSON code block in `INTERFACE.md`. The
-values in that block are the active settings and defaults. Standard JSON does
-not support comments; write explanations in the surrounding Markdown instead.
+values in that block are the active settings and defaults. The guide in
+`INTERFACE.md` explains each theme setting. In brief:
+
+- `theme.colors` controls the page, site canvas, header, text, links, borders,
+  code blocks, highlights, callouts, and pagination colors.
+- `theme.siteMaxWidth` and `theme.headerMinHeight` control the site's maximum
+  width and the header's minimum height.
+- `theme.typography` controls body, heading, and code fonts, font size, line
+  spacing, and heading weight. Font lists are fallbacks to fonts already
+  available on the visitor's device; they are not downloaded.
+- For local background images, add files under `public/images/site/` and use
+  their site paths, such as `/images/site/header.webp`. The `example-*.webp`
+  paths in `INTERFACE.md` are placeholders and must be replaced; otherwise the
+  browser requests missing images.
+
+The settings block is standard JSON and does not support comments. Its
+surrounding Markdown explains the settings and is ignored by the build.
 
 ## Local Development
 
