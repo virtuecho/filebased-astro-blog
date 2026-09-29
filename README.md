@@ -49,6 +49,19 @@ search service is required. Search results use the same post cards as the
 homepage and show 10 posts per page with numbered pagination. Search waits
 until IME composition is complete before filtering.
 
+Post cards show the first external Markdown or HTML image on the right, cropped
+to a 120 × 90 thumbnail (96 × 72 on narrower screens). Local images are
+ignored, and images load directly from their original host.
+
+An image counts as external when its URL starts with `http://` or `https://`.
+Supported forms are inline Markdown images such as
+`![alt](https://example.com/image.jpg)` (including an optional title or
+angle-bracket URL) and HTML `<img>` elements with a quoted `src`. The first
+matching image in the Markdown source is used; relative paths are skipped.
+Reference-style Markdown images such as `![alt][ref]` are not resolved. The
+scanner does not ignore image-like syntax in code, or check whether a URL is
+reachable or actually returns an image.
+
 Without frontmatter, the original file name supplies the title. The list shows each note's creation date and sorts newest first.
 
 ## Obsidian Markdown
