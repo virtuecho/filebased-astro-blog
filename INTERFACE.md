@@ -9,7 +9,6 @@ nav:
   categories: Categories
   tags: Tags
   about: About
-  rss: RSS
 home:
   title: Latest Posts
   empty: No posts yet.
@@ -17,7 +16,7 @@ about:
   title: About This Site
   paragraphs:
     - A static blog generated from Obsidian-friendly Markdown files.
-    - Astro turns each note into a public page and builds the archives, categories, tags, RSS feed, and sitemap.
+    - Astro turns each note into a public page and builds the archives, categories, tags, and sitemap.
   principlesTitle: Design Principles
   principles:
     - Portable Markdown content
@@ -68,7 +67,6 @@ nav:
   categories: Categories
   tags: Tags
   about: About
-  rss: RSS
 home:
   title: Latest Posts
   empty: No posts yet.
@@ -76,7 +74,7 @@ about:
   title: About This Site
   paragraphs:
     - A static blog generated from Obsidian-friendly Markdown files.
-    - Astro turns each note into a public page and builds the archives, categories, tags, RSS feed, and sitemap.
+    - Astro turns each note into a public page and builds the archives, categories, tags, and sitemap.
   principlesTitle: Design Principles
   principles:
     - Portable Markdown content

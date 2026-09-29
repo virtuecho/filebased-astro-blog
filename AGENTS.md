@@ -129,5 +129,4 @@ it:
 
 - `.config/astro.config.mjs`
 - `.mjs` scripts in `scripts/`
-- `src/pages/rss.xml.js`
 - `src/pages/sitemap.xml.js`

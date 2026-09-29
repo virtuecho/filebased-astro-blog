@@ -18,7 +18,6 @@
   },
   "dependencies": {
     "@astrojs/check": "latest",
-    "@astrojs/rss": "latest",
     "@quartz-community/remark-obsidian": "^1.1.0",
     "astro": "latest",
     "github-slugger": "^2.0.0",
